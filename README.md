@@ -2,7 +2,7 @@
 ### A Universal Constraint Governing Collapse, Identity, and the Emergence of Existence  
 **Author:** Kingsley Nkrumah  
 **Version:** 1.0.0  
-**License:** CC BY-NC 4.0  
+**License:** All Rights Reserved (Pending Peer Review)
 
 ---
 
@@ -103,8 +103,8 @@ If you use this work, please cite:
 
 ## License
 
-This project is released under **CC BY-NC 4.0**.  
-You may share and adapt the work with attribution, but not for commercial use.
+This project is released under **All Rights Reserved**.  
+
 
 ---
 
