@@ -3,7 +3,25 @@
 **Author:** Kingsley Nkrumah  
 **Version:** 1.0.0  
 **License:** All Rights Reserved (Pending Peer Review)
+NOTICE
 
+This repository contains the Pre‑Review Manuscript for the Back‑End Law, the
+Foundational Object (FO‑V1.0), the Verification Protocol Object (VPO‑V1.0),
+and the AST‑450 Audit Archive.
+
+All materials in this repository are protected under copyright by Kingsley
+Nkrumah (2026). No adaptation, transformation, remixing, or derivative use
+of any component of this framework is permitted until the formal peer‑review
+process is completed and the final version is released.
+
+Permission is granted to download and read the materials solely for the
+purpose of independent scientific evaluation, verification, and peer review.
+
+Any scientific use, quotation, or citation must be coordinated with the
+author until peer review is complete.
+
+A Creative Commons license (CC BY‑NC 4.0) will be applied only after the
+peer‑reviewed version is formally released.
 ---
 
 ## Overview
