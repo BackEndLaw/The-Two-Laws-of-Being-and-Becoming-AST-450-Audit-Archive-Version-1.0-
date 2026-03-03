@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it using the metadata below."
+title: "The Back-End Law: A Universal Constraint Governing Collapse, Identity, and the Emergence of Existence"
+authors:
+  - family-names: "Nkrumah"
+    given-names: "Kingsley"
+    affiliation: "Independent Researcher"
+version: "1.0.0"
+doi: "10.5281/zenodo.18843795"
+date-released: "2026-03-03"
+url: "https://github.com"
+abstract: >
+  This repository contains the full LaTeX manuscript, Foundational Object (FO V1.0),
+  Verification Protocol Object (VPO V1.0), and the complete AST-450 audit archive
+  for the Back-End Law. The Back-End Law is a universal structural mechanism governing
+  collapse, identity continuity, irreversibility, and the emergence of stable reality
+  across substrates.
+keywords:
+  - Back-End Law
+  - FO V1.0
+  - VPO V1.0
+  - AST-450
+  - collapse
+  - identity invariants
+  - irreversibility
+  - substrate independence
+  - Gate mechanism
+  - unified physics
+  - cognitive collapse
+  - information theory
+CITATION.cff for scientific indexing
