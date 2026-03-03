@@ -1,0 +1,60 @@
+{
+  "title": "The Back-End Law: A Universal Constraint Governing Collapse, Identity, and the Emergence of Existence",
+  "upload_type": "publication",
+  "publication_type": "article",
+  "description": "This repository contains the full LaTeX manuscript, Foundational Object (FO V1.0), Verification Protocol Object (VPO V1.0), and the complete AST-450 audit archive for the Back-End Law. The Back-End Law is a universal structural mechanism governing collapse, identity continuity, irreversibility, and the emergence of stable reality across substrates. The repository includes the formal mathematical framework, empirical pathways, cross-domain mappings, and the 450-audit verification record demonstrating structural stability, falsifiability, and cross-domain coherence.",
+  "creators": [
+    {
+      "name": "Nkrumah, Kingsley",
+      "affiliation": "Independent Researcher"
+    }
+  ],
+  "keywords": [
+    "Back-End Law",
+    "Foundational Object",
+    "FO V1.0",
+    "Verification Protocol Object",
+    "VPO V1.0",
+    "AST-450",
+    "collapse",
+    "identity invariants",
+    "irreversibility",
+    "substrate independence",
+    "Gate mechanism",
+    "unified physics",
+    "cognitive collapse",
+    "information theory",
+    "structural law"
+  ],
+  "license": "cc-by-nc-4.0",
+  "access_right": "open",
+  "notes": "This deposit includes the complete LaTeX source (main.tex), the FO V1.0 raw object, the VPO V1.0, the AST-450 audit index, and all supporting documentation. Raw audit logs are included as plain-text files for transparency and long-term preservation.",
+  "related_identifiers": [
+    {
+      "identifier": "The-Two-Laws-of-Being-and-Becoming-AST-450-Audit-Archive-Version-1.0-)",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ],
+  "communities": [
+    {
+      "identifier": "open-science"
+    }
+  ],
+  "version": "1.0.0",
+  "language": "en",
+  "subjects": [
+    {
+      "term": "Physics",
+      "identifier": "physics"
+    },
+    {
+      "term": "Cognitive Science",
+      "identifier": "cogsci"
+    },
+    {
+      "term": "Information Theory",
+      "identifier": "infotheory"
+    }
+  ]
+}
