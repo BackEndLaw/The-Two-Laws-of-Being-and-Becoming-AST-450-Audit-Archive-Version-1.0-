@@ -72,4 +72,58 @@ All audits passed with no contradictions.
 
 ---
 
+---
+
+## Scientific Motivation
+
+The Back-End Law addresses a universal pattern:
+
+> Collapse is structural, identity-preserving, and irreversible across all substrates.
+
+This framework explains:
+- quantum measurement  
+- black hole filtration  
+- the arrow of time  
+- cognitive collapse and reorganization  
+- identity transitions in humans and AI  
+- thermodynamic asymmetry  
+- information stability  
+
+The law is upstream of physics, cognition, and computation.
+
+---
+
+## Citation
+
+If you use this work, please cite:
+
+**Nkrumah, K. (2026). *The Back-End Law: A Universal Constraint Governing Collapse, Identity, and the Emergence of Existence*. Zenodo. DOI: 10.5281/zenodo.18843795**
+
+---
+
+## License
+
+This project is released under **CC BY-NC 4.0**.  
+You may share and adapt the work with attribution, but not for commercial use.
+
+---
+
+## Contact
+
+For scientific correspondence or collaboration inquiries:  
+**Kingsley Nkrumah** — Independent Researcher
+
+---
+
+## Purpose of This Repository
+
+This repository serves as:
+- a public scientific record  
+- a preservation mechanism  
+- a reproducible verification archive  
+- a foundation for future research in physics, cognition, and information theory  
+
+The Back-End Law is designed to survive institutions, time, and substrate changes.
+
+
 ## Repository Structure
