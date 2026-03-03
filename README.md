@@ -88,6 +88,24 @@ Audit categories include:
 
 All audits passed with no contradictions.
 
+Copyright (c) 2026
+Kingsley Nkrumah
+All Rights Reserved.
+
+This repository contains the Pre‑Review Manuscript for the Back‑End Law and
+the AST‑450 Audit Archive. All text, figures, structures, definitions,
+mathematical objects, and audit materials are protected under copyright.
+
+No part of this framework — including FO‑V1.0, VPO‑V1.0, the AST‑450 Audit
+Index, or any associated documentation — may be reproduced, adapted,
+transformed, or incorporated into derivative works until the formal
+peer‑review process is completed.
+
+Limited permission is granted to download and read the materials for the
+purpose of independent verification and peer review only.
+
+All other rights are reserved.
+
 ---
 
 ---
