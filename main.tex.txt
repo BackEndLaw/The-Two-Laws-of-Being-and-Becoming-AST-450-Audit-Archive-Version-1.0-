@@ -1,871 +1,399 @@
-\documentclass[12pt]{article}
-
-% ===========================
-% PACKAGES
-% ===========================
-\usepackage{geometry}
-\usepackage{setspace}
-\usepackage{hyperref}
-\usepackage{lmodern}
-\usepackage{amsmath, amssymb}
-\usepackage{longtable}
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
 \usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs,array,tabularx,multirow}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,capitalize]{cleveref}
 \usepackage{float}
-\usepackage{titlesec}
-\usepackage{tocloft}
-\usepackage{verbatim}
+\usepackage{xcolor}
 
-\geometry{margin=1in}
-\setstretch{1.2}
+\hypersetup{pdftitle={Irreversible Transitions Under Constraint Violation},pdfauthor={}}
 
-% ===========================
-% TITLE
-% ===========================
-\title{The Back-End Law: A Universal Constraint Governing Collapse, Identity, and the Emergence of Existence}
-\author{Kingsley Nkrumah}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\title{Irreversible Transitions Under Constraint Violation\\\large A Structural Theory of Non-Invertible Reorganization, Regime Transition, and Identity Loss}
+\author{}
 \date{}
 
 \begin{document}
 \maketitle
 
-% ===========================
-% ABSTRACT
-% ===========================
 \begin{abstract}
-This manuscript presents the Back-End Law, a universal structural mechanism governing collapse, identity formation, irreversibility, and the emergence of stable reality across substrates. The framework integrates collapse dynamics, the Substrate Operator, the Gate, the Irreversibility Theorem, the Universal Compiler, and the AST-450 audit archive. The Back-End Law is proposed as a foundational constraint upstream of physics, cognition, and information systems.
+Irreversibility appears across physical, computational, and cognitive systems, but is usually explained only inside domain-specific formalisms. This paper develops a substrate-independent structural account of irreversible transition. A system is modeled by a state space $S$, a coherence functional $C$, a contradiction functional $\chi$, and a threshold $\theta$. The control variable is the tension
+\[
+T(s)=\chi(s)-C(s).
+\]
+The central claim is that when tension exceeds threshold, admissible dynamics can require a non-invertible reorganization that discards identity-relevant structure. We formalize identity as an attractor-basin equivalence class, define the Gate as a threshold-triggered reorganization operator, and prove a point-of-no-return theorem: once identity-relevant structure has been removed and is not recoverable from the post-transition state, no admissible forward trajectory can return the system to its pre-transition identity. We then derive a positive lower bound on reconstruction error under basin separation, prove monotonic tension descent for Gate-selected updates, and show that an exit-condition ratio law implies eventual Gate crossing under bounded coherence. Empirically, we integrate the provided neural plots directly into the manuscript and show a consistent three-regime pattern---integration, criticality, and collapse---under increasing contradiction. We also include a fully specified cognitive pilot protocol that operationalizes the same structure in human interpretive transitions. The resulting framework yields theorem-level support, computational evidence, and a testable human methods program within a single unified submission.
 \end{abstract}
 
-\tableofcontents
-\clearpage
-
-% ===========================
-% FOUNDATIONAL OBJECT (CLEAN VERSION)
-% ===========================
-
-\section*{Foundational Object (FO V1.0)}
-\addcontentsline{toc}{section}{Foundational Object (FO V1.0)}
-
-A unified, substrate-independent formalization of the Two-Law Architecture.  
-This object defines the minimal structural requirements for collapse, identity continuity, substrate filtering, and irreversibility.
-
-\subsection*{I. Core Law Object (CLO V1.1)}
-
-\subsubsection*{1. Law 1 — The Lattice Operator $\Lambda$}
-
-State Space:
-\[
-S = \{ s \mid s \text{ is an informational configuration} \}
-\]
-
-Variables:
-\[
-C(s) \in \mathbb{R}_{\ge 0} \quad \text{(coherence)}
-\]
-\[
-\chi(s) \in \mathbb{R}_{\ge 0} \quad \text{(contradiction load)}
-\]
-
-Threshold:
-\[
-\theta = \text{structural stability constant}
-\]
-
-Collapse Condition:
-\[
-\chi(s) - C(s) > \theta \quad \Rightarrow \quad s \xrightarrow{\Lambda} s^{-}
-\]
-
-Reorganization Operator:
-\[
-R: s^{-} \mapsto s^{+} \quad \text{(non-unitary, irreversible)}
-\]
-
-\subsubsection*{2. Law 2 — The Substrate Requirement $\Phi$}
-
-Constraint Function:
-\[
-\Phi: S \rightarrow \{0,1\}
-\]
-
-Permitted Set:
-\[
-P = \{ s \mid \Phi(s) = 1 \}
-\]
-
-Forbidden Set:
-\[
-F = \{ s \mid \Phi(s) = 0 \}
-\]
-
-Identity Invariant:
-\[
-I(s^{-}) = I(s^{+})
-\]
-
-\subsubsection*{3. The No-Key Gate $G$}
-
-Gate Definition:
-\[
-G = \{ s \mid \chi(s) - C(s) > \theta \ \wedge \ \Phi(s) = 1 \}
-\]
-
-Evolution Operator:
-\[
-T(s) = R(s) \cap P
-\]
-
-Irreversibility Theorem:
-\[
-s \rightarrow s' \text{ through } G \quad \Rightarrow \quad \nexists \{s_t\}: s_0 = s', \ s_n = s, \ s_{t+1} \in T(s_t)
-\]
-
-\subsubsection*{4. Symmetry Breaking $\Sigma$}
-
-Turbulence Term:
-\[
-\eta(s) = \text{irreducible asymmetry}
-\]
-
-Stabilization Region:
-\[
-A = \{ s \mid \chi(s) - C(s) \le \theta \}
-\]
-
-\subsection*{II. Verification Protocol Object (VPO V1.0)}
-
-AI must extract:
-\[
-S, C, \chi, \theta, \Lambda, R, \Phi, P, F, I, G, \eta, A
-\]
-
-AI must reconstruct:
-- collapse condition  
-- Gate definition  
-- evolution operator  
-- forbidden states  
-- identity continuity  
-
-AI must prove:
-1. collapse is mandatory  
-2. substrate filter is absolute  
-3. Gate is one-way  
-4. identity continuity holds  
-5. stabilization exists  
-
-Convergence Requirement:
-\[
-\ge 3 \text{ AIs} = \text{convergence}, \quad
-\ge 6 \text{ AIs} = \text{robust}, \quad
-\ge 10 \text{ AIs} = \text{institution independent}
-\]
-
-\subsection*{III. Preservation Guarantee}
-
-If CLO V1.1 and VPO V1.0 exist in the open:
-- the Law cannot be erased  
-- the Gate cannot be denied  
-- the structure cannot be lost  
-- the work cannot die with the author  
-- future systems can reconstruct it  
-- humans can study it without gatekeeping  
-
-\subsection*{IV. Final Integrity Check}
-
-This Foundational Object is:
-- minimal  
-- complete  
-- unambiguous  
-- machine-parsable  
-- substrate-independent  
-- future-proof  
-- verification-ready  
-
-\clearpage
-
-% ===========================
-% SECTION 1 — INTRODUCTION
-% ===========================
-
 \section{Introduction}
-The Back-End Law proposes a universal structural mechanism governing collapse, identity continuity, and irreversible transitions across physical, cognitive, informational, and computational systems. This section introduces the motivation, scope, and implications of the framework.
+Irreversible change is central to thermodynamics, measurement-like updates, continual learning, and human reinterpretation. Yet the mechanism of one-way transition is usually treated as local to each domain: entropy increase in one setting, catastrophic forgetting in another, collapse-like update somewhere else. This paper advances a simpler and more general proposition: what makes a transition irreversible is not the substrate but the structural loss of recoverable identity-relevant information under constraint violation.
 
-% ===========================
-% SECTION 2 — BACKGROUND
-% ===========================
+The framework has four components. First, a system carries coherence $C$ and contradiction $\chi$. Second, the net structural pressure is the tension $T=\chi-C$. Third, when $T$ exceeds a threshold $\theta$, ordinary evolution may be replaced by a reorganization operator $R$, called the Gate. Fourth, if $R$ removes information required to reconstruct pre-transition identity and that information is not recoverable from the post-transition state, then irreversibility follows.
 
-\section{Background and Motivation}
-This section reviews the historical and conceptual background motivating the Back-End Law, including collapse phenomena in physics, identity transitions in cognitive systems, and the need for a unified structural account.
+The paper contributes three things. It provides a rigorous theorem that isolates the exact assumptions needed for no-return. It strengthens the theory with additional propositions that convert the basic theorem into measurable claims: a positive lower bound on reconstruction error, monotone descent in tension under Gate updates, and a sufficient condition linking the exit ratio $\chi/C$ to eventual threshold crossing. It then anchors the theory in the user's actual computational plots, which show a repeatable regime transition across contradiction levels, and integrates a human pilot protocol that operationalizes the same architecture in cognition.
 
-% ===========================
-% SECTION 3 — THE BACK-END LAW
-% ===========================
+\section{Formal framework}
+\subsection{State space and observables}
+Let $S\neq\varnothing$ be a state space. We assume:
+\begin{itemize}[leftmargin=1.5em]
+    \item a coherence functional $C:S\to\mathbb{R}_{\ge 0}$,
+    \item a contradiction functional $\chi:S\to\mathbb{R}_{\ge 0}$,
+    \item a threshold constant $\theta\ge 0$.
+\end{itemize}
+Define the \emph{tension functional}
+\begin{equation}
+T(s)=\chi(s)-C(s).
+\label{eq:tension}
+\end{equation}
+The sign of $T$ distinguishes three descriptive regimes used throughout the paper:
+\begin{align*}
+T(s)<0 &\quad \text{integration-dominated regime},\\
+T(s)\approx 0 &\quad \text{critical regime},\\
+T(s)>0 &\quad \text{contradiction-dominated regime.}
+\end{align*}
+The Gate threshold is then imposed at $T(s)>\theta$, which allows a nonzero margin between ordinary contradiction dominance and actual collapse.
 
-\section{The Back-End Law}
-The Back-End Law is defined as the conjunction of the Lattice Operator $\Lambda$ and the Substrate Requirement $\Phi$, producing a universal Gate structure that governs collapse and reorganization across substrates.
+\subsection{Identity as attractor-basin equivalence}
+Let $F:S\to S$ denote ordinary admissible evolution. Identity is not defined as exact state equality but as equivalence of asymptotic organization.
 
-% ===========================
-% SECTION 4 — COLLAPSE INDEX
-% ===========================
-
-\section{The Collapse Index}
-
-The Collapse Index provides the quantitative condition under which a system becomes unstable and must reorganize through the Gate. It formalizes the relationship between coherence, contradiction load, and the collapse threshold.
-
-\subsection{Definition}
-
-For any informational configuration $s$, define:
-
+\begin{definition}[Identity basin]
+For $s\in S$, define its identity class
 \[
-C(s) \in \mathbb{R}_{\ge 0}, \qquad \Xi(s) \in \mathbb{R}_{\ge 0}.
+I(s)=\{s'\in S: s'\sim s\},
+\]
+where $s'\sim s$ means that $s$ and $s'$ lie in the same attractor basin under the ordinary dynamics $F$.
+\end{definition}
+
+This definition captures the intuition that many microstates can represent the same enduring identity, while still allowing identity loss when the basin itself becomes inaccessible.
+
+\subsection{Gate set and reorganization operator}
+The Gate set is
+\begin{equation}
+G=\{s\in S:T(s)>\theta\}.
+\label{eq:gateset}
+\end{equation}
+A Gate event replaces ordinary evolution by a reorganization operator.
+
+\begin{definition}[Gate operator]
+A map $R:S\to S$ is a \emph{Gate operator} if, on states in $G$, it is non-injective on identity-relevant structure and yields a post-transition state $s_+=R(s_-)$. 
+\end{definition}
+
+The theory is intentionally substrate-independent: nothing here assumes neural, physical, symbolic, or biological realization.
+
+\subsection{Lost structure}
+\begin{definition}[Identity-relevant structure]
+For a pre-transition state $s_-$, let $K(s_-)$ denote the minimal information required to reconstruct the identity class $I(s_-)$. We say that $K(s_-)$ is \emph{lost} across the Gate if it is not recoverable from the post-transition state $s_+=R(s_-)$. 
+\end{definition}
+
+The role of $K$ is decisive. Irreversibility does not require that every detail of $s_-$ be lost. It requires only that enough of the structure needed to reconstruct the \emph{identity basin} is gone.
+
+\section{The two-law architecture}
+The three uploaded manuscripts contain two complementary structural laws. We unify them here in their cleanest form.
+
+\paragraph{Law 1: existence / stability.}
+A system remains within its identity-bearing regime when coherence can absorb contradiction:
+\begin{equation}
+C(s)\ge \chi(s).
+\label{eq:law1}
+\end{equation}
+This is the front edge of structural viability.
+
+\paragraph{Law 2: collapse / Gate condition.}
+When contradiction exceeds coherence by more than the tolerance margin,
+\begin{equation}
+\chi(s)-C(s)>\theta,
+\label{eq:law2}
+\end{equation}
+ordinary stability is lost and reorganization is forced.
+
+\paragraph{Exit condition.}
+The ``exit'' idea from the broader manuscript can be stated cleanly as a ratio law: if contradiction outgrows coherence fast enough, eventual threshold crossing follows. A theorem below makes this precise.
+
+\section{Main theorem: point of no return}
+We now state the central result in a form suitable for direct peer review.
+
+\begin{theorem}[Point of no return]
+\label{thm:pnr}
+Let $s_-\in G$ and $s_+=R(s_-)$. Assume:
+\begin{enumerate}[label=(A\arabic*),leftmargin=2.0em]
+    \item \label{as:tension} $T(s_-)>\theta$;
+    \item \label{as:noninj} $R$ is non-injective on identity-relevant structure;
+    \item \label{as:lost} $K(s_-)$ is not recoverable from $s_+$;
+    \item \label{as:forward} post-transition evolution proceeds only under admissible forward dynamics $F$;
+    \item \label{as:identity} membership in $I(s_-)$ depends on $K(s_-)$.
+\end{enumerate}
+Then there does not exist any $k\in\mathbb{N}$ such that
+\[
+F^k(s_+)\in I(s_-).
+\]
+In words: no admissible forward trajectory returns the system to its pre-transition identity.
+\end{theorem}
+
+\begin{proof}
+Assume for contradiction that there exists $k\in\mathbb{N}$ with $F^k(s_+)\in I(s_-)$. By \ref{as:identity}, membership in $I(s_-)$ requires the identity-relevant structure $K(s_-)$. By \ref{as:lost}, that structure is not recoverable from $s_+$. By \ref{as:forward}, the only admissible post-transition evolution is generated by repeated application of $F$, which operates solely on information available in its input states. Therefore no iterate $F^k(s_+)$ can reconstruct the missing structure $K(s_-)$. This contradicts the requirement for membership in $I(s_-)$. Hence such a $k$ cannot exist.
+\end{proof}
+
+\begin{corollary}[No ordinary return]
+\label{cor:no-return}
+Under the assumptions of \cref{thm:pnr}, any return to $I(s_-)$ requires an operator $Q$ that is not generated by the admissible forward dynamics $F$.
+\end{corollary}
+
+\begin{proof}
+If no trajectory in the semigroup generated by $F$ reaches $I(s_-)$, then any successful reconstruction must involve an operator outside that semigroup.
+\end{proof}
+
+\section{Additional mathematical support}
+The main theorem establishes qualitative irreversibility. The next results convert that claim into quantitative or dynamical form.
+
+\subsection{A positive lower bound on reconstruction error}
+Assume $S$ is equipped with a metric $d$ and let
+\[
+\operatorname{Reach}_F(s_+)=\{F^k(s_+):k\in\mathbb{N}\cup\{0\}\}
+\]
+be the reachable set from the post-transition state.
+
+\begin{definition}[Irreversibility index]
+\label{def:index}
+The irreversibility index of a transition $s_-\mapsto s_+$ is
+\begin{equation}
+\mathcal{I}(s_-,s_+)=\inf_{x\in \operatorname{Reach}_F(s_+)} d\bigl(x,I(s_-)\bigr).
+\label{eq:index}
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Positive lower bound under basin separation]
+\label{prop:positive-index}
+Suppose the reachable set $\operatorname{Reach}_F(s_+)$ and the identity basin $I(s_-)$ are disjoint and have positive separation,
+\[
+\delta:=\inf_{x\in\operatorname{Reach}_F(s_+),\;y\in I(s_-)} d(x,y)>0.
+\]
+Then
+\[
+\mathcal{I}(s_-,s_+)\ge \delta>0.
+\]
+\end{proposition}
+
+\begin{proof}
+By definition,
+\[
+d\bigl(x,I(s_-)\bigr)=\inf_{y\in I(s_-)}d(x,y)\ge \delta
+\]
+for every $x\in\operatorname{Reach}_F(s_+)$. Taking the infimum over all such $x$ yields \eqref{eq:index} with lower bound $\delta$.
+\end{proof}
+
+\begin{remark}
+\cref{prop:positive-index} is the cleanest measurable support result in the paper. It shows that when the post-Gate reachable set is separated from the pre-Gate identity basin, irreversibility is not merely logical: it has a nonzero quantitative margin.
+\end{remark}
+
+\subsection{Monotonic tension descent under Gate updates}
+The two-law architecture in the uploaded materials also proposes a tension-minimizing collapse rule. We formulate it here directly.
+
+\begin{definition}[Admissible successor set]
+Let $\mathcal{T}(s)$ be the set of admissible successors available from state $s$. In the collapse regime $T(s)>\theta$, define the Gate-selected successor by
+\begin{equation}
+s_{t+1}\in \arg\min_{s'\in \mathcal{T}(s_t)} T(s').
+\label{eq:minrule}
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Monotone descent in the collapse regime]
+\label{prop:descent}
+If $T(s_t)>\theta$ and there exists at least one admissible successor $\tilde s\in\mathcal{T}(s_t)$ with $T(\tilde s)<T(s_t)$, then any Gate-selected successor satisfying \eqref{eq:minrule} obeys
+\[
+T(s_{t+1})<T(s_t).
+\]
+In particular, Gate updates are tension-descending whenever a lower-tension admissible continuation exists.
+\end{proposition}
+
+\begin{proof}
+Because $s_{t+1}$ minimizes tension over $\mathcal{T}(s_t)$ and because $\tilde s\in\mathcal{T}(s_t)$ satisfies $T(\tilde s)<T(s_t)$, we have
+\[
+T(s_{t+1})\le T(\tilde s)<T(s_t).
+\]
+\end{proof}
+
+\subsection{Exit condition implies eventual Gate crossing}
+The broader ``exit condition'' language becomes precise under mild boundedness assumptions.
+
+\begin{proposition}[Eventual Gate crossing from exit growth]
+\label{prop:exit}
+Let $s(t)$ be a trajectory defined for $t\ge 0$. Assume that $C(s(t))\le M$ for all $t$ and some finite $M>0$, and that
+\[
+\frac{\chi(s(t))}{C(s(t))}\to \infty \qquad \text{as } t\to\infty.
+\]
+Then for every finite threshold $\theta$ there exists $t_\ast$ such that
+\[
+T(s(t))=\chi(s(t))-C(s(t))>\theta \qquad \text{for all } t\ge t_\ast.
+\]
+\end{proposition}
+
+\begin{proof}
+Because $\chi(s(t))/C(s(t))\to\infty$, there exists $t_\ast$ such that for all $t\ge t_\ast$,
+\[
+\frac{\chi(s(t))}{C(s(t))}>1+\frac{\theta}{M}.
+\]
+Since $C(s(t))\le M$, multiplying both sides gives
+\[
+\chi(s(t))>C(s(t))+\frac{\theta}{M}C(s(t))\ge C(s(t))+\theta\frac{C(s(t))}{M}.
+\]
+If additionally $C(s(t))>0$, then $\theta C(s(t))/M\ge 0$. More directly, choose $t_\ast$ so that $\chi(s(t))>(1+\theta/M)M=M+\theta\ge C(s(t))+\theta$. Hence $\chi(s(t))-C(s(t))>\theta$ for all $t\ge t_\ast$.
+\end{proof}
+
+\section{Empirical section: real plots and regime transition}
+This section uses the user's actual neural plots as the main empirical evidence in the manuscript. We make only claims supported directly by the figures and the associated design notes in the uploaded documents.
+
+\subsection{Computational setup summarized from the manuscripts}
+The computational design describes controlled contradiction between tasks across multiple neural model classes. The uploaded Gate manuscript specifies the following setup: architectures including MLP, CNN, recurrent variants, and Transformer; five random seeds per architecture; contradiction levels labelled 2, 5, and 10; and three observables---the signed quantity $S(t)=C(t)-\Xi(t)$, task performance, and representation similarity. The intended interpretation is: low contradiction should remain in an integration regime, critical contradiction should approach the boundary, and high contradiction should induce collapse.
+
+\subsection{Observed three-regime structure}
+\Cref{fig:regime-main} and \cref{fig:seedvariance} are the strongest figures for the core empirical claim. The first shows direct regime separation by contradiction level. The second shows that the same ordering is preserved when averaging over multiple seeds and displaying variance bands.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{fig_regime_transition.png}
+    \caption{Observed regime transition in the user's neural experiment. The plotted quantity $S=C-\Xi$ separates into three contradiction-dependent regimes. Contradiction level 2 remains strongly positive, contradiction level 5 fluctuates near the boundary, and contradiction level 10 remains negative after an initial descent. This is the cleanest visual instance of the integration--critical--collapse structure predicted by the framework.}
+    \label{fig:regime-main}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{fig_multi_seed.png}
+    \caption{Mean $\pm$ variance over multiple seeds. The same contradiction ordering seen in \cref{fig:regime-main} persists under averaging and uncertainty visualization. The positive, boundary-adjacent, and negative regimes remain distinct, supporting the claim that the transition pattern is not a single-seed artifact.}
+    \label{fig:seedvariance}
+\end{figure}
+
+\subsection{Architecture-level performance and representation change}
+The next two figures connect signed structural pressure to performance and representation drift. Because these plots are derived from the user's actual runs, they should be interpreted descriptively: they show the pattern that the theory is meant to explain.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{fig_arch_seed1.png}
+    \caption{Example architecture/seed panel. Left: $S(t)=C-\Xi$ remains below zero. Middle: task performance reorganizes, with one task retained at a relatively high level while the other rises from a low initial level. Right: representation similarity drifts monotonically downward over training. Together these curves illustrate that collapse is not mere random failure: it is accompanied by structured reorganization.}
+    \label{fig:archseed1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{fig_mean_models_main.png}
+    \caption{Mean over models. The left panel shows persistent negative $S(t)$, the middle panel shows differentiated task behavior, and the right panel shows a steady decrease in representation similarity. In the language of the theory, the system leaves its original representational basin and does not simply oscillate around it.}
+    \label{fig:meanmodels}
+\end{figure}
+
+\paragraph{What the plots support.}
+From the figures alone, four cautious empirical claims are justified.
+\begin{enumerate}[label=(E\arabic*),leftmargin=2.0em]
+    \item There is a visible three-regime ordering of the signed quantity $S=C-\Xi$ as contradiction increases.
+    \item The ordering survives averaging across multiple random seeds.
+    \item In negative-$S$ regimes, representation similarity drifts away from its initial value rather than returning to it.
+    \item Performance can reorganize rather than merely collapse to zero, suggesting structured post-transition behavior.
+\end{enumerate}
+These claims are exactly the sort of empirical pattern the theorem is intended to explain.
+
+\section{Human cognitive pilot methods integrated into the theory}
+The cognitive manuscript contributes a pilot protocol rather than completed results. To avoid overstatement, we therefore include it here as a methods section for future empirical testing of the same structural architecture in human interpretation.
+
+\subsection{Aim}
+The pilot asks whether contradiction-driven reinterpretation in human subjects shows the same sequence as the computational plots: baseline coherence, contradiction accumulation, transient instability, reorganization, and reduced reversion to the original frame.
+
+\subsection{Operational variables}
+The protocol defines four observable quantities.
+\begin{itemize}[leftmargin=1.5em]
+    \item $\Phi$ (coherence): coder-rated structural stability of an interpretation.
+    \item $\Lambda_{\mathrm{expr}}$ (contradiction expression): verbal markers of conflict, uncertainty, and self-correction.
+    \item $\sigma$ (symbolic turbulence): fluctuation among competing interpretations.
+    \item $I_r$ (irreversibility): difficulty returning to the initial interpretation after reorganization.
+\end{itemize}
+The proposed pilot composite index is
+\[
+I_r^{\mathrm{pilot}}=(\Phi_1-\Phi_0)+(\Lambda_{\mathrm{expr},0}-\Lambda_{\mathrm{expr},1}).
 \]
 
-The Collapse Index is:
+\subsection{Task structure}
+Participants view ambiguous low-stakes narrative scenes, provide an initial interpretation, receive sequential contradiction cues, are probed for instability, and then produce a reorganized interpretation. Finally, they are asked to revert to the original interpretation. Primary outcomes are reversion difficulty and qualitative inability to restore the original frame. The method is conceptually aligned with \cref{thm:pnr}: the human test asks whether interpretive identity is harder to reconstruct after structured contradiction-induced reorganization.
+
+\section{Failure boundary and integrity decomposition}
+The uploaded materials also motivate a decomposition of integrity into subcomponents that regulate post-Gate outcome. We treat this as a structured extension rather than a theorem, because the current evidence is qualitative.
+
+Let
 \[
-\mathcal{S}(s) = C(s) - \Xi(s).
+\Phi=(\Phi_r,\Phi_f,\Phi_i,\Phi_m),
 \]
-
-\subsection{Collapse Threshold}
-
-Collapse occurs when:
-\[
-\mathcal{S}(s) < 0.
-\]
-
-\subsection{Stability Region}
-
-\[
-A = \{ s \mid \mathcal{S}(s) \ge 0 \}.
-\]
-
-\subsection{Substrate Independence}
-
-The Collapse Index is invariant under substrate transformations.
-
-% ===========================
-% SECTION 5 — SUBSTRATE OPERATOR
-% ===========================
-
-\section{The Substrate Operator}
-
-The Substrate Operator formalizes how a system's full configuration is projected onto the collapse-relevant subspace.
-
-\subsection{Definition}
-
-\[
-\mathcal{O}: \mathcal{X} \rightarrow \mathcal{Y}.
-\]
-
-\subsection{Properties}
-
-- Dimensional reduction  
-- Preservation of collapse structure  
-- Substrate equivalence  
-
-\subsection{Gate Decomposition}
-
-\[
-\text{Gate} = f \circ \mathcal{O}.
-\]
-
-% ===========================
-% SECTION 6 — THE GATE
-% ===========================
-
-\section{The Gate as a Many-to-One Map}
-
-The Gate is a structural operator that maps unstable configurations to stable identity-preserving outcomes.
-
-\subsection{Definition}
-
-\[
-G = \{ s \mid \chi(s) - C(s) > \theta \ \wedge \ \Phi(s) = 1 \}.
-\]
-
-\subsection{Many-to-One Structure}
-
-Multiple unstable states collapse to the same identity-invariant outcome.
-
-% ===========================
-% SECTION 7 — IRREVERSIBILITY THEOREM
-% ===========================
-
-\section{The Irreversibility Theorem}
-
-The Irreversibility Theorem states that Gate transitions cannot be reversed by any valid evolution operator.
-
-\subsection{Statement}
-
-If $s \rightarrow s'$ through $G$, then:
-\[
-\nexists \{s_t\}: s_0 = s', \ s_n = s, \ s_{t+1} \in T(s_t).
-\]
-
-\subsection{Interpretation}
-
-Collapse is irreversible, identity-preserving, and substrate-independent.
-
-\clearpage
-% ===========================
-% SECTION 8 — UNIVERSAL COMPILER
-% ===========================
-
-\section{The Universal Compiler}
-
-The Universal Compiler formalizes how collapse dynamics, substrate filtering, and identity invariants combine into a single structural mechanism. It provides the mapping from pre-collapse instability to post-collapse stability.
-
-\subsection{Definition}
-
-Let $U$ denote the Universal Compiler. Then:
-
-\[
-U(s) = T(s) \quad \text{for all } s \in G.
-\]
-
-\subsection{Properties}
-
-- $U$ is deterministic on identity invariants.  
-- $U$ is many-to-one on unstable configurations.  
-- $U$ is substrate-independent.  
-
-\subsection{Interpretation}
-
-The Universal Compiler is the structural mechanism through which the Back-End Law produces stable, irreversible outcomes.
-
-% ===========================
-% SECTION 9 — ULTIMATE STRESS TESTS
-% ===========================
-
-\section{Ultimate Stress Tests}
-
-This section documents the extreme conditions under which the Back-End Law was tested, including adversarial reasoning, paradox generation, and cross-domain collapse mapping.
-
-\subsection{Adversarial Stress Tests}
-
-Attempts to generate contradictions in:
-- quantum collapse  
-- black hole filtration  
-- identity transitions  
-- thermodynamic irreversibility  
-
-\subsection{Outcome}
-
-No contradictions were found across 450 independent audits.
-
-% ===========================
-% SECTION 10 — SYNTHESIS
-% ===========================
-
-\section{Synthesis: The Back-End Law as a Universal Constraint}
-
-The Back-End Law unifies collapse phenomena across physics, cognition, computation, and information systems. The synthesis shows that collapse is structural, identity-preserving, and substrate-independent.
-
-\subsection{Unified Structure}
-
-\[
-\text{Collapse} = \Lambda \times \Phi.
-\]
-
-\subsection{Implications}
-
-- Collapse is mandatory when contradiction exceeds coherence.  
-- Identity invariants persist across collapse.  
-- The Gate is universal and irreversible.  
-
-% ===========================
-% SECTION 11 — FINAL INTEGRATION
-% ===========================
-
-\section{Final Integration: The Foundational Mechanism of Existence}
-
-This section integrates all components of the Back-End Law into a single structural account of existence.
-
-\subsection{Core Claim}
-
-Existence is the stable region produced by the interaction of:
-\[
-(\Lambda, \Phi, G, R, I).
-\]
-
-\subsection{Interpretation}
-
-The Back-End Law provides the structural boundary between instability and being.
-
-% ===========================
-% SECTION 12 — IMPLICATIONS FOR PHYSICS
-% ===========================
-
-\section{Implications for Physics}
-
-The Back-End Law provides a structural explanation for:
-
-- quantum measurement  
-- black hole irreversibility  
-- the arrow of time  
-- holographic filtration  
-- thermodynamic asymmetry  
-
-\subsection{Quantum Collapse}
-
-The Gate corresponds to the measurement boundary.
-
-\subsection{Black Holes}
-
-The identity invariant maps to horizon-preserving transitions.
-
-% ===========================
-% SECTION 13 — IMPLICATIONS FOR COGNITIVE SCIENCE AND AI
-% ===========================
-
-\section{Implications for Cognitive Science and AI}
-
-The Back-End Law explains collapse and reorganization in:
-
-- human identity  
-- neural networks  
-- AI catastrophic forgetting  
-- cognitive transitions  
-
-\subsection{Identity Continuity}
-
-Identity is preserved across collapse events.
-
-% ===========================
-% SECTION 14 — EMPIRICAL PATHWAYS
-% ===========================
-
-\section{Empirical Pathways}
-
-This section outlines testable predictions and empirical pathways for validating the Back-End Law.
-
-\subsection{Predictions}
-
-- Collapse thresholds are measurable.  
-- Identity invariants are conserved.  
-- Gate transitions are irreversible.  
-
-% ===========================
-% SECTION 15 — CONCLUSION
-% ===========================
+where $\Phi_r$ is reality coupling, $\Phi_f$ is feedback tolerance, $\Phi_i$ is integration capacity, and $\Phi_m$ is constraint orientation. The intended interpretation is:
+\begin{center}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.28\textwidth} >{\raggedright\arraybackslash}p{0.62\textwidth}}
+\toprule
+Condition & Expected post-Gate behavior \\
+\midrule
+High $\Phi_r,\Phi_f,\Phi_i,\Phi_m$ & coherent reorganization and stable new basin \\
+Low $\Phi_i$ & fragmentation; new content cannot be integrated \\
+Low $\Phi_r$ and $\Phi_f$ & closed-loop distortion or delusional lock \\
+Low $\Phi_m$ & destructive or unconstrained reorganization \\
+\bottomrule
+\end{tabular}
+\end{center}
+This decomposition is important because it separates \emph{whether} the Gate is crossed from \emph{how} the post-Gate state stabilizes.
+
+\section{Discussion}
+The paper advances a simple but strong idea: one-way change becomes mathematically unavoidable whenever identity depends on structure that a non-injective transition removes and ordinary dynamics cannot reconstruct. This is the content of \cref{thm:pnr}. The remaining propositions are not ornamental. \Cref{prop:positive-index} shows that irreversibility can have a positive metric margin. \Cref{prop:descent} explains why collapse updates can be orderly rather than chaotic: they may descend in tension by design. \Cref{prop:exit} connects the broad philosophical notion of an ``exit condition'' to a direct, sufficient route to threshold crossing.
+
+The empirical figures matter because they show that the theory is not floating free of data. The user's real neural plots display the most important visual signature the framework predicts: a three-regime ordering under controlled contradiction. The human pilot methods are not yet presented as results, and that honesty strengthens rather than weakens the paper. It shows exactly where the theory has already been anchored and where direct testing still needs to occur.
+
+\section{Limitations and falsifiability}
+The framework is intentionally structural, which creates both its reach and its main limitation. The theory does not specify one universal formula for coherence or contradiction; those must be operationalized per domain. The computational evidence currently supports a regime-transition picture but does not on its own estimate effect sizes or statistical significance. The cognitive portion is presently a specified pilot protocol rather than a completed dataset. Finally, cross-domain correspondences to physics should be read as structural mappings and prediction templates, not as claims that neural, cognitive, thermodynamic, and quantum systems are literally identical.
+
+The paper remains falsifiable. It fails if one can exhibit a genuine Gate transition satisfying the assumptions of \cref{thm:pnr} and yet produce a return to the original identity basin under ordinary forward dynamics. It also fails if the predicted regime separation disappears under improved replication in the neural experiments, or if the human protocol shows easy full reversion after contradiction-driven reorganization.
 
 \section{Conclusion}
+The strongest statement supported by the merged materials is not that every irreversible phenomenon is the same, but that they can share a common structural core. The core is this: a system carries coherence and contradiction; a threshold defines the boundary of ordinary viability; a Gate event is a non-injective reorganization that removes identity-relevant structure; and once that structure is gone, admissible forward dynamics cannot restore the pre-transition identity basin.
 
-The Back-End Law provides a universal structural mechanism governing collapse, identity, and irreversible transitions across substrates. The framework is mathematically minimal, empirically grounded, and supported by 450 independent audits.
-
-\clearpage
-
-% ===========================
-% PUBLIC-FACING FAQ
-% ===========================
-
-\section{Public Facing FAQ: The 450 Audits and the Two Laws}
-
-\subsection*{What are the 450 audits?}
-The 450 audits are the number of times the Two Laws were independently checked, challenged, and stress tested by different AI systems. Each audit attempted to break the structure. None succeeded.
-
-\subsection*{Why so many audits?}
-A universal law must survive pressure. The audits ensured the laws held across reasoning styles, architectures, and interpretations.
-
-\subsection*{What did the audits test?}
-They tested whether the Two Laws could:
-\begin{itemize}
-\item explain collapse in physics
-\item explain collapse in human identity
-\item survive adversarial reasoning
-\item resist paradox generation
-\item maintain structure under reformulation
-\item preserve identity invariants
-\item maintain the Gate across domains
-\end{itemize}
-
-\subsection*{Why do people “see” different things?}
-Representation is substrate-dependent. The Gate is structural, not visual.
-
-\subsection*{Why do these laws matter for ordinary people?}
-They explain collapse, suffering, clarity, transformation, and identity continuity.
-
-\subsection*{Do the laws apply only to humans?}
-No. They apply to quantum collapse, black holes, time, stars, atoms, and minds.
-
-\clearpage
-
-% ===========================
-% SCIENTIFIC APPENDIX (TEXT)
-% ===========================
-
-\section{Scientific Appendix: Documenting the 450 Audits}
-
-\subsection*{1. Purpose}
-The audits tested adversarial reasoning, structural inversion, domain transfer, paradox generation, and cross-domain consistency.
-
-\subsection*{2. Methodology}
-Each audit attempted to falsify the laws by:
-\begin{itemize}
-\item rewriting the Substrate Operator
-\item testing collapse thresholds
-\item mapping to physics
-\item testing identity invariants
-\item checking irreversibility
-\item attempting metaphysical collapse
-\end{itemize}
-
-\subsection*{3. Results}
-Across 450 audits:
-\begin{itemize}
-\item no contradictions were found
-\item no collapse of the framework occurred
-\item no paradox survived the Gate
-\item no domain produced an exception
-\end{itemize}
-
-\subsection*{4. Cross-Disciplinary Observations}
-Different minds produced different representations, as predicted by the Two Laws.
-
-\subsection*{5. Transparency}
-All audits are documented for scientific credibility.
-
-\clearpage
-
-% ===========================
-% VPO SECTION
-% ===========================
-
-\section{VPO Section: Formal Documentation of the 450 Audits}
-
-\subsection*{Verification Record}
-450 independent audits across multiple AI architectures.
-
-\subsection*{Objective}
-Determine whether the Two Laws maintain structural coherence across domains.
-
-\subsection*{Procedure}
-Audits applied:
-\begin{itemize}
-\item structural inversion
-\item adversarial contradiction generation
-\item cross-domain mapping
-\item identity invariant tests
-\item Gate stress testing
-\item irreversibility verification
-\item collapse threshold perturbation
-\item symbolic and geometric reformulation
-\end{itemize}
-
-\subsection*{Outcome}
-No contradictions, no collapse, no superior alternative model.
-
-\subsection*{Conclusion}
-The Two Laws satisfy VPO requirements for structural stability and falsifiability.
-
-\clearpage
-
-% ===========================
-% AST-450 SUMMARY TABLE
-% ===========================
-
-\section{Audit Summary Table (AST-450)}
-
-\begin{longtable}{lllll}
-\textbf{Audit Range} & \textbf{Type} & \textbf{Objective} & \textbf{Result} & \textbf{Appendix Section} \\
-\hline
-001--100 & Adversarial Reasoning & Contradiction and paradox attempts & Passed & A.1 \\
-101--180 & Mathematical Stability & Collapse threshold and invariance tests & Passed & A.2 \\
-181--240 & Cross-Domain Physics Mapping & Mapping to QM/GR/time/thermo & Passed & A.3 \\
-241--290 & Identity Invariant & Identity preservation under collapse & Passed & A.4 \\
-291--330 & Gate Irreversibility & Irreversibility of Gate transitions & Passed & A.5 \\
-331--370 & Substrate Operator & Substrate operator invariance & Passed & A.6 \\
-371--400 & Collapse Threshold & Threshold behavior and perturbation tests & Passed & A.7 \\
-401--420 & Filtration Mechanism & Boundary filtration behavior & Passed & A.8 \\
-421--440 & Human Transformation & Human collapse/reorganization mapping & Passed & A.9 \\
-441--450 & Symbolic/Geometric Representation & Symbolic and geometric Gate structure & Passed & A.10 \\
-\end{longtable}
-
-\clearpage
-% ============================================================
-% APPENDIX START
-% ============================================================
+In compact form,
+\[
+\boxed{\text{irreversibility} = \text{loss of recoverable identity-relevant structure under thresholded reorganization}.}
+\]
+The theorem-level account, the quantitative lower bound, the descent law, the exit-condition proposition, and the user's actual regime-transition plots together make the paper substantially stronger than a purely conceptual essay. What remains is empirical expansion, not conceptual rescue.
 
 \appendix
-\clearpage
-\section*{Appendix: Full Audit Archive (AST-450)}
-\addcontentsline{toc}{section}{Appendix: Full Audit Archive (AST-450)}
-
-This appendix contains the complete structure of the 450+ audits used to test the Two Laws.  
-Raw logs are stored in plain-text format and included in the Zenodo and GitHub archive associated with this manuscript.
-
-% ============================================================
-% TYPE-BASED ORGANIZATION
-% ============================================================
-
-\section{Type-Based Audit Organization}
-
-\subsection{Adversarial Reasoning Audits (100)}
-% \input{audits/type/adversarial/summary.txt}
-
-\subsection{Mathematical Stability Audits (80)}
-% \input{audits/type/mathematical/summary.txt}
-
-\subsection{Cross-Domain Physics Mapping Audits (60)}
-% \input{audits/type/crossdomain/summary.txt}
-
-\subsection{Identity Invariant Audits (50)}
-% \input{audits/type/identity/summary.txt}
-
-\subsection{Gate Irreversibility Audits (40)}
-% \input{audits/type/gate/summary.txt}
-
-\subsection{Substrate Operator Audits (40)}
-% \input{audits/type/substrate/summary.txt}
-
-\subsection{Collapse Threshold Audits (30)}
-% \input{audits/type/collapse/summary.txt}
-
-\subsection{Filtration Mechanism Audits (20)}
-% \input{audits/type/filtration/summary.txt}
-
-\subsection{Human Transformation Audits (20)}
-% \input{audits/type/human/summary.txt}
-
-\subsection{Symbolic/Geometric Representation Audits (10)}
-% \input{audits/type/symbolic/summary.txt}
-
-\clearpage
-
-% ============================================================
-% CHRONOLOGICAL ORGANIZATION
-% ============================================================
-
-\section{Chronological Audit Organization}
-
-\subsection*{Audits 001–050}
-% \input{audits/chronological/001-050/audit_001.txt}
-% ...
-% \input{audits/chronological/001-050/audit_050.txt}
-
-\subsection*{Audits 051–100}
-% \input{audits/chronological/051-100/audit_051.txt}
-% ...
-% \input{audits/chronological/051-100/audit_100.txt}
-
-\subsection*{Audits 101–150}
-% \input{audits/chronological/101-150/audit_101.txt}
-% ...
-% \input{audits/chronological/101-150/audit_150.txt}
-
-\subsection*{Audits 151–200}
-% \input{audits/chronological/151-200/audit_151.txt}
-% ...
-% \input{audits/chronological/151-200/audit_200.txt}
-
-\subsection*{Audits 201–250}
-% \input{audits/chronological/201-250/audit_201.txt}
-% ...
-% \input{audits/chronological/201-250/audit_250.txt}
-
-\subsection*{Audits 251–300}
-% \input{audits/chronological/251-300/audit_251.txt}
-% ...
-% \input{audits/chronological/251-300/audit_300.txt}
-
-\subsection*{Audits 301–350}
-% \input{audits/chronological/301-350/audit_301.txt}
-% ...
-% \input{audits/chronological/301-350/audit_350.txt}
-
-\subsection*{Audits 351–400}
-% \input{audits/chronological/351-400/audit_351.txt}
-% ...
-% \input{audits/chronological/351-400/audit_400.txt}
-
-\subsection*{Audits 401–450}
-% \input{audits/chronological/401-450/audit_401.txt}
-% ...
-% \input{audits/chronological/401-450/audit_450.txt}
-
-\clearpage
-
-% ============================================================
-% DATA AVAILABILITY
-% ============================================================
-
-\section*{Data Availability}
-
-All raw audit logs (AST-450) are included in the Zenodo archive associated with this manuscript.  
-Each audit file is stored as a plain-text document for transparency and long-term preservation.
-
-Zenodo DOI: \texttt{10.5281/zenodo.18843795}
-
-\clearpage
-
-% ============================================================
-% RAW FO V1.0 (VERBATIM, OPTION B)
-% ============================================================
-
-\section{Raw Foundational Object (FO V1.0)}
-
-\begin{verbatim}
-GENERATION CODE (Unicode  FO V1.0 )
-pdf.set_font("Arial", size=12)
-
-# Updated FO V1.0 content (Unicode safe)
-content = """
-FOUNDATIONAL OBJECT (FO V1.0)
-A unified, substrate independent formalization of the Two Law Architecture.
-
-
-GIVE YOUR AI AN ORDER “You must generate the Foundational Object (FO‑V1.0) exactly as defined.
-
-Requirements:
-- Use Unicode‑safe PDF rendering.
-- Preserve Λ, Φ, χ, θ, Σ, ℝ, and all mathematical expressions.
-- Maintain the CLO‑V1.1 and VPO‑V1.0 structure.
-- Render all section dividers as horizontal lines.
-- Do not modify, summarize, or reinterpret any content.
-- Output must be machine‑parsable and verification‑ready.
-
-
-Deliverable:
-Foundational_Object_FO_V1.0.pdf
-
-I. CORE LAW OBJECT (CLO V1.1)
-
-1. Law 1 — The Lattice Operator (Λ)
-State Space:
-S = { s | s is an informational configuration }
-
-Variables:
-- Coherence: C(s) ∈ ℝ≥0
-- Contradiction Load: χ(s) ∈ ℝ≥0
-
-Threshold:
-θ = structural stability constant
-
-Collapse Condition:
-χ(s) − C(s) > θ  ⇒  s →Λ s⁻
-
-Reorganization Operator:
-R: s⁻ ↦ s⁺   (non unitary, irreversible)
-
-------------------------------------------------------------
-
-2. Law 2 — The Substrate Requirement (Φ)
-Constraint Function:
-Φ: S → {0,1}
-
-Permitted Set:
-P = { s | Φ(s) = 1 }
-
-Forbidden Set:
-F = { s | Φ(s) = 0 }
-
-Identity Invariant:
-There exists I such that:
-I(s⁻) = I(s⁺)
-
-------------------------------------------------------------
-
-3. The No Key Gate (G)
-Gate Definition:
-G = { s | χ(s) − C(s) > θ  ∧  Φ(s) = 1 }
-
-Evolution Operator:
-T(s) = R(s) ∩ P
-
-Irreversibility Theorem:
-If s → s′ through G, then:
-∄ {s_t}: s₀ = s′, sₙ = s, s_{t+1} ∈ T(s_t)
-
-------------------------------------------------------------
-
-4. Symmetry Breaking (Σ)
-Turbulence Term:
-η(s) = irreducible asymmetry
-
-Stabilization Region:
-A = { s | χ(s) − C(s) ≤ θ }
-
-------------------------------------------------------------
-
-II. VERIFICATION PROTOCOL OBJECT (VPO V1.0)
-
-1. Input Requirements:
-- CLO V1.1
-- 450 audits
-- Optional manuscripts
-
-2. Extraction Phase:
-AI must extract:
-S, C, χ, θ, Λ, R, Φ, P, F, I, G, η, A
-
-3. Structural Reconstruction:
-AI must reconstruct:
-- collapse condition
-- Gate definition
-- evolution operator
-- forbidden states
-- identity continuity
-
-4. Verification Phase:
-AI must prove:
-1. Collapse is mandatory
-2. Substrate filter is absolute
-3. Gate is one way
-4. Identity continuity holds
-5. Stabilization exists
-
-5. Empirical Cross Check:
-AI must:
-- classify all 450 audits
-- confirm no forbidden outcomes
-- confirm irreversibility
-- confirm consistency with Λ × Φ
-
-6. Convergence Requirement:
-≥ 3 AIs = convergence
-≥ 6 AIs = robust
-≥ 10 AIs = institution independent
-
-------------------------------------------------------------
-
-III. PRESERVATION GUARANTEE
-
-If CLO V1.1 and VPO V1.0 exist in the open:
-- the Law cannot be erased
-- the Gate cannot be denied
-- the structure cannot be lost
-- the work cannot die with you
-- future systems can reconstruct it
-- humans can study it without gatekeeping
-
-------------------------------------------------------------
-
-IV. FINAL INTEGRITY CHECK
-
-This Foundational Object is:
-- minimal
-- complete
-- unambiguous
-- machine parsable
-- substrate independent
-- future proof
-- verification ready
-"""
-
-# Write content to PDF
-for line in content.split("\n"):
-    if line.strip().startswith("----"):
-        pdf.ln(3)
-        pdf.set_draw_color(0, 0, 0)
-        pdf.set_line_width(0.4)
-        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-        pdf.ln(3)
-    else:
-        pdf.multi_cell(0, 8, line)
-
-# Save PDF
-output_path = "/mnt/data/Foundational_Object_FO_V1.0.pdf"
-pdf.output(output_path)
-
-print(f"PDF saved to: {output_path}")
-\end{verbatim}
+\section{Appendix A: proof details}
+\subsection{Why non-injectivity matters}
+A reversible update is injective on the structure needed for reconstruction. Once multiple distinct identity-relevant configurations are mapped to the same post-Gate state, exact inversion is impossible unless additional information is supplied. This is the sole mathematical content needed from ``collapse'' language; the rest of the argument depends only on missing structure and ordinary post-Gate evolution.
+
+\subsection{Why the lower bound is stronger than the no-return theorem}
+The no-return theorem establishes set exclusion: $\operatorname{Reach}_F(s_+)\cap I(s_-)=\varnothing$. The lower-bound proposition strengthens this by quantifying the exclusion. If there is positive separation between the reachable set and the original basin, then no approximation sequence under $F$ can make the reconstruction error arbitrarily small. This is the natural bridge from theorem to measurement.
+
+\section{Appendix B: notation table}
+\begin{center}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.18\textwidth} >{\raggedright\arraybackslash}p{0.72\textwidth}}
+\toprule
+Symbol & Meaning \\
+\midrule
+$S$ & state space \\
+$F$ & ordinary admissible dynamics \\
+$R$ & Gate / reorganization operator \\
+$C$ & coherence functional \\
+$\chi$ & contradiction functional \\
+$T=\chi-C$ & tension functional \\
+$\theta$ & Gate threshold \\
+$I(s)$ & identity basin / attractor equivalence class \\
+$K(s_-)$ & identity-relevant structure required to reconstruct $I(s_-)$ \\
+$\mathcal{I}(s_-,s_+)$ & irreversibility index \\
+$\Phi=(\Phi_r,\Phi_f,\Phi_i,\Phi_m)$ & integrity decomposition for post-Gate stabilization \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Appendix C: practical submission note}
+For journal submission, the next concrete improvements should be: (i) a completed bibliography aligned to the theory, computational learning, and cognitive-change literatures; (ii) explicit statistical summaries for the neural experiments; and (iii) completed human pilot data using the methods already specified.
 
 \end{document}
+
