@@ -364,36 +364,83 @@ In compact form,
 The theorem-level account, the quantitative lower bound, the descent law, the exit-condition proposition, and the user's actual regime-transition plots together make the paper substantially stronger than a purely conceptual essay. What remains is empirical expansion, not conceptual rescue.
 
 \appendix
-\section{Appendix A: proof details}
-\subsection{Why non-injectivity matters}
-A reversible update is injective on the structure needed for reconstruction. Once multiple distinct identity-relevant configurations are mapped to the same post-Gate state, exact inversion is impossible unless additional information is supplied. This is the sole mathematical content needed from ``collapse'' language; the rest of the argument depends only on missing structure and ordinary post-Gate evolution.
 
-\subsection{Why the lower bound is stronger than the no-return theorem}
-The no-return theorem establishes set exclusion: $\operatorname{Reach}_F(s_+)\cap I(s_-)=\varnothing$. The lower-bound proposition strengthens this by quantifying the exclusion. If there is positive separation between the reachable set and the original basin, then no approximation sequence under $F$ can make the reconstruction error arbitrarily small. This is the natural bridge from theorem to measurement.
+\section{Appendix A: Proof Details}
 
-\section{Appendix B: notation table}
-\begin{center}
-\begin{tabular}{>{\raggedright\arraybackslash}p{0.18\textwidth} >{\raggedright\arraybackslash}p{0.72\textwidth}}
-\toprule
-Symbol & Meaning \\
-\midrule
-$S$ & state space \\
-$F$ & ordinary admissible dynamics \\
-$R$ & Gate / reorganization operator \\
-$C$ & coherence functional \\
-$\chi$ & contradiction functional \\
-$T=\chi-C$ & tension functional \\
-$\theta$ & Gate threshold \\
-$I(s)$ & identity basin / attractor equivalence class \\
-$K(s_-)$ & identity-relevant structure required to reconstruct $I(s_-)$ \\
-$\mathcal{I}(s_-,s_+)$ & irreversibility index \\
-$\Phi=(\Phi_r,\Phi_f,\Phi_i,\Phi_m)$ & integrity decomposition for post-Gate stabilization \\
-\bottomrule
-\end{tabular}
-\end{center}
+\subsection{A.1 Why non-injectivity matters}
 
-\section{Appendix C: practical submission note}
-For journal submission, the next concrete improvements should be: (i) a completed bibliography aligned to the theory, computational learning, and cognitive-change literatures; (ii) explicit statistical summaries for the neural experiments; and (iii) completed human pilot data using the methods already specified.
+A reversible update is injective on the structure needed for reconstruction. Once multiple distinct
+identity-relevant configurations are mapped to the same post-Gate state, exact inversion is impossible
+unless additional information is supplied. This is the sole mathematical content needed from
+“collapse” language; the rest of the argument depends only on missing structure and ordinary
+post-Gate evolution.
 
-\end{document}
+\subsection{A.2 Why the lower bound is stronger than the no-return theorem}
 
+The no-return theorem establishes set exclusion:
+\[
+\text{Reach}_F(s^+) \cap I(s^-) = \emptyset.
+\]
+The lower-bound proposition strengthens this by quantifying the exclusion. If there is positive
+separation between the reachable set and the original basin, then no approximation sequence under
+$F$ can make the reconstruction error arbitrarily small. This is the natural bridge from theorem to
+measurement.
+
+\subsection{A.3 Topological Theorem: Disconnected Admissible Set}
+
+Let $\mathcal{C}_{\mathrm{id}} \subset S$ be closed and let $\mathcal{C}_{\mathrm{dyn}}(s^-) \subset S$ be the admissible
+forward-evolution set. If
+\[
+\mathrm{cl}(\mathcal{C}_{\mathrm{id}}) \cap \mathrm{cl}(\mathcal{C}_{\mathrm{dyn}}(s^-)) = \emptyset,
+\]
+then:
+\begin{enumerate}
+\item No continuous path $s(t)$ with $s(0)=s^-$ and $s(t)\in\mathcal{C}_{\mathrm{id}}$ can reduce tension.
+\item Any admissible transition must leave $\mathcal{C}_{\mathrm{id}}$.
+\item A discontinuous reorganization $R$ is structurally required.
+\end{enumerate}
+
+This provides the topological backbone of the Gate.
+
+\subsection{A.4 Dynamical Systems Theorem: Basin–Vector Field Incompatibility}
+
+Let the system evolve under
+\[
+\dot{s} = F(s).
+\]
+Let identity be the basin of attraction of an attractor $A$.  
+If for some $s^-$:
+\begin{enumerate}
+\item $T(s^-) > \theta$,
+\item $F(s^-)$ points strictly outward from the basin boundary,
+\item No inward-pointing vector exists within the admissible set,
+\end{enumerate}
+then
+\[
+s(t) \notin I(s^-) \quad \text{for all } t>0.
+\]
+Thus the vector field itself forces exit from the identity basin.
+
+\subsection{A.5 Structural Mapping to Physical Irreversibility}
+
+\subsubsection*{Quantum Decoherence}
+\begin{itemize}
+\item Identity = coherent subspace
+\item Contradiction = decoherence load
+\item Threshold = critical visibility
+\item Reorganization = projection into classical mixture
+\item Lost structure = off-diagonal terms
+\end{itemize}
+
+The Gate corresponds to the decoherence threshold where no continuous unitary path preserves coherence.
+
+\subsubsection*{Black-Hole Horizon Formation}
+\begin{itemize}
+\item Identity = pre-collapse spacetime configuration
+\item Contradiction = curvature growth
+\item Threshold = trapped-surface condition
+\item Reorganization = horizon formation
+\item Lost structure = recoverable Cauchy data
+\end{itemize}
+
+The Gate corresponds to the moment the trapped surface forms and the interior becomes causally disconnected.
