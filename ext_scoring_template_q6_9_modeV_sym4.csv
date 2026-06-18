@@ -1,0 +1,23 @@
+Case_ID,Case Name,Outcome,Ext,Ext_Notes,Mode,Ω,C,Φ,Q=C×Φ,Sym
+5,Akhenaten,MR,4,,V,J,3,3,9,4
+17,Angela of Foligno,SR,0,,V,B,3,3,9,4
+19,Ann Lee,MR,3,,V,J,3,3,9,4
+30,Bernadette Soubirous,SR,0,,V,J,3,3,9,4
+32,Black Elk,SR,0,,V,J,3,3,9,4
+43,Catherine of Siena,SR,0,,V,J,3,3,9,4
+69,Emanuel Swedenborg,SR,0,,V,J,3,3,9,4
+70,Emperor Constantine,MR,4,,V,J,3,3,9,4
+75,Ezekiel,SR,0,,V,J,3,3,9,4
+110,Inanna,SR,0,,V,J,3,3,9,4
+113,Jacob Boehme,SR,0,,V,B,3,3,9,4
+121,Jean Joseph Surin,SR,0,,V,L,2,3,6,4
+133,John of Patmos,SR,0,,V,J,3,3,9,4
+134,Joseph Smith,MR,3,,V,J,3,3,9,4
+161,Mary Baker Eddy,MR,3,,V,J,3,3,9,4
+162,Mary Magdalene,SR,0,,V,B,3,3,9,4
+167,Mechthild of Magdeburg,SR,0,,V,J,3,3,9,4
+170,Miguel de Molinos,SR,0,,V,L,3,3,9,4
+190,Philip K. Dick,SR,0,,V,L,3,2,6,4
+201,Richard Lovelace,SR,0,,V,L,3,3,9,4
+240,William Blake,SR,0,,V,L,3,3,9,4
+243,Yayoi Kusama,SR,0,,V,L,3,2,6,4
