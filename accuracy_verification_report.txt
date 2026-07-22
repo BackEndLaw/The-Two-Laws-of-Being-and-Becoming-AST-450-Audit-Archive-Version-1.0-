@@ -1,7 +1,7 @@
 ======================================================================
 ATLAS PREDICTION ACCURACY VERIFICATION REPORT
 ======================================================================
-Generated: 2026-06-18 07:49:18
+Generated: 2026-07-01 08:37:41
 
 SUMMARY
 ----------------------------------------------------------------------
@@ -21,7 +21,34 @@ PREDICTIONS COMPUTED
 ✓ Q = C × Φ
 ✓ Tension = Load − Q
 ✓ κ = Load / Q
+✓ p = minimal generative remainder (0–1)
+✓ Λ/Φ split + Succession_Path coding
 ✓ Regime Classification (FR/CR/PR/MR/SR)
+
+P SUMMARY
+----------------------------------------------------------------------
+OVERALL
+  metric            value
+  ----------------  --------
+  mean              0.6478
+  std               0.1459
+  min               0.0234
+  max               0.7291
+
+BY OUTCOME
+  Outcome   n    p_mean   p_std    p_survives_rate
+  -------  ---  -------  -------  ----------------
+  FR         9   0.0472   0.0555            0.0000
+  MR        86   0.6889   0.0627            0.3605
+  PR        69   0.7194   0.0288            0.1159
+  CR        18   0.6722   0.0603            0.5556
+  SR        63   0.5921   0.1112            0.5556
+
+Succession_Path distribution:
+  No_Collapse_Basin           :   132 records
+  Residual_Continuity_Risk    :    66 records
+  Succession_Potential        :    31 records
+  Debris_or_Zombie_Continuity :    16 records
 
 REGIME DISTRIBUTION
 ----------------------------------------------------------------------
@@ -43,6 +70,20 @@ TwoLaws_Calibrated:
   SR                :    63 records
   CR                :    18 records
   FR                :     9 records
+
+BRANCH LAYER (RETURN / NORETURN / UNDETERMINED)
+----------------------------------------------------------------------
+Return            :   236 records
+NoReturn          :     9 records
+
+Evidence sources:
+  direct:FED_Substrate_Viable:   245 records
+
+Branch x Default regime table:
+Regime_Predicted  CR  FR  MR  PR  SR
+Branch_State                        
+NoReturn           0   9   0   0   0
+Return            18   0  89  69  60
 
 ACCURACY VERIFICATION
 ----------------------------------------------------------------------

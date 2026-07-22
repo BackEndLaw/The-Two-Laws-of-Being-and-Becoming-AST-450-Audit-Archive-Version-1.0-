@@ -1,0 +1,246 @@
+Case_ID,Case Name,Bio,Env,Cog,Id,Sym,C,Φ,Q=C×Φ,Mode,Ω,Integration Type,I,Load,Tension,κ,Outcome,Out(t₀),Out(late),Template_Deficit,FR Risk,Rescue,Walls,Q_calc,Load_calc,Tension_calc,FR_rule,Rescue_rule,Q_ge_12_rule,Q_le_6_rule,Phi_eq_4_rule,Low_C_low_Phi_rule,PR_rule_candidate,Is_FR_t0,Is_FR_late,Is_CR_t0,Is_PR_t0,Is_Clean_CR_PR,Ext,Q_predicted,Tension_predicted,kappa_predicted,Regime_Predicted,Regime_Predicted_TwoLaws_Strict,Regime_Predicted_TwoLaws_Calibrated,Regime_Actual_Normalized,Regime_Predicted_Normalized,Match_Default,Regime_Predicted_TwoLaws_Strict_Normalized,Match_TwoLaws_Strict,Regime_Predicted_TwoLaws_Calibrated_Normalized,Match_TwoLaws_Calibrated,Match,FED_Substrate_Viable
+1,Abraham Lincoln,2,2,3,4,3,4,4,16,N,B,Biological/Individual,4,14,10,1.0,MR,MR,MR,0,0,0,2,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+2,Ada Lovelace,3,1,4,2,3,4,4,16,D,B,Biological/Individual,3,13,9,1.0,PR,PR,PR,0,0,0,2,16,13,9,0,0,1,0,1,0,1,0,0,0,1,1,,16,-3,0.8125,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+3,Adam Smith,1,1,4,2,2,4,4,16,D,G,Growth/Global,3,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+4,Admiral James Stockdale,3,4,3,4,3,4,4,16,N,G,Growth/Global,4,17,13,1.0,MR,MR,MR,0,0,0,2,16,17,13,0,0,1,0,1,0,0,0,0,0,0,0,,16,1,1.0625,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+5,Akhenaten,1,2,2,4,4,3,3,9,V,J,Journey/Transmission,4,13,10,0.56,MR,MR,MR,0,0,0,1,9,13,10,0,0,0,0,0,0,0,0,0,0,0,0,4.0,9,4,1.444444444444444,MR,SR,MR,MR,MR,True,SR,False,MR,True,True,1
+6,Akira Kurosawa,2,2,3,4,3,3,4,12,T,L,Loss/Limitation,4,14,11,0.75,SR,SR,SR,0,0,0,2,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+7,Alan Turing,3,2,4,3,2,4,3,12,T,B,Biological/Individual,3,14,10,0.75,PR,PR,PR,0,0,0,1,12,14,10,0,0,1,0,0,0,1,0,0,0,1,1,,12,2,1.166666666666667,PR,MR,PR,PR,PR,True,MR,False,PR,True,True,1
+8,Albert Einstein,1,1,4,2,3,4,4,16,D,B,Biological/Individual,3,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+9,Aleksandr Solzhenitsyn,3,4,3,4,3,4,4,16,T,G,Growth/Global,4,17,13,1.0,MR,MR,MR,0,0,0,2,16,17,13,0,0,1,0,1,0,0,0,0,0,0,0,,16,1,1.0625,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+10,Alexander Fleming,1,1,4,2,2,4,4,16,D,G,Growth/Global,4,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+11,Alexander Hamilton,1,3,3,4,2,4,4,16,T,G,Growth/Global,4,13,9,1.0,MR,MR,MR,0,0,0,1,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+12,Alexander Pope,3,2,4,3,3,4,4,16,S,L,Loss/Limitation,3,15,11,1.0,PR,PR,PR,0,0,0,1,16,15,11,0,0,1,0,1,0,1,0,0,0,1,1,,16,-1,0.9375,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+13,Alexander the Great,2,3,3,4,3,4,3,12,N,B,Biological/Individual,4,15,11,0.75,MR,MR,MR,0,0,0,1,12,15,11,0,0,1,0,0,0,0,0,0,0,0,0,,12,3,1.25,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+14,Alfred North Whitehead,1,1,4,3,3,4,4,16,D,G,Growth/Global,3,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+15,Alfred Russel Wallace,3,3,4,2,3,4,4,16,D,G,Growth/Global,4,15,11,1.0,PR,PR,PR,0,0,0,2,16,15,11,0,0,1,0,1,0,1,0,0,0,1,1,,16,-1,0.9375,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+16,Alfred Wegener,1,2,4,2,2,3,3,9,D,G,Growth/Global,3,11,8,0.56,PR,PR,PR,0,0,0,1,9,11,8,0,0,0,0,0,0,1,0,0,0,1,1,,9,2,1.222222222222222,PR,PR,PR,PR,PR,True,PR,True,PR,True,True,1
+17,Angela of Foligno,3,2,2,4,4,3,3,9,V,B,Biological/Individual,4,15,12,0.56,SR,SR,SR,0,0,0,2,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,6,1.666666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+18,Anita Moorjani,4,1,1,4,4,3,4,12,X,J,Journey/Transmission,4,14,11,0.75,CR,CR,CR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,1,0,1,,12,2,1.166666666666667,CR,MR,CR,CR,CR,True,MR,False,CR,True,True,1
+19,Ann Lee,2,2,2,4,4,3,3,9,V,J,Journey/Transmission,4,14,11,0.56,MR,MR,MR,0,0,0,1,9,14,11,0,0,0,0,0,0,0,0,0,0,0,0,3.0,9,5,1.555555555555556,MR,SR,MR,MR,MR,True,SR,False,MR,True,True,1
+20,Anne Frank,1,4,3,3,3,3,3,9,T,J,Journey/Transmission,4,14,11,0.56,SR,SR,SR,0,0,0,1,9,14,11,0,0,0,0,0,0,0,0,0,0,0,0,,9,5,1.555555555555556,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+21,Antonio Gramsci,3,4,4,3,2,4,4,16,T,G,Growth/Global,4,16,12,1.0,PR,PR,PR,0,0,0,2,16,16,12,0,0,1,0,1,0,1,0,0,0,1,1,,16,0,1.0,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+22,Anwar Sadat,1,4,3,4,3,4,4,16,N,G,Growth/Global,4,15,11,1.0,MR,MR,MR,0,0,0,2,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+23,Archimedes,1,1,4,2,2,4,4,16,D,G,Growth/Global,3,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+24,Arthur Koestler,2,4,4,4,3,3,4,12,T,G,Growth/Global,4,17,14,0.75,MR,MR,MR,0,0,0,2,12,17,14,0,0,1,0,1,0,0,0,0,0,0,0,,12,5,1.416666666666667,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+25,August Kekulé,1,1,4,2,4,4,4,16,D,J,Journey/Transmission,4,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+26,Ayaan Hirsi Ali,1,3,4,4,2,4,4,16,T,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+27,Barbara McClintock,1,2,4,2,3,4,4,16,D,G,Growth/Global,4,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+28,Bayard Rustin,1,3,3,4,3,4,4,16,T,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+29,Beethoven,4,2,4,3,4,4,4,16,S,L,Loss/Limitation,4,17,13,1.0,SR,SR,SR,0,0,0,1,16,17,13,0,0,1,0,1,0,1,0,0,0,0,0,,16,1,1.0625,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+30,Bernadette Soubirous,2,2,1,4,4,3,3,9,V,J,Journey/Transmission,4,13,10,0.56,SR,SR,SR,0,0,0,1,9,13,10,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,4,1.444444444444444,MR,SR,SR,SR,MR,False,SR,True,SR,True,False,1
+31,Beryl Markham,1,4,3,3,2,3,4,12,N,L,Loss/Limitation,3,13,10,0.75,SR,SR,SR,0,0,0,1,12,13,10,0,0,1,0,1,0,0,0,0,0,0,0,,12,1,1.083333333333333,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+32,Black Elk,2,2,2,3,4,3,3,9,V,J,Journey/Transmission,4,13,10,0.56,SR,SR,SR,0,0,0,1,9,13,10,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,4,1.444444444444444,MR,SR,SR,SR,MR,False,SR,True,SR,True,False,1
+33,Blaise Pascal,3,1,4,4,4,4,4,16,A,J,Journey/Transmission,4,16,12,1.0,MR,MR,MR,0,0,0,3,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+34,Booker T. Washington,1,3,3,4,3,4,4,16,T,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+35,Buckminster Fuller,2,3,4,4,3,4,4,16,V,G,Growth/Global,4,16,12,1.0,PR,PR,PR,0,0,0,2,16,16,12,0,0,1,0,1,0,0,0,0,0,1,1,,16,0,1.0,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+36,Buddha,2,3,3,4,4,4,4,16,N,G,Growth/Global,4,16,12,1.0,CR,CR,CR,0,0,0,2,16,16,12,0,0,1,0,1,0,0,0,0,1,0,1,,16,0,1.0,CR,CR,CR,CR,CR,True,CR,True,CR,True,True,1
+37,Byron Katie,2,2,3,4,3,3,4,12,V,G,Growth/Global,4,14,11,0.75,CR,CR,CR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,1,0,1,,12,2,1.166666666666667,CR,MR,CR,CR,CR,True,MR,False,CR,True,True,1
+38,C.S. Lewis,1,1,4,4,3,4,4,16,N,B,Biological/Individual,4,13,9,1.0,MR,MR,MR,0,0,0,2,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+39,Cardinal Richelieu,2,3,3,3,3,4,3,12,N,B,Biological/Individual,3,14,10,0.75,MR,MR,MR,0,0,0,1,12,14,10,0,0,1,0,0,0,0,0,0,0,0,0,,12,2,1.166666666666667,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+40,Carl Jung,2,2,4,4,4,4,3,12,V,L,Loss/Limitation,4,16,12,0.75,SR,SR,SR,0,0,0,2,12,16,12,0,0,1,0,0,0,0,0,0,0,0,0,,12,4,1.333333333333333,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+41,Carl Linnaeus,1,1,4,2,2,4,4,16,D,G,Growth/Global,4,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+42,Catherine of Genoa,2,2,2,4,4,3,4,12,V,B,Biological/Individual,4,14,11,0.75,SR,SR,SR,0,0,0,2,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+43,Catherine of Siena,3,2,2,4,4,3,3,9,V,J,Journey/Transmission,4,15,12,0.56,SR,SR,SR,0,0,0,2,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,6,1.666666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+44,Charles Babbage,1,2,4,2,2,4,3,12,D,B,Biological/Individual,3,11,7,0.75,PR,PR,PR,0,0,0,1,12,11,7,0,0,1,0,0,0,1,0,0,0,1,1,,12,-1,0.9166666666666666,PR,MR,PR,PR,PR,True,MR,False,PR,True,True,1
+45,Charles Darwin,1,1,4,3,2,4,4,16,N,G,Growth/Global,4,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+46,Charles Manson,1,3,1,4,2,2,1,2,T,C,Chaos/Fragmentation,4,11,9,0.12,FR,FR,FR,1,1,0,3,2,11,9,1,0,0,1,0,1,0,1,1,0,0,0,,2,9,5.5,FR,FR,FR,FR,FR,True,FR,True,FR,True,True,0
+47,Charles Steinmetz,4,2,4,3,2,4,4,16,S,L,Loss/Limitation,3,15,11,1.0,PR,PR,PR,0,0,0,1,16,15,11,0,0,1,0,1,0,1,0,0,0,1,1,,16,-1,0.9375,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+48,Chris McCandless,2,4,2,4,3,2,2,4,T,C,Chaos/Fragmentation,4,15,13,0.25,FR,FR,FR,1,1,0,2,4,15,13,1,0,0,1,0,1,0,1,1,0,0,0,,4,11,3.75,FR,FR,FR,FR,FR,True,FR,True,FR,True,True,0
+49,Christy Brown,4,2,3,3,3,4,4,16,S,L,Loss/Limitation,4,15,11,1.0,SR,SR,SR,0,0,0,1,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+50,Coco Chanel,1,3,4,3,3,4,3,12,D,G,Growth/Global,4,14,10,0.75,PR,PR,PR,0,0,0,1,12,14,10,0,0,1,0,0,0,1,0,0,0,1,1,,12,2,1.166666666666667,PR,MR,PR,PR,PR,True,MR,False,PR,True,True,1
+51,Confucius,1,3,3,4,3,4,4,16,N,J,Journey/Transmission,4,14,10,1.0,MR,MR,MR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+52,Copernicus,1,2,4,2,3,4,4,16,D,G,Growth/Global,4,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+53,Dag Hammarskjöld,1,4,3,4,4,4,4,16,N,G,Growth/Global,4,16,12,1.0,MR,MR,MR,0,0,0,1,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+54,Daniel Tammet,4,1,4,3,3,3,4,12,X,L,Loss/Limitation,4,15,12,0.75,SR,SR,SR,0,0,0,1,12,15,12,0,0,1,0,1,0,1,0,0,0,0,0,,12,3,1.25,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+55,Dante,1,3,4,4,4,4,4,16,V,B,Biological/Individual,4,16,12,1.0,SR,SR,SR,0,0,0,3,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+56,David Ditchfield,4,1,1,4,4,3,3,9,X,J,Journey/Transmission,4,14,11,0.56,SR,SR,SR,0,0,0,1,9,14,11,0,0,0,0,0,0,0,0,0,0,0,0,,9,5,1.555555555555556,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+57,David Koresh,1,2,2,4,2,2,1,2,V,C,Chaos/Fragmentation,4,11,9,0.12,FR,FR,FR,1,1,0,1,2,11,9,1,0,0,1,0,1,0,1,1,0,0,0,,2,9,5.5,FR,FR,FR,FR,FR,True,FR,True,FR,True,True,0
+58,Derek Amato,4,1,2,3,4,3,3,9,X,L,Loss/Limitation,4,14,11,0.56,SR,SR,SR,0,0,0,1,9,14,11,0,0,0,0,0,0,0,0,0,0,0,0,,9,5,1.555555555555556,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+59,Dietrich Bonhoeffer,1,4,4,4,3,4,4,16,T,J,Journey/Transmission,4,16,12,1.0,MR,MR,MR,0,0,0,2,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+60,Dmitri Mendeleev,1,1,4,2,3,4,4,16,D,G,Growth/Global,4,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+61,Dorothy Day,1,2,3,4,4,3,4,12,T,G,Growth/Global,4,14,11,0.75,MR,MR,MR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+62,Eben Alexander,4,1,1,4,4,3,4,12,X,J,Journey/Transmission,4,14,11,0.75,CR,CR,CR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,1,0,1,,12,2,1.166666666666667,CR,MR,CR,CR,CR,True,MR,False,CR,True,True,1
+63,Eckhart Tolle,2,2,3,4,4,3,4,12,N,J,Journey/Transmission,4,15,12,0.75,CR,CR,CR,0,0,0,1,12,15,12,0,0,1,0,1,0,0,0,0,1,0,1,,12,3,1.25,CR,MR,CR,CR,CR,True,MR,False,CR,True,True,1
+64,Edgar Allan Poe,3,2,4,3,4,2,2,4,S,L,Loss/Limitation,3,16,14,0.25,SR,SR,SR,0,0,0,1,4,16,14,0,0,0,1,0,1,1,0,0,0,0,0,,4,12,4.0,SR,FR,SR,SR,SR,True,FR,False,SR,True,True,1
+65,Edith Stein,1,3,4,4,4,4,4,16,T,J,Journey/Transmission,4,16,12,1.0,MR,MR,MR,0,0,0,1,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+66,Elie Wiesel,3,4,3,4,3,3,4,12,T,J,Journey/Transmission,4,17,14,0.75,MR,MR,MR,0,0,0,1,12,17,14,0,0,1,0,1,0,0,0,0,0,0,0,,12,5,1.416666666666667,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+67,Elizabeth Cady Stanton,1,3,4,4,2,4,4,16,T,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,2,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+68,Elon Musk,1,1,4,3,2,4,2,8,N,G,Growth/Global,3,11,7,0.5,PR,PR,PR,0,0,0,2,8,11,7,0,0,0,0,0,0,1,0,0,0,1,1,,8,3,1.375,PR,FR,PR,PR,PR,True,FR,False,PR,True,True,1
+69,Emanuel Swedenborg,2,1,4,4,4,3,3,9,V,J,Journey/Transmission,4,15,12,0.56,SR,SR,SR,0,0,0,1,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,6,1.666666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+70,Emperor Constantine,1,2,2,3,4,3,3,9,V,J,Journey/Transmission,4,12,9,0.56,MR,MR,MR,0,0,0,1,9,12,9,0,0,0,0,0,0,0,0,0,0,0,0,4.0,9,3,1.333333333333333,MR,SR,MR,MR,MR,True,SR,False,MR,True,True,1
+71,Ernest Shackleton,2,4,2,3,2,4,4,16,N,G,Growth/Global,3,13,9,1.0,MR,MR,MR,0,0,0,1,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+72,Erwin Schrödinger,1,1,4,2,3,4,4,16,D,G,Growth/Global,4,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+73,Eugenia Ginzburg,3,4,3,4,3,4,4,16,T,J,Journey/Transmission,4,17,13,1.0,MR,MR,MR,0,0,0,2,16,17,13,0,0,1,0,1,0,0,0,0,0,0,0,,16,1,1.0625,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+74,Evelyn Underhill,3,2,3,3,4,3,4,12,S,L,Loss/Limitation,3,15,12,0.75,SR,SR,SR,0,0,0,2,12,15,12,0,0,1,0,1,0,0,0,0,0,0,0,,12,3,1.25,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+75,Ezekiel,1,2,2,3,4,3,3,9,V,J,Journey/Transmission,4,12,9,0.56,SR,SR,SR,0,0,0,1,9,12,9,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,3,1.333333333333333,MR,SR,SR,SR,MR,False,SR,True,SR,True,False,1
+76,Flannery O'Connor,4,2,3,3,4,3,4,12,S,L,Loss/Limitation,4,16,13,0.75,SR,SR,SR,0,0,0,1,12,16,13,0,0,1,0,1,0,0,0,0,0,0,0,,12,4,1.333333333333333,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+77,Florence Nightingale,2,3,3,4,3,4,4,16,T,G,Growth/Global,4,15,11,1.0,MR,MR,MR,0,0,0,1,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+78,Francis of Assisi,2,2,2,4,4,4,4,16,V,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,2,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+79,Franco Magnani,4,1,2,3,3,2,3,6,S,L,Loss/Limitation,4,13,11,0.38,SR,SR,SR,1,0,0,1,6,13,11,0,0,0,1,0,0,0,0,0,0,0,0,,6,7,2.166666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+80,Franklin D. Roosevelt,4,2,2,3,2,4,4,16,S,B,Biological/Individual,4,13,9,1.0,MR,MR,MR,0,0,0,1,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+81,Frederick Douglass,2,3,4,4,2,4,4,16,T,G,Growth/Global,4,15,11,1.0,MR,MR,MR,0,0,0,2,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+82,Frida Kahlo,4,2,2,4,3,3,3,9,S,B,Biological/Individual,4,15,12,0.56,SR,SR,SR,0,0,0,1,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,,9,6,1.666666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+83,Fridtjof Nansen,2,4,4,3,2,4,4,16,N,G,Growth/Global,3,15,11,1.0,PR,PR,PR,0,0,0,2,16,15,11,0,0,1,0,1,0,1,0,0,0,1,1,,16,-1,0.9375,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+84,Friedrich Nietzsche,4,2,4,4,3,2,1,2,S,C,Chaos/Fragmentation,3,17,15,0.12,FR,FR,FR,1,1,0,3,2,17,15,1,0,0,1,0,1,0,1,1,0,0,0,,2,15,8.5,FR,FR,FR,FR,FR,True,FR,True,FR,True,True,0
+85,Fyodor Dostoevsky,3,3,3,4,3,3,4,12,N,B,Biological/Individual,4,16,13,0.75,MR,MR,MR,0,0,0,3,12,16,13,0,0,1,0,1,0,0,0,0,0,0,0,,12,4,1.333333333333333,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+86,Galileo Galilei,1,3,4,3,2,4,4,16,D,G,Growth/Global,4,13,9,1.0,PR,PR,PR,0,0,0,1,16,13,9,0,0,1,0,1,0,1,0,0,0,1,1,,16,-3,0.8125,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+87,Gemma Galgani,4,2,1,4,4,3,3,9,S,J,Journey/Transmission,4,15,12,0.56,SR,SR,SR,0,0,0,1,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,,9,6,1.666666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+88,George Boole,1,1,4,2,2,4,4,16,D,G,Growth/Global,4,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+89,George de Mestral,1,1,4,2,2,4,4,16,D,G,Growth/Global,3,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+90,George Fox,1,2,2,4,4,3,4,12,V,J,Journey/Transmission,4,13,10,0.75,MR,MR,MR,0,0,0,1,12,13,10,0,0,1,0,1,0,0,0,0,0,0,0,,12,1,1.083333333333333,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+91,George Frideric Handel,4,2,2,3,4,3,4,12,S,L,Loss/Limitation,4,15,12,0.75,SR,SR,SR,0,0,0,1,12,15,12,0,0,1,0,1,0,0,0,0,0,0,0,,12,3,1.25,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+92,George Gurdjieff,3,3,3,4,4,4,3,12,H,B,Biological/Individual,4,17,13,0.75,CR,CR,CR,0,0,0,3,12,17,13,0,0,1,0,0,0,0,0,0,1,0,1,,12,5,1.416666666666667,CR,MR,CR,CR,CR,True,MR,False,CR,True,True,1
+93,George Orwell,3,3,4,4,2,3,4,12,T,G,Growth/Global,4,16,13,0.75,MR,MR,MR,0,0,0,3,12,16,13,0,0,1,0,1,0,0,0,0,0,0,0,,12,4,1.333333333333333,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+94,George Washington,1,3,3,4,2,4,4,16,N,B,Biological/Individual,3,13,9,1.0,MR,MR,MR,0,0,0,1,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+95,George Washington Carver,1,3,4,4,3,4,4,16,N,G,Growth/Global,4,15,11,1.0,PR,PR,PR,0,0,0,2,16,15,11,0,0,1,0,1,0,0,0,0,0,1,1,,16,-1,0.9375,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+96,Geronimo,1,4,2,4,3,3,3,9,V,J,Journey/Transmission,4,14,11,0.56,MR,MR,MR,0,0,0,2,9,14,11,0,0,0,0,0,0,0,0,0,0,0,0,,9,5,1.555555555555556,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+97,Grace Hopper,1,1,4,2,2,4,4,16,D,G,Growth/Global,4,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+98,Gregor Mendel,1,2,4,2,2,4,4,16,D,G,Growth/Global,4,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+99,Harriet Martineau,4,2,4,3,2,4,4,16,S,L,Loss/Limitation,3,15,11,1.0,PR,PR,PR,0,0,0,1,16,15,11,0,0,1,0,1,0,1,0,0,0,1,1,,16,-1,0.9375,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+100,Harriet Tubman,4,3,2,4,3,4,4,16,N,B,Biological/Individual,4,16,12,1.0,MR,MR,MR,0,0,0,2,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+101,Haruki Murakami,1,1,4,3,3,4,4,16,D,G,Growth/Global,4,12,8,1.0,SR,SR,SR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,0,0,,16,-4,0.75,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+102,Helen Keller,4,2,3,4,3,4,4,16,S,L,Loss/Limitation,4,16,12,1.0,MR,MR,MR,0,0,0,2,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+103,Helen Thayer,2,4,2,3,2,3,4,12,N,L,Loss/Limitation,3,13,10,0.75,MR,MR,MR,0,0,0,1,12,13,10,0,0,1,0,1,0,0,0,0,0,0,0,,12,1,1.083333333333333,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+104,Henri Becquerel,1,1,4,2,2,4,4,16,D,G,Growth/Global,4,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+105,Henri Matisse,4,2,2,3,3,3,4,12,S,L,Loss/Limitation,4,14,11,0.75,SR,SR,SR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+106,Henry David Thoreau,1,3,4,3,4,4,4,16,N,G,Growth/Global,3,15,11,1.0,CR,CR,CR,0,0,0,2,16,15,11,0,0,1,0,1,0,1,0,0,1,0,1,,16,-1,0.9375,CR,CR,CR,CR,CR,True,CR,True,CR,True,True,1
+107,Hildegard of Bingen,3,2,3,3,4,3,4,12,V,L,Loss/Limitation,4,15,12,0.75,SR,SR,SR,0,0,0,1,12,15,12,0,0,1,0,1,0,0,0,0,0,0,0,,12,3,1.25,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+108,Ibn Khaldun,2,4,4,3,2,4,4,16,N,G,Growth/Global,4,15,11,1.0,PR,PR,PR,0,0,0,3,16,15,11,0,0,1,0,1,0,1,0,0,0,1,1,,16,-1,0.9375,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+109,Ignatius of Loyola,3,3,2,4,4,4,4,16,T,G,Growth/Global,4,16,12,1.0,MR,MR,MR,0,0,0,3,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+110,Inanna,1,3,2,4,4,3,3,9,V,J,Journey/Transmission,4,14,11,0.56,SR,SR,SR,0,0,0,1,9,14,11,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,5,1.555555555555556,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+111,Isaac Newton,1,2,4,2,3,4,4,16,D,B,Biological/Individual,3,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+112,J.R.R. Tolkien,2,2,4,3,4,4,4,16,D,G,Growth/Global,4,15,11,1.0,SR,SR,SR,0,0,0,1,16,15,11,0,0,1,0,1,0,1,0,0,0,0,0,,16,-1,0.9375,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+113,Jacob Boehme,2,2,3,4,4,3,3,9,V,B,Biological/Individual,4,15,12,0.56,SR,SR,SR,0,0,0,2,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,6,1.666666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+114,James Baldwin,1,2,4,4,2,4,4,16,T,G,Growth/Global,4,13,9,1.0,MR,MR,MR,0,0,0,2,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+115,James Joyce,2,2,4,3,3,4,4,16,D,G,Growth/Global,4,14,10,1.0,SR,SR,SR,0,0,0,1,16,14,10,0,0,1,0,1,0,1,0,0,0,0,0,,16,-2,0.875,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+116,James Lovelock,1,1,4,2,3,4,4,16,D,G,Growth/Global,4,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+117,Jane Goodall,1,3,3,4,3,4,4,16,N,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+118,Jason Padgett,4,1,4,3,3,3,4,12,X,L,Loss/Limitation,4,15,12,0.75,SR,SR,SR,0,0,0,1,12,15,12,0,0,1,0,1,0,1,0,0,0,0,0,,12,3,1.25,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+119,Jawaharlal Nehru,1,4,3,4,2,4,4,16,T,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,2,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+120,Jean Dominique Bauby,4,2,3,3,3,3,4,12,S,L,Loss/Limitation,4,15,12,0.75,SR,SR,SR,0,0,0,1,12,15,12,0,0,1,0,1,0,0,0,0,0,0,0,,12,3,1.25,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+121,Jean Joseph Surin,2,3,2,4,4,2,3,6,V,L,Loss/Limitation,3,15,13,0.38,SR,SR,SR,0,0,0,1,6,15,13,0,0,0,1,0,0,0,0,0,0,0,0,0.0,6,9,2.5,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+122,Jean Paul Sartre,1,3,4,4,2,4,4,16,T,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,2,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+123,Jill Bolte Taylor,4,1,2,3,3,3,3,9,X,J,Journey/Transmission,4,13,10,0.56,CR,CR,CR,0,0,0,1,9,13,10,0,0,0,0,0,0,0,0,0,1,0,1,,9,4,1.444444444444444,CR,MR,CR,CR,CR,True,MR,False,CR,True,True,1
+124,Joan Didion,1,2,4,4,3,3,4,12,T,L,Loss/Limitation,4,14,11,0.75,SR,SR,SR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+125,Joan of Arc,2,2,2,4,4,3,3,9,A,J,Journey/Transmission,4,14,11,0.56,MR,MR,MR,0,0,0,2,9,14,11,0,0,0,0,0,0,0,0,0,0,0,0,,9,5,1.555555555555556,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+126,Johannes Kepler,1,2,4,2,3,4,4,16,D,G,Growth/Global,4,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+127,John Bunyan,1,4,3,4,4,3,4,12,V,J,Journey/Transmission,4,16,13,0.75,SR,SR,SR,0,0,0,2,12,16,13,0,0,1,0,1,0,0,0,0,0,0,0,,12,4,1.333333333333333,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+128,John Lennon,1,2,3,4,4,3,3,9,H,G,Growth/Global,4,14,11,0.56,SR,SR,SR,0,0,0,2,9,14,11,0,0,0,0,0,0,0,0,0,0,0,0,,9,5,1.555555555555556,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+129,John Maynard Keynes,1,3,4,2,2,4,4,16,D,G,Growth/Global,4,12,8,1.0,PR,PR,PR,0,0,0,2,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+130,John Milton,4,2,4,3,4,4,4,16,S,L,Loss/Limitation,4,17,13,1.0,SR,SR,SR,0,0,0,1,16,17,13,0,0,1,0,1,0,1,0,0,0,0,0,,16,1,1.0625,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+131,John Nash,3,2,4,4,3,3,2,6,H,C,Chaos/Fragmentation,4,16,13,0.38,FR,FR,PR,0,1,0,2,6,16,13,1,0,0,1,0,0,0,1,0,0,0,0,,6,10,2.666666666666667,FR,FR,FR,FR,FR,True,FR,True,FR,True,True,0
+132,John Newton,2,3,2,4,4,3,4,12,T,G,Growth/Global,4,15,12,0.75,MR,MR,MR,0,0,0,1,12,15,12,0,0,1,0,1,0,0,0,0,0,0,0,,12,3,1.25,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+133,John of Patmos,1,3,2,3,4,3,3,9,V,J,Journey/Transmission,4,13,10,0.56,SR,SR,SR,0,0,0,1,9,13,10,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,4,1.444444444444444,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+134,Joseph Smith,1,2,2,4,4,3,3,9,V,J,Journey/Transmission,4,13,10,0.56,MR,MR,MR,0,0,0,1,9,13,10,0,0,0,0,0,0,0,0,0,0,0,0,3.0,9,4,1.444444444444444,MR,SR,MR,MR,MR,True,SR,False,MR,True,True,1
+135,Julian of Norwich,3,2,2,4,4,3,4,12,V,B,Biological/Individual,4,15,12,0.75,SR,SR,SR,0,0,0,1,12,15,12,0,0,1,0,1,0,0,0,0,0,0,0,,12,3,1.25,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+136,Katherine Johnson,1,2,4,2,2,4,4,16,D,G,Growth/Global,3,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+137,Katherine Mansfield,4,2,3,3,3,3,4,12,S,L,Loss/Limitation,4,15,12,0.75,SR,SR,SR,0,0,0,1,12,15,12,0,0,1,0,1,0,0,0,0,0,0,0,,12,3,1.25,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+138,Katsushika Hokusai,2,2,3,3,4,4,4,16,N,L,Loss/Limitation,4,14,10,1.0,SR,SR,SR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+139,King Ashoka,1,2,2,4,3,3,4,12,N,B,Biological/Individual,4,12,9,0.75,MR,MR,MR,0,0,0,2,12,12,9,0,0,1,0,1,0,0,0,0,0,0,0,,12,0,1.0,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+140,Kurt Gödel,1,1,4,2,3,4,4,16,D,G,Growth/Global,4,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+141,Kurt Vonnegut,2,4,3,4,3,3,4,12,T,G,Growth/Global,4,16,13,0.75,MR,MR,MR,0,0,0,2,12,16,13,0,0,1,0,1,0,0,0,0,0,0,0,,12,4,1.333333333333333,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+142,Lao Tzu,1,3,3,3,4,4,4,16,N,G,Growth/Global,4,14,10,1.0,CR,CR,CR,0,0,0,2,16,14,10,0,0,1,0,1,0,0,0,0,1,0,1,,16,-2,0.875,CR,CR,CR,CR,CR,True,CR,True,CR,True,True,1
+143,Leo Tolstoy,1,1,4,4,3,4,4,16,N,B,Biological/Individual,4,13,9,1.0,MR,MR,MR,0,0,0,1,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+144,Leonardo da Vinci,1,2,4,2,3,4,4,16,D,G,Growth/Global,4,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+145,Leonhard Euler,4,1,4,2,2,4,4,16,S,L,Loss/Limitation,4,13,9,1.0,PR,PR,PR,0,0,0,2,16,13,9,0,0,1,0,1,0,1,0,0,0,1,1,,16,-3,0.8125,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+146,Linus Pauling,2,1,4,2,3,4,4,16,D,G,Growth/Global,3,12,8,1.0,PR,PR,PR,0,0,0,2,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+147,Louis Braille,4,2,3,3,2,4,4,16,S,L,Loss/Limitation,4,14,10,1.0,PR,PR,PR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,1,1,,16,-2,0.875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+148,Louis Pasteur,3,1,4,2,2,4,4,16,D,G,Growth/Global,4,12,8,1.0,PR,PR,PR,0,0,0,2,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+149,Ludwig Wittgenstein,1,2,4,3,3,4,4,16,D,G,Growth/Global,4,13,9,1.0,PR,PR,PR,0,0,0,2,16,13,9,0,0,1,0,1,0,1,0,0,0,1,1,,16,-3,0.8125,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+150,Lydwine of Schiedam,4,2,1,4,4,2,3,6,S,J,Journey/Transmission,4,15,13,0.38,SR,SR,SR,0,0,0,1,6,15,13,0,0,0,1,0,0,0,0,0,0,0,0,,6,9,2.5,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+151,Mahatma Gandhi,2,3,3,4,3,4,4,16,N,G,Growth/Global,4,15,11,1.0,MR,MR,MR,0,0,0,1,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+152,Malala Yousafzai,4,2,2,4,3,4,4,16,N,J,Journey/Transmission,4,15,11,1.0,MR,MR,MR,0,0,0,2,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+153,Malcolm X,2,4,3,4,3,4,4,16,T,B,Biological/Individual,4,16,12,1.0,MR,MR,MR,0,0,0,2,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+154,Malidoma Somé,2,2,2,4,4,3,4,12,H,B,Biological/Individual,4,14,11,0.75,MR,MR,MR,0,0,0,2,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+155,Marco Polo,1,4,3,3,2,3,4,12,N,J,Journey/Transmission,3,13,10,0.75,MR,MR,MR,0,0,0,1,12,13,10,0,0,1,0,1,0,0,0,0,0,0,0,,12,1,1.083333333333333,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+156,Marcus Aurelius,2,3,4,4,3,4,4,16,N,G,Growth/Global,4,16,12,1.0,MR,MR,MR,0,0,0,1,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+157,Marie Curie,2,2,4,3,2,4,4,16,D,G,Growth/Global,4,13,9,1.0,PR,PR,PR,0,0,0,2,16,13,9,0,0,1,0,1,0,1,0,0,0,1,1,,16,-3,0.8125,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+158,Martha Graham,2,1,4,3,4,4,4,16,D,G,Growth/Global,4,14,10,1.0,SR,SR,SR,0,0,0,1,16,14,10,0,0,1,0,1,0,1,0,0,0,0,0,,16,-2,0.875,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+159,Martin Luther,2,3,4,4,3,4,4,16,T,G,Growth/Global,4,16,12,1.0,MR,MR,MR,0,0,0,1,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+160,Martin Luther King Jr.,2,2,3,4,3,4,4,16,A,J,Journey/Transmission,4,14,10,1.0,MR,MR,MR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+161,Mary Baker Eddy,4,2,3,4,4,3,3,9,V,J,Journey/Transmission,4,17,14,0.56,MR,MR,MR,0,0,0,2,9,17,14,0,0,0,0,0,0,0,0,0,0,0,0,3.0,9,8,1.888888888888889,MR,SR,MR,MR,MR,True,SR,False,MR,True,True,1
+162,Mary Magdalene,1,2,2,4,4,3,3,9,V,B,Biological/Individual,4,13,10,0.56,SR,SR,SR,0,0,0,2,9,13,10,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,4,1.444444444444444,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+163,Mary McLeod Bethune,1,3,3,4,3,4,4,16,T,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+164,Mary Shelley,1,2,4,3,4,4,4,16,D,J,Journey/Transmission,4,14,10,1.0,PR,PR,PR,0,0,0,2,16,14,10,0,0,1,0,1,0,1,0,0,0,1,1,,16,-2,0.875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+165,Max Planck,1,1,4,2,3,4,4,16,D,G,Growth/Global,4,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+166,Maximilien Robespierre,1,3,3,4,3,2,2,4,A,C,Chaos/Fragmentation,4,14,12,0.25,FR,FR,FR,1,1,0,2,4,14,12,1,0,0,1,0,1,0,1,1,0,0,0,,4,10,3.5,FR,FR,FR,FR,FR,True,FR,True,FR,True,True,0
+167,Mechthild of Magdeburg,2,3,2,4,4,3,3,9,V,J,Journey/Transmission,4,15,12,0.56,SR,SR,SR,0,0,0,2,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,6,1.666666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+168,Meister Eckhart,1,2,4,4,4,4,4,16,N,G,Growth/Global,4,15,11,1.0,CR,CR,CR,0,0,0,2,16,15,11,0,0,1,0,1,0,0,0,0,1,0,1,,16,-1,0.9375,CR,CR,CR,CR,CR,True,CR,True,CR,True,True,1
+169,Michael Faraday,1,1,4,2,3,4,4,16,D,G,Growth/Global,4,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+170,Miguel de Molinos,1,4,2,4,4,3,3,9,V,L,Loss/Limitation,4,15,12,0.56,SR,SR,SR,0,0,0,1,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,6,1.666666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+171,Moses,1,3,2,4,4,4,4,16,A,J,Journey/Transmission,4,14,10,1.0,MR,MR,MR,0,0,0,2,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+172,Mother Teresa,2,3,2,4,4,3,4,12,V,G,Growth/Global,4,15,12,0.75,MR,MR,MR,0,0,0,1,12,15,12,0,0,1,0,1,0,0,0,0,0,0,0,,12,3,1.25,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+173,Mozart,1,1,4,2,4,4,4,16,D,B,Biological/Individual,4,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+174,Muhammad,1,2,2,4,4,4,4,16,A,J,Journey/Transmission,4,13,9,1.0,MR,MR,MR,0,0,0,1,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+175,Muhammad Ali,2,3,2,4,3,4,4,16,T,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+176,Nat Turner,1,4,2,4,3,2,1,2,V,C,Chaos/Fragmentation,4,14,12,0.12,FR,FR,FR,1,1,0,2,2,14,12,1,0,0,1,0,1,0,1,1,0,0,0,,2,12,7.0,FR,FR,FR,FR,FR,True,FR,True,FR,True,True,0
+177,Naval Ravikant,1,1,4,3,3,3,4,12,N,G,Growth/Global,3,12,9,0.75,PR,PR,PR,0,0,0,2,12,12,9,0,0,1,0,1,0,1,0,0,0,1,1,,12,0,1.0,PR,MR,PR,PR,PR,True,MR,False,PR,True,True,1
+178,NDE Survivors,4,1,1,4,4,3,3,9,X,J,Journey/Transmission,4,14,11,0.56,CR,CR,CR,0,0,0,2,9,14,11,0,0,0,0,0,0,0,0,0,1,0,1,,9,5,1.555555555555556,CR,CR,CR,CR,CR,True,CR,True,CR,True,True,1
+179,Nelson Mandela,2,4,3,4,2,4,4,16,N,G,Growth/Global,4,15,11,1.0,MR,MR,MR,0,0,0,2,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+180,Niccolò Machiavelli,2,4,4,3,2,4,4,16,T,G,Growth/Global,4,15,11,1.0,PR,PR,PR,0,0,0,2,16,15,11,0,0,1,0,1,0,1,0,0,0,1,1,,16,-1,0.9375,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+181,Niels Bohr,1,1,4,2,3,4,4,16,N,G,Growth/Global,3,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+182,Nikola Tesla,2,1,4,3,4,4,3,12,V,L,Loss/Limitation,4,14,10,0.75,PR,PR,PR,0,0,0,2,12,14,10,0,0,1,0,0,0,1,0,0,0,1,1,,12,2,1.166666666666667,PR,MR,PR,PR,PR,True,MR,False,PR,True,True,1
+183,Noam Chomsky,1,1,4,2,2,4,4,16,D,G,Growth/Global,4,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+184,Norbert Wiener,1,2,4,2,2,4,4,16,D,G,Growth/Global,4,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+185,Oprah Winfrey,2,2,3,4,3,4,4,16,N,G,Growth/Global,4,14,10,1.0,MR,MR,MR,0,0,0,2,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+186,Oscar Wilde,2,4,4,4,3,3,4,12,T,L,Loss/Limitation,4,17,14,0.75,SR,SR,SR,0,0,0,2,12,17,14,0,0,1,0,1,0,0,0,0,0,0,0,,12,5,1.416666666666667,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+187,Pablo Picasso,1,2,4,3,4,4,4,16,D,G,Growth/Global,4,14,10,1.0,SR,SR,SR,0,0,0,1,16,14,10,0,0,1,0,1,0,1,0,0,0,0,0,,16,-2,0.875,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+188,Padre Pio,4,2,1,4,4,3,3,9,S,J,Journey/Transmission,4,15,12,0.56,SR,SR,SR,0,0,0,1,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,,9,6,1.666666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+189,Paramahansa Yogananda,1,2,2,4,4,4,4,16,N,G,Growth/Global,4,13,9,1.0,CR,CR,CR,0,0,0,1,16,13,9,0,0,1,0,1,0,0,0,0,1,0,1,,16,-3,0.8125,CR,CR,CR,CR,CR,True,CR,True,CR,True,True,1
+190,Philip K. Dick,2,2,4,4,4,3,2,6,V,L,Loss/Limitation,4,16,13,0.38,SR,SR,SR,0,0,0,3,6,16,13,0,0,0,1,0,0,0,0,0,0,0,0,0.0,6,10,2.666666666666667,SR,FR,SR,SR,SR,True,FR,False,SR,True,True,1
+191,Phineas Gage,4,1,2,4,1,1,1,1,S,C,Chaos/Fragmentation,4,12,11,0.06,FR,FR,FR,1,1,0,1,1,12,11,1,0,0,1,0,1,0,1,1,0,0,0,,1,11,12.0,FR,FR,FR,FR,FR,True,FR,True,FR,True,True,0
+192,Plato,1,2,4,4,4,4,4,16,T,G,Growth/Global,4,15,11,1.0,MR,MR,MR,0,0,0,2,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+193,Primo Levi,3,4,4,4,2,3,4,12,T,J,Journey/Transmission,4,17,14,0.75,MR,MR,MR,0,0,0,3,12,17,14,0,0,1,0,1,0,0,0,0,0,0,0,,12,5,1.416666666666667,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+194,Pythagoras,1,3,4,3,4,4,4,16,N,G,Growth/Global,4,15,11,1.0,MR,MR,MR,0,0,0,2,16,15,11,0,0,1,0,1,0,1,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+195,Rachel Carson,2,2,4,3,2,4,4,16,D,G,Growth/Global,4,13,9,1.0,PR,PR,PR,0,0,0,2,16,13,9,0,0,1,0,1,0,1,0,0,0,1,1,,16,-3,0.8125,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+196,Ram Dass,1,2,3,4,4,3,4,12,H,G,Growth/Global,4,14,11,0.75,CR,CR,CR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,1,0,1,,12,2,1.166666666666667,CR,MR,CR,CR,CR,True,MR,False,CR,True,True,1
+197,Ramakrishna,4,1,2,4,4,3,4,12,V,J,Journey/Transmission,4,15,12,0.75,CR,CR,CR,0,0,0,2,12,15,12,0,0,1,0,1,0,0,0,0,1,0,1,,12,3,1.25,CR,MR,CR,CR,CR,True,MR,False,CR,True,True,1
+198,Ramanujan,1,1,4,2,4,4,4,16,D,B,Biological/Individual,4,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+199,René Descartes,1,1,4,3,3,4,4,16,D,B,Biological/Individual,4,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+200,Richard Byrd,2,4,2,3,3,3,4,12,N,L,Loss/Limitation,3,14,11,0.75,MR,MR,MR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+201,Richard Lovelace,1,4,3,3,4,3,3,9,V,L,Loss/Limitation,3,15,12,0.56,SR,SR,SR,0,0,0,1,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,6,1.666666666666667,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+202,Robert Schumann,4,2,3,4,4,2,2,4,S,C,Chaos/Fragmentation,3,17,15,0.25,SR,SR,SR,0,0,1,1,4,17,15,0,1,0,1,0,1,0,0,0,0,0,0,,4,13,4.25,SR,FR,SR,SR,SR,True,FR,False,SR,True,True,1
+203,Robert Stroud,1,4,3,3,2,3,4,12,N,L,Loss/Limitation,3,13,10,0.75,PR,PR,PR,0,0,0,1,12,13,10,0,0,1,0,1,0,0,0,0,0,1,1,,12,1,1.083333333333333,PR,MR,PR,PR,PR,True,MR,False,PR,True,True,1
+204,Rosa Parks,1,2,2,4,3,4,4,16,A,J,Journey/Transmission,4,12,8,1.0,MR,MR,MR,0,0,0,1,16,12,8,0,0,1,0,1,0,0,0,0,0,0,0,,16,-4,0.75,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+205,Rosalind Franklin,1,2,4,2,2,4,4,16,D,G,Growth/Global,4,11,7,1.0,PR,PR,PR,0,0,0,1,16,11,7,0,0,1,0,1,0,1,0,0,0,1,1,,16,-5,0.6875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+206,Rumi,1,2,2,4,4,4,4,16,H,B,Biological/Individual,4,13,9,1.0,CR,CR,CR,0,0,0,2,16,13,9,0,0,1,0,1,0,0,0,0,1,0,1,,16,-3,0.8125,CR,CR,CR,CR,CR,True,CR,True,CR,True,True,1
+207,Sarah Bernhardt,4,2,2,3,3,3,4,12,S,L,Loss/Limitation,4,14,11,0.75,SR,SR,SR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+208,Shams Tabrizi,1,2,2,4,4,4,4,16,H,J,Journey/Transmission,4,13,9,1.0,CR,CR,CR,0,0,0,2,16,13,9,0,0,1,0,1,0,0,0,0,1,0,1,,16,-3,0.8125,CR,CR,CR,CR,CR,True,CR,True,CR,True,True,1
+209,Sheikh Ahmed Bamba,1,4,2,4,4,3,4,12,V,J,Journey/Transmission,4,15,12,0.75,MR,MR,MR,0,0,0,1,12,15,12,0,0,1,0,1,0,0,0,0,0,0,0,,12,3,1.25,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+210,Shoko Asahara,3,2,2,4,2,1,1,1,V,C,Chaos/Fragmentation,4,13,12,0.06,FR,FR,FR,1,1,0,2,1,13,12,1,0,0,1,0,1,0,1,1,0,0,0,,1,12,13.0,FR,FR,FR,FR,FR,True,FR,True,FR,True,True,0
+211,Simone de Beauvoir,1,2,4,4,2,4,4,16,T,G,Growth/Global,4,13,9,1.0,MR,MR,MR,0,0,0,2,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+212,Simone Weil,2,2,4,4,4,4,4,16,N,G,Growth/Global,4,16,12,1.0,MR,MR,MR,0,0,0,2,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+213,Sitting Bull,1,3,2,4,4,3,4,12,V,J,Journey/Transmission,4,14,11,0.75,MR,MR,MR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+214,Socrates,1,2,4,4,3,4,4,16,A,L,Loss/Limitation,4,14,10,1.0,MR,MR,MR,0,0,0,3,16,14,10,0,0,1,0,1,0,0,0,0,0,0,0,,16,-2,0.875,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+215,Sojourner Truth,2,3,3,4,3,4,4,16,A,B,Biological/Individual,4,15,11,1.0,MR,MR,MR,0,0,0,1,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+216,St. Anthony,1,4,2,4,4,3,4,12,V,J,Journey/Transmission,4,15,12,0.75,CR,CR,CR,0,0,0,1,12,15,12,0,0,1,0,1,0,0,0,0,1,0,1,,12,3,1.25,CR,MR,CR,CR,CR,True,MR,False,CR,True,True,1
+217,St. Augustine,1,2,3,4,3,3,4,12,T,B,Biological/Individual,4,13,10,0.75,MR,MR,MR,0,0,0,2,12,13,10,0,0,1,0,1,0,0,0,0,0,0,0,,12,1,1.083333333333333,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+218,St. John of the Cross,3,4,2,4,4,3,4,12,V,L,Loss/Limitation,4,17,14,0.75,SR,SR,SR,0,0,0,3,12,17,14,0,0,1,0,1,0,0,0,0,0,0,0,,12,5,1.416666666666667,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+219,St. Paul,4,2,2,4,3,3,3,9,A,J,Journey/Transmission,4,15,12,0.56,MR,MR,MR,0,0,0,3,9,15,12,0,0,0,0,0,0,0,0,0,0,0,0,,9,6,1.666666666666667,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+220,Steve Jobs,2,2,4,4,3,4,3,12,N,B,Biological/Individual,4,15,11,0.75,PR,PR,PR,0,0,0,2,12,15,11,0,0,1,0,0,0,0,0,0,0,1,1,,12,3,1.25,PR,MR,PR,PR,PR,True,MR,False,PR,True,True,1
+221,Sun Tzu,1,2,4,3,2,4,4,16,N,G,Growth/Global,3,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+222,Susan B. Anthony,1,2,3,4,2,4,4,16,T,G,Growth/Global,4,12,8,1.0,MR,MR,MR,0,0,0,1,16,12,8,0,0,1,0,1,0,0,0,0,0,0,0,,16,-4,0.75,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+223,T.S. Eliot,2,2,4,4,3,3,4,12,T,L,Loss/Limitation,4,15,12,0.75,SR,SR,SR,0,0,0,2,12,15,12,0,0,1,0,1,0,0,0,0,0,0,0,,12,3,1.25,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+224,Tecumseh,1,4,2,4,3,3,3,9,V,J,Journey/Transmission,4,14,11,0.56,MR,MR,MR,0,0,0,1,9,14,11,0,0,0,0,0,0,0,0,0,0,0,0,,9,5,1.555555555555556,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+225,Temple Grandin,4,2,3,3,2,4,4,16,S,L,Loss/Limitation,4,14,10,1.0,PR,PR,PR,0,0,0,1,16,14,10,0,0,1,0,1,0,0,0,0,0,1,1,,16,-2,0.875,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+226,Teresa of Ávila,2,2,2,4,4,3,4,12,S,L,Loss/Limitation,4,14,11,0.75,SR,SR,SR,0,0,0,3,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+227,The Beatles,1,2,4,3,4,4,4,16,D,G,Growth/Global,4,14,10,1.0,SR,SR,SR,0,0,0,1,16,14,10,0,0,1,0,1,0,1,0,0,0,0,0,,16,-2,0.875,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+228,Thea Bowman,4,2,2,4,4,3,4,12,S,J,Journey/Transmission,4,16,13,0.75,MR,MR,MR,0,0,0,1,12,16,13,0,0,1,0,1,0,0,0,0,0,0,0,,12,4,1.333333333333333,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1
+229,Therese Neumann,4,2,1,4,4,2,3,6,S,J,Journey/Transmission,4,15,13,0.38,SR,SR,SR,0,0,0,1,6,15,13,0,0,0,1,0,0,0,0,0,0,0,0,,6,9,2.5,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+230,Thomas Edison,3,1,4,2,2,4,4,16,D,G,Growth/Global,4,12,8,1.0,PR,PR,PR,0,0,0,2,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+231,Thomas Kuhn,1,1,4,2,2,4,4,16,D,G,Growth/Global,4,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+232,Thomas Merton,1,3,3,4,3,4,4,16,N,G,Growth/Global,3,14,10,1.0,CR,CR,CR,0,0,0,2,16,14,10,0,0,1,0,1,0,0,0,0,1,0,1,,16,-2,0.875,CR,CR,CR,CR,CR,True,CR,True,CR,True,True,1
+233,Viktor Frankl,2,4,3,4,2,4,4,16,N,G,Growth/Global,4,15,11,1.0,MR,MR,MR,0,0,0,2,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+234,Viktor Schauberger,1,2,4,2,3,3,3,9,V,B,Biological/Individual,3,12,9,0.56,PR,PR,PR,0,0,0,1,9,12,9,0,0,0,0,0,0,1,0,0,0,1,1,,9,3,1.333333333333333,PR,PR,PR,PR,PR,True,PR,True,PR,True,True,1
+235,Václav Havel,2,4,3,4,3,4,4,16,T,G,Growth/Global,4,16,12,1.0,MR,MR,MR,0,0,0,2,16,16,12,0,0,1,0,1,0,0,0,0,0,0,0,,16,0,1.0,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+236,W.E.B. Du Bois,1,2,4,4,2,4,4,16,T,G,Growth/Global,4,13,9,1.0,MR,MR,MR,0,0,0,1,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+237,Walt Whitman,2,2,3,4,4,4,4,16,N,G,Growth/Global,4,15,11,1.0,SR,SR,SR,0,0,0,3,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,SR,CR,SR,SR,SR,True,CR,False,SR,True,True,1
+238,Werner Heisenberg,1,2,4,2,3,4,4,16,N,B,Biological/Individual,3,12,8,1.0,PR,PR,PR,0,0,0,1,16,12,8,0,0,1,0,1,0,1,0,0,0,1,1,,16,-4,0.75,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+239,Wilhelm Röntgen,1,1,4,2,2,4,4,16,D,G,Growth/Global,4,10,6,1.0,PR,PR,PR,0,0,0,1,16,10,6,0,0,1,0,1,0,1,0,0,0,1,1,,16,-6,0.625,PR,CR,PR,PR,PR,True,CR,False,PR,True,True,1
+240,William Blake,2,1,3,3,4,3,3,9,V,L,Loss/Limitation,4,13,10,0.56,SR,SR,SR,0,0,0,2,9,13,10,0,0,0,0,0,0,0,0,0,0,0,0,0.0,9,4,1.444444444444444,SR,SR,SR,SR,SR,True,SR,True,SR,True,True,1
+241,William Wilberforce,1,2,3,4,3,4,4,16,T,G,Growth/Global,4,13,9,1.0,MR,MR,MR,0,0,0,1,16,13,9,0,0,1,0,1,0,0,0,0,0,0,0,,16,-3,0.8125,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+242,Winston Churchill,2,3,3,4,3,4,4,16,T,G,Growth/Global,4,15,11,1.0,MR,MR,MR,0,0,0,1,16,15,11,0,0,1,0,1,0,0,0,0,0,0,0,,16,-1,0.9375,MR,CR,MR,MR,MR,True,CR,False,MR,True,True,1
+243,Yayoi Kusama,4,2,3,4,4,3,2,6,V,L,Loss/Limitation,4,17,14,0.38,SR,SR,SR,0,0,0,1,6,17,14,0,0,0,1,0,0,0,0,0,0,0,0,0.0,6,11,2.833333333333333,SR,FR,SR,SR,SR,True,FR,False,SR,True,True,1
+244,Zora Neale Hurston,1,2,3,4,4,3,4,12,N,L,Loss/Limitation,4,14,11,0.75,SR,SR,SR,0,0,0,1,12,14,11,0,0,1,0,1,0,0,0,0,0,0,0,,12,2,1.166666666666667,SR,MR,SR,SR,SR,True,MR,False,SR,True,True,1
+245,Zoroaster,1,2,2,4,4,3,4,12,V,B,Biological/Individual,4,13,10,0.75,MR,MR,MR,0,0,0,2,12,13,10,0,0,1,0,1,0,0,0,0,0,0,0,,12,1,1.083333333333333,MR,MR,MR,MR,MR,True,MR,True,MR,True,True,1

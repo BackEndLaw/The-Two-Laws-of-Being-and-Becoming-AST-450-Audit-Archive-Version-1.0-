@@ -1,0 +1,41 @@
+Case_ID,Name,S,A,B,Ir_score,Irreversible,Source_Group,Cluster_Actual,Notes
+001,Pam Reynolds,3.0,2.5,2.5,3,Y,Medically_Verified,Collapse_Reorganization_Regime,Surgical flatline accurate perceptions
+002,Eben Alexander,3.0,3.0,3.0,4,Y,Medically_Verified,Collapse_Reorganization_Regime,Deep coma maximal shift
+003,Anita Moorjani,2.5,3.0,3.0,4,Y,Medically_Verified,Collapse_Reorganization_Regime,Recovery and identity shift
+004,"Maria ""Shoe on Ledge""",2.5,2.0,2.0,2,Y,Medically_Verified,Collapse_Reorganization_Regime,Verified perception moderate shift
+005,Al Sullivan,2.5,2.0,2.0,2,Y,Medically_Verified,Collapse_Reorganization_Regime,Surgical OBE
+006,Dentures Man,2.5,2.0,1.5,2,Y,Medically_Verified,Collapse_Reorganization_Regime,Verified memory moderate change
+007,Man in Blue Suit,2.0,2.0,1.5,1,N,Medically_Verified,Collapse_Reorganization_Regime,Accurate perception mild shift
+008,Flatline Child,2.5,2.5,2.0,3,Y,Medically_Verified,Collapse_Reorganization_Regime,Strong coherence identity shift
+009,ICU Nurse Verified OBE,2.0,2.0,1.5,1,N,Medically_Verified,Collapse_Reorganization_Regime,Verified OBE mild change
+010,Blind-from-birth NDE,3.0,3.0,2.5,3,Y,Medically_Verified,Collapse_Reorganization_Regime,Visual perception and identity shift
+011,CPR Room Description,2.0,2.0,1.5,1,N,Medically_Verified,Collapse_Reorganization_Regime,Accurate details mild shift
+012,Operating Room Dialogue,2.0,2.0,1.0,1,N,Medically_Verified,Collapse_Reorganization_Regime,Verified hearing low B
+013,Defibrillator Color Case,2.0,2.0,1.0,1,N,Medically_Verified,Collapse_Reorganization_Regime,Accurate perception minimal change
+014,Dropped Instrument Case,2.0,2.0,1.0,1,N,Medically_Verified,Collapse_Reorganization_Regime,Verified OBE low identity shift
+015,Accurate Medical Dialogue,2.0,2.0,1.0,1,N,Medically_Verified,Collapse_Reorganization_Regime,Mild coherence low B
+016,Howard Storm,2.5,2.5,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Radical lifelong change
+017,George Ritchie,3.0,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,WWII death strong coherence
+018,Betty Eadie,2.5,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Major worldview shift
+019,Mellen-Thomas Benedict,2.0,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Terminal cancer to recovery
+020,Reinee Pasarow,2.5,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Childhood NDE to lifelong transformation
+021,Jeff Olsen,3.0,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Trauma and identity reorganization
+022,Tricia Barker,2.5,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Spiritual and personality shift
+023,Mary Neal,2.5,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Drowning strong coherence
+024,Rajiv Parti,2.0,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Career and identity overhaul
+025,Barbara Whitfield,2.0,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Trauma to identity shift
+026,Nancy Evans Bush,3.0,1.0,2.5,2,Mixed,Distressing,Critical_Regime,Distressing NDE low coherence
+027,Pit Experience,3.0,1.0,2.0,2,Mixed,Distressing,Critical_Regime,High S low A
+028,Dark Void Case,3.0,0.5,2.0,1,N,Distressing,Critical_Regime,Poor integration
+029,Screaming Faces Case,3.0,0.5,2.0,1,N,Distressing,Critical_Regime,High S low A
+030,Hostile Entities Case,3.0,1.0,2.0,2,Mixed,Distressing,Critical_Regime,Identity pressure but low coherence
+031,Typical Cardiac Arrest,2.0,2.0,1.5,2,Usually Y,Typical,Stable_Regime,Moderate shift
+032,Standard Drowning,2.0,2.0,1.0,1,N,Typical,Stable_Regime,Mild change
+033,Routine Surgical NDE,1.5,2.0,1.0,1,N,Typical,Stable_Regime,Light tunnel peace
+034,Car Accident NDE,1.5,2.0,1.0,1,N,Typical,Stable_Regime,Brief OBE
+035,Fainting/Trauma NDE,1.0,1.5,0.5,0,N,Typical,Stable_Regime,Minimal identity shift
+036,Unknown Cousin Death,2.0,3.0,2.5,3,Y,Peak_in_Darien,Collapse_Reorganization_Regime,Surprise encounter
+037,Unexpected Brother,2.0,3.0,2.5,3,Y,Peak_in_Darien,Collapse_Reorganization_Regime,Verified post-death appearance
+038,Recently Deceased Friend,2.0,3.0,2.0,2,Y,Peak_in_Darien,Collapse_Reorganization_Regime,High coherence
+039,Hospital Death Notification,2.0,2.5,2.0,2,Y,Peak_in_Darien,Collapse_Reorganization_Regime,Accurate encounter
+040,Accurate Post-Death Appearance,2.0,3.0,2.5,3,Y,Peak_in_Darien,Collapse_Reorganization_Regime,High A and B

@@ -49,6 +49,105 @@ for col in required_cols:
 print("✓ All required columns present")
 
 
+def _safe_float(value, default=np.nan):
+    """Best-effort numeric cast that keeps NaN semantics stable."""
+    try:
+        if pd.isna(value):
+            return default
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_flag(value):
+    """Interpret mixed numeric/text rule flags as 0/1."""
+    try:
+        return 1.0 if int(float(value)) == 1 else 0.0
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def compute_minimal_remainder_p(row):
+    """
+    Operationalize minimal generative remainder p in [0, 1].
+
+        Concept mapping (strict successor-minimum):
+            - Λ/Φ split signal: contradiction pressure where Load > Q
+            - Survival carrier: minimal structural rescue capacity
+            - Fragility drag: structural gaps/fragmentation
+
+        Note:
+            p-score intentionally excludes direct coherence/identity carryover terms
+            (e.g., Q ratio, C, Φ) so p reflects minimal survivable organization,
+            not persistence of prior identity.
+    """
+    c = _safe_float(row.get("C", np.nan))
+    phi = _safe_float(row.get("Φ", np.nan))
+    load = _safe_float(row.get("Load", np.nan))
+
+    if np.isnan(c) or np.isnan(phi) or np.isnan(load):
+        return {
+            "Lambda_Phi_Split": np.nan,
+            "p": np.nan,
+            "p_survives": np.nan,
+            "Succession_Path": np.nan,
+        }
+
+    q = c * phi
+    contradiction = max(0.0, load - q)
+    contradiction_norm = np.clip(contradiction / max(load, 1.0), 0.0, 1.0)
+    template_deficit = _safe_flag(row.get("Template_Deficit", 0))
+    fr_rule = _safe_flag(row.get("FR_rule", 0))
+    low_c_low_phi = _safe_flag(row.get("Low_C_low_Phi_rule", 0))
+
+    rescue_signal = max(
+        _safe_flag(row.get("Rescue", 0)),
+        _safe_flag(row.get("Rescue_rule", 0)),
+    )
+
+    # Minimal surviving scaffold under collapse pressure.
+    survival_capacity = np.clip(
+        0.55 * rescue_signal
+        + 0.25 * (1.0 - template_deficit)
+        + 0.20 * (1.0 - fr_rule),
+        0.0,
+        1.0,
+    )
+
+    fragility = np.clip(
+        0.45 * template_deficit + 0.35 * fr_rule + 0.20 * low_c_low_phi,
+        0.0,
+        1.0,
+    )
+
+    # Weighted score, then sigmoid to keep p bounded and smooth.
+    p_score = (
+        1.10 * survival_capacity
+        - 1.10 * contradiction_norm
+        - 0.85 * fragility
+    )
+    p_value = 1.0 / (1.0 + np.exp(-2.0 * p_score))
+
+    split = 1.0 if contradiction > 0 else 0.0
+    p_survives = 1.0 if (split == 1.0 and p_value >= 0.55) else 0.0
+
+    if split == 0.0:
+        succession_path = "No_Collapse_Basin"
+    elif p_value >= 0.65:
+        succession_path = "Succession_Potential"
+    elif p_value >= 0.45:
+        succession_path = "Residual_Continuity_Risk"
+    else:
+        succession_path = "Debris_or_Zombie_Continuity"
+
+    return {
+        "Lambda_Phi_Split": split,
+        "p": float(np.clip(p_value, 0.0, 1.0)),
+        "p_survives": p_survives,
+        "Succession_Path": succession_path,
+    }
+
+
 # ============================================================
 # 1.5 OPTIONAL EXT MERGE (CASE_ID JOIN)
 # ============================================================
@@ -121,6 +220,12 @@ print("✓ Computed Q (C × Φ)")
 print("✓ Computed Tension (Load − Q)")
 print("✓ Computed κ (Load / Q)")
 
+# Minimal generative remainder p and succession path coding.
+p_df = df.apply(compute_minimal_remainder_p, axis=1, result_type="expand")
+df = pd.concat([df, p_df], axis=1)
+print("✓ Computed p (minimal generative remainder)")
+print("✓ Coded Λ/Φ split and Succession_Path")
+
 
 # ============================================================
 # 3. REGIME CLASSIFICATION (PREDICTION)
@@ -159,6 +264,71 @@ def normalize_regime_label(value):
         "UNDERLOADED": "SR",
     }
     return mapping.get(label, label)
+
+
+def parse_boolish(value):
+    """Parse mixed bool/int/text values into True/False/None."""
+    if pd.isna(value):
+        return None
+
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+
+    if isinstance(value, (int, float, np.integer, np.floating)):
+        if value == 1:
+            return True
+        if value == 0:
+            return False
+        return None
+
+    text = str(value).strip().lower()
+    truthy = {"1", "true", "yes", "y", "alive", "viable", "return", "recovered"}
+    falsy = {"0", "false", "no", "n", "dead", "deceased", "nonviable", "no_return", "irreversible"}
+    if text in truthy:
+        return True
+    if text in falsy:
+        return False
+    return None
+
+
+def infer_branch_state(row):
+    """
+    Infer branch state from explicit viability/death fields when available.
+
+    Returns:
+      (branch_state, source)
+        branch_state in {"Return", "NoReturn", "Undetermined"}
+    """
+    viable_cols = [
+        "Substrate_Viable",
+        "FED_Substrate_Viable",
+        "Host_Viable",
+        "Viable",
+        "Viability",
+        "v",
+    ]
+    death_cols = ["Substrate_Death", "Death", "Died", "Deceased", "No_Return"]
+    irreversible_cols = ["Irreversible", "Irreversibility"]
+
+    for col in viable_cols:
+        if col in row.index:
+            parsed = parse_boolish(row.get(col))
+            if parsed is not None:
+                return ("Return" if parsed else "NoReturn", f"direct:{col}")
+
+    for col in death_cols:
+        if col in row.index:
+            parsed = parse_boolish(row.get(col))
+            if parsed is not None:
+                return ("NoReturn" if parsed else "Return", f"death:{col}")
+
+    for col in irreversible_cols:
+        if col in row.index:
+            parsed = parse_boolish(row.get(col))
+            if parsed is not None:
+                return ("NoReturn" if parsed else "Return", f"irreversible:{col}")
+
+    return ("Undetermined", "unavailable")
 
 
 def classify_regime_default(row):
@@ -380,10 +550,25 @@ df[profile_columns["Default"]] = df.apply(classify_regime_default, axis=1)
 df[profile_columns["TwoLaws_Strict"]] = df.apply(classify_regime_two_laws_strict, axis=1)
 df[profile_columns["TwoLaws_Calibrated"]] = df.apply(classify_regime_two_laws_calibrated, axis=1)
 
+branch_pairs = df.apply(infer_branch_state, axis=1)
+df["Branch_State"] = branch_pairs.apply(lambda item: item[0])
+df["Branch_State_Source"] = branch_pairs.apply(lambda item: item[1])
+
+branch_counts = df["Branch_State"].value_counts(dropna=False)
+branch_source_counts = df["Branch_State_Source"].value_counts(dropna=False)
+branch_by_default_profile = pd.crosstab(df["Branch_State"], df[profile_columns["Default"]])
+
 print("✓ Completed regime classification for all profiles")
 for profile_name, pred_col in profile_columns.items():
     print(f"\nPredicted Regime Distribution ({profile_name}):")
     print(df[pred_col].value_counts())
+
+print("\nBranch-State Distribution:")
+print(branch_counts)
+print("\nBranch-State Evidence Sources:")
+print(branch_source_counts)
+print("\nBranch-State x Default Profile:")
+print(branch_by_default_profile)
 
 
 # ============================================================
@@ -573,7 +758,43 @@ with open(REPORT_FILE, "w", encoding="utf-8") as f:
     f.write("✓ Q = C × Φ\n")
     f.write("✓ Tension = Load − Q\n")
     f.write("✓ κ = Load / Q\n")
+    f.write("✓ p = minimal generative remainder (0–1)\n")
+    f.write("✓ Λ/Φ split + Succession_Path coding\n")
     f.write("✓ Regime Classification (FR/CR/PR/MR/SR)\n\n")
+
+    f.write("P SUMMARY\n")
+    f.write("-" * 70 + "\n")
+    p_valid = df["p"].dropna()
+    f.write("OVERALL\n")
+    f.write("  metric            value\n")
+    f.write("  ----------------  --------\n")
+    if len(p_valid):
+        f.write(f"  mean              {p_valid.mean():.4f}\n")
+        f.write(f"  std               {p_valid.std():.4f}\n")
+        f.write(f"  min               {p_valid.min():.4f}\n")
+        f.write(f"  max               {p_valid.max():.4f}\n")
+    else:
+        f.write("  no valid p values\n")
+
+    if "Outcome" in df.columns:
+        f.write("\nBY OUTCOME\n")
+        f.write("  Outcome   n    p_mean   p_std    p_survives_rate\n")
+        f.write("  -------  ---  -------  -------  ----------------\n")
+        for outcome in ["FR", "MR", "PR", "CR", "SR"]:
+            g = df[df["Outcome"] == outcome]
+            if len(g) == 0:
+                continue
+            p_mean = g["p"].mean()
+            p_std = g["p"].std()
+            p_survive_rate = g["p_survives"].mean() if "p_survives" in g.columns else np.nan
+            f.write(
+                f"  {outcome:7s}  {len(g):3d}  {p_mean:7.4f}  {p_std:7.4f}  {p_survive_rate:16.4f}\n"
+            )
+
+    f.write("\nSuccession_Path distribution:\n")
+    for label, count in df["Succession_Path"].value_counts(dropna=False).items():
+        f.write(f"  {str(label):28s}: {int(count):5d} records\n")
+    f.write("\n")
 
     f.write("REGIME DISTRIBUTION\n")
     f.write("-" * 70 + "\n")
@@ -582,6 +803,24 @@ with open(REPORT_FILE, "w", encoding="utf-8") as f:
         for regime, count in df[pred_col].value_counts().items():
             f.write(f"  {regime:18s}: {count:5d} records\n")
     f.write("\n")
+
+    f.write("BRANCH LAYER (RETURN / NORETURN / UNDETERMINED)\n")
+    f.write("-" * 70 + "\n")
+    for state, count in branch_counts.items():
+        f.write(f"{state:18s}: {int(count):5d} records\n")
+    f.write("\nEvidence sources:\n")
+    for src, count in branch_source_counts.items():
+        f.write(f"  {src:18s}: {int(count):5d} records\n")
+
+    f.write("\nBranch x Default regime table:\n")
+    f.write(branch_by_default_profile.to_string())
+    f.write("\n\n")
+    if (df["Branch_State"] == "Undetermined").any():
+        f.write(
+            "Note: Undetermined branch states indicate no explicit viability/death field "
+            "was available in the input rows; branch inference was intentionally not "
+            "guessed from regime labels.\n\n"
+        )
 
     if has_actuals:
         f.write("ACCURACY VERIFICATION\n")

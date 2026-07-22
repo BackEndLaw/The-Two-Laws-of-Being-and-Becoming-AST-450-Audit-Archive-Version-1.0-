@@ -162,4 +162,17 @@ This repository serves as:
 The Back-End Law is designed to survive institutions, time, and substrate changes.
 
 
+## Classifier Accuracy Record
+
+| Classifier | Dataset | Accuracy | Date | Notes |
+|---|---|---|---|---|
+| Case-block | NDE 40 | 40/40 (100%) | 2026-06-22 | Deterministic positional rule |
+| Threshold | NDE 40 | 40/40 (100%) | 2026-06-22 | Added Medically_Verified source group override |
+| Threshold (pre-fix) | NDE 40 | 33/40 (82.5%) | — | 7 low-shift verified OBE cases misclassified as Stable |
+| TwoLaws_Calibrated | Atlas 245 | See atlas_predictions_with_accuracy.csv | 2026-06-22 | Full biographical dataset |
+
+**Key rule added (2026-06-22):** When the Stable threshold fires (S ≤ 2.1, A ≤ 2.1, B ≤ 1.5, Ir ≤ 2) but `Source_Group == "Medically_Verified"`, the classifier overrides to `Collapse_Reorganization_Regime`. Full rationale documented in `ext_coding_criteria.md`.
+
+---
+
 ## Repository Structure

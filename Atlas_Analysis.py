@@ -43,6 +43,107 @@ for col in required_cols:
 # 2. COMPUTE Q, TENSION, κ
 # ------------------------------------------------------------
 
+
+def _safe_float(value, default=np.nan):
+    """Best-effort numeric cast that keeps NaN semantics stable."""
+    try:
+        if pd.isna(value):
+            return default
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_flag(value):
+    """Interpret mixed numeric/text rule flags as 0/1."""
+    try:
+        return 1.0 if int(float(value)) == 1 else 0.0
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def compute_minimal_remainder_p(row):
+    """
+    Operationalize minimal generative remainder p in [0, 1].
+
+        Concept mapping (strict successor-minimum):
+            - Λ/Φ split signal: contradiction pressure where Load > Q
+            - Survival carrier: minimal structural rescue capacity
+            - Fragility drag: structural gaps/fragmentation
+
+        Note:
+            p-score intentionally excludes direct coherence/identity carryover terms
+            (e.g., Q ratio, C, Φ) so p reflects minimal survivable organization,
+            not persistence of prior identity.
+
+    Returns dict for direct DataFrame expansion.
+    """
+    c = _safe_float(row.get("C", np.nan))
+    phi = _safe_float(row.get("Φ", np.nan))
+    load = _safe_float(row.get("Load", np.nan))
+
+    if np.isnan(c) or np.isnan(phi) or np.isnan(load):
+        return {
+            "Lambda_Phi_Split": np.nan,
+            "p": np.nan,
+            "p_survives": np.nan,
+            "Succession_Path": np.nan,
+        }
+
+    q = c * phi
+    contradiction = max(0.0, load - q)
+    contradiction_norm = np.clip(contradiction / max(load, 1.0), 0.0, 1.0)
+    template_deficit = _safe_flag(row.get("Template_Deficit", 0))
+    fr_rule = _safe_flag(row.get("FR_rule", 0))
+    low_c_low_phi = _safe_flag(row.get("Low_C_low_Phi_rule", 0))
+
+    rescue_signal = max(
+        _safe_flag(row.get("Rescue", 0)),
+        _safe_flag(row.get("Rescue_rule", 0)),
+    )
+
+    # Minimal surviving scaffold under collapse pressure.
+    survival_capacity = np.clip(
+        0.55 * rescue_signal
+        + 0.25 * (1.0 - template_deficit)
+        + 0.20 * (1.0 - fr_rule),
+        0.0,
+        1.0,
+    )
+
+    fragility = np.clip(
+        0.45 * template_deficit + 0.35 * fr_rule + 0.20 * low_c_low_phi,
+        0.0,
+        1.0,
+    )
+
+    # Weighted score, then sigmoid to keep p bounded and smooth.
+    p_score = (
+        1.10 * survival_capacity
+        - 1.10 * contradiction_norm
+        - 0.85 * fragility
+    )
+    p_value = 1.0 / (1.0 + np.exp(-2.0 * p_score))
+
+    split = 1.0 if contradiction > 0 else 0.0
+    p_survives = 1.0 if (split == 1.0 and p_value >= 0.55) else 0.0
+
+    if split == 0.0:
+        succession_path = "No_Collapse_Basin"
+    elif p_value >= 0.65:
+        succession_path = "Succession_Potential"
+    elif p_value >= 0.45:
+        succession_path = "Residual_Continuity_Risk"
+    else:
+        succession_path = "Debris_or_Zombie_Continuity"
+
+    return {
+        "Lambda_Phi_Split": split,
+        "p": float(np.clip(p_value, 0.0, 1.0)),
+        "p_survives": p_survives,
+        "Succession_Path": succession_path,
+    }
+
 # Q = C × Φ
 df["Q_calc_python"] = df["C"] * df["Φ"]
 
@@ -55,6 +156,10 @@ df["kappa_python"] = np.where(
     df["Load"] / df["Q_calc_python"],
     np.nan,
 )
+
+# Minimal generative remainder p and path annotation.
+p_df = df.apply(compute_minimal_remainder_p, axis=1, result_type="expand")
+df = pd.concat([df, p_df], axis=1)
 
 
 # ------------------------------------------------------------

@@ -1,0 +1,41 @@
+Case_ID,Name,S,A,B,Ir_score,Irreversible,Source_Group,Cluster_Actual,Notes,Cluster_Predicted_Threshold,Cluster_Predicted_Block,Branch_State
+1,Pam Reynolds,3.0,2.5,2.5,3,Y,Medically_Verified,Collapse_Reorganization_Regime,Surgical flatline accurate perceptions,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+2,Eben Alexander,3.0,3.0,3.0,4,Y,Medically_Verified,Collapse_Reorganization_Regime,Deep coma maximal shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+3,Anita Moorjani,2.5,3.0,3.0,4,Y,Medically_Verified,Collapse_Reorganization_Regime,Recovery and identity shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+4,"Maria ""Shoe on Ledge""",2.5,2.0,2.0,2,Y,Medically_Verified,Collapse_Reorganization_Regime,Verified perception moderate shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+5,Al Sullivan,2.5,2.0,2.0,2,Y,Medically_Verified,Collapse_Reorganization_Regime,Surgical OBE,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+6,Dentures Man,2.5,2.0,1.5,2,Y,Medically_Verified,Collapse_Reorganization_Regime,Verified memory moderate change,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+7,Man in Blue Suit,2.0,2.0,1.5,1,N,Medically_Verified,Collapse_Reorganization_Regime,Accurate perception mild shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,Return
+8,Flatline Child,2.5,2.5,2.0,3,Y,Medically_Verified,Collapse_Reorganization_Regime,Strong coherence identity shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+9,ICU Nurse Verified OBE,2.0,2.0,1.5,1,N,Medically_Verified,Collapse_Reorganization_Regime,Verified OBE mild change,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,Return
+10,Blind-from-birth NDE,3.0,3.0,2.5,3,Y,Medically_Verified,Collapse_Reorganization_Regime,Visual perception and identity shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+11,CPR Room Description,2.0,2.0,1.5,1,N,Medically_Verified,Collapse_Reorganization_Regime,Accurate details mild shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,Return
+12,Operating Room Dialogue,2.0,2.0,1.0,1,N,Medically_Verified,Collapse_Reorganization_Regime,Verified hearing low B,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,Return
+13,Defibrillator Color Case,2.0,2.0,1.0,1,N,Medically_Verified,Collapse_Reorganization_Regime,Accurate perception minimal change,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,Return
+14,Dropped Instrument Case,2.0,2.0,1.0,1,N,Medically_Verified,Collapse_Reorganization_Regime,Verified OBE low identity shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,Return
+15,Accurate Medical Dialogue,2.0,2.0,1.0,1,N,Medically_Verified,Collapse_Reorganization_Regime,Mild coherence low B,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,Return
+16,Howard Storm,2.5,2.5,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Radical lifelong change,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+17,George Ritchie,3.0,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,WWII death strong coherence,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+18,Betty Eadie,2.5,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Major worldview shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+19,Mellen-Thomas Benedict,2.0,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Terminal cancer to recovery,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+20,Reinee Pasarow,2.5,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Childhood NDE to lifelong transformation,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+21,Jeff Olsen,3.0,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Trauma and identity reorganization,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+22,Tricia Barker,2.5,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Spiritual and personality shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+23,Mary Neal,2.5,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Drowning strong coherence,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+24,Rajiv Parti,2.0,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Career and identity overhaul,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+25,Barbara Whitfield,2.0,3.0,3.0,4,Y,Transformational,Collapse_Reorganization_Regime,Trauma to identity shift,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+26,Nancy Evans Bush,3.0,1.0,2.5,2,Mixed,Distressing,Critical_Regime,Distressing NDE low coherence,Critical_Regime,Critical_Regime,Undetermined
+27,Pit Experience,3.0,1.0,2.0,2,Mixed,Distressing,Critical_Regime,High S low A,Critical_Regime,Critical_Regime,Undetermined
+28,Dark Void Case,3.0,0.5,2.0,1,N,Distressing,Critical_Regime,Poor integration,Critical_Regime,Critical_Regime,Return
+29,Screaming Faces Case,3.0,0.5,2.0,1,N,Distressing,Critical_Regime,High S low A,Critical_Regime,Critical_Regime,Return
+30,Hostile Entities Case,3.0,1.0,2.0,2,Mixed,Distressing,Critical_Regime,Identity pressure but low coherence,Critical_Regime,Critical_Regime,Undetermined
+31,Typical Cardiac Arrest,2.0,2.0,1.5,2,Usually Y,Typical,Stable_Regime,Moderate shift,Stable_Regime,Stable_Regime,Undetermined
+32,Standard Drowning,2.0,2.0,1.0,1,N,Typical,Stable_Regime,Mild change,Stable_Regime,Stable_Regime,Return
+33,Routine Surgical NDE,1.5,2.0,1.0,1,N,Typical,Stable_Regime,Light tunnel peace,Stable_Regime,Stable_Regime,Return
+34,Car Accident NDE,1.5,2.0,1.0,1,N,Typical,Stable_Regime,Brief OBE,Stable_Regime,Stable_Regime,Return
+35,Fainting/Trauma NDE,1.0,1.5,0.5,0,N,Typical,Stable_Regime,Minimal identity shift,Stable_Regime,Stable_Regime,Return
+36,Unknown Cousin Death,2.0,3.0,2.5,3,Y,Peak_in_Darien,Collapse_Reorganization_Regime,Surprise encounter,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+37,Unexpected Brother,2.0,3.0,2.5,3,Y,Peak_in_Darien,Collapse_Reorganization_Regime,Verified post-death appearance,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+38,Recently Deceased Friend,2.0,3.0,2.0,2,Y,Peak_in_Darien,Collapse_Reorganization_Regime,High coherence,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+39,Hospital Death Notification,2.0,2.5,2.0,2,Y,Peak_in_Darien,Collapse_Reorganization_Regime,Accurate encounter,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
+40,Accurate Post-Death Appearance,2.0,3.0,2.5,3,Y,Peak_in_Darien,Collapse_Reorganization_Regime,High A and B,Collapse_Reorganization_Regime,Collapse_Reorganization_Regime,NoReturn
