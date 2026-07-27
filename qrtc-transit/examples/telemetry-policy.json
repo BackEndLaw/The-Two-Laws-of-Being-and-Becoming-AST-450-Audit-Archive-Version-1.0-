@@ -1,0 +1,22 @@
+{
+  "policy_id": "telemetry-transit",
+  "policy_version": "1.0.0",
+  "predecessor_class": "equipment-telemetry",
+  "future_family": "alarm-analysis-v3",
+  "key_policy": "telemetry-key-v1",
+  "gate": "telemetry-gate-v1",
+  "guards": [
+    "telemetry-schema-v1",
+    "telemetry-ranges-v1"
+  ],
+  "boat": {
+    "schema": "telemetry-interface-v1",
+    "encoding": "canonical-json-v1"
+  },
+  "river": {
+    "route": "operations-route-v1"
+  },
+  "realizer": "alarm-record-v1",
+  "stabilizer": "alarm-persistence-v1",
+  "witness_policy": "transit-witness-v1"
+}

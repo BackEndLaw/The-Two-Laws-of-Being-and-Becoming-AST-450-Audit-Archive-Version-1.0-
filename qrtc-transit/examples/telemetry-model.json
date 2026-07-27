@@ -1,0 +1,12 @@
+{
+  "states": [
+    {"required": 0, "irrelevant": 0},
+    {"required": 0, "irrelevant": 1},
+    {"required": 1, "irrelevant": 0},
+    {"required": 1, "irrelevant": 1}
+  ],
+  "gate_field": "required",
+  "future_fields": [
+    ["required_value", "required"]
+  ]
+}

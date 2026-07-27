@@ -1,0 +1,15 @@
+{
+  "transit_id": "telemetry-001",
+  "principal": "authorized-operator",
+  "destination": "alarm-record",
+  "expiration": "2099-01-01T00:00:00+00:00",
+  "interface_projection": {
+    "temperature": 72,
+    "pressure": 110,
+    "alarm_state": false,
+    "equipment_id": "pump-1"
+  },
+  "context": {
+    "region": "north"
+  }
+}
