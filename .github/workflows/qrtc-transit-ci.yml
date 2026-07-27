@@ -1,0 +1,52 @@
+name: QRTC Transit CI
+
+on:
+  push:
+    paths:
+      - "qrtc-transit/**"
+      - ".github/workflows/qrtc-transit-ci.yml"
+  pull_request:
+    paths:
+      - "qrtc-transit/**"
+      - ".github/workflows/qrtc-transit-ci.yml"
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: qrtc-transit
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: qrtc-transit/pyproject.toml
+
+      - name: Install toolchain
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]' build pip-audit
+
+      - name: Run tests
+        run: pytest
+
+      - name: Type check
+        run: mypy src
+
+      - name: Lint
+        run: ruff check src tests
+
+      - name: Format check
+        run: ruff format --check src tests
+
+      - name: Build package
+        run: python -m build
+
+      - name: Dependency audit
+        run: pip-audit .

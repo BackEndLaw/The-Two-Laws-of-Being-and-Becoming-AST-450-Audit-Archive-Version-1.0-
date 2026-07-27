@@ -1,0 +1,114 @@
+name: QRTC Transit Dependency Audit
+
+on:
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+jobs:
+  pip-audit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: qrtc-transit
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: qrtc-transit/pyproject.toml
+
+      - name: Install audit dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]' pip-audit
+
+      - name: Run pip-audit (JSON)
+        id: pip_audit
+        run: |
+          mkdir -p audit-artifacts
+          echo "[]" > audit-artifacts/pip-audit.json
+          set +e
+          pip-audit . --format json -o audit-artifacts/pip-audit.json
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Build Markdown summary
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          artifact_dir = Path("audit-artifacts")
+          json_path = artifact_dir / "pip-audit.json"
+          md_path = artifact_dir / "pip-audit-summary.md"
+
+          if json_path.exists():
+              data = json.loads(json_path.read_text(encoding="utf-8"))
+          else:
+              data = []
+
+          vuln_count = 0
+          rows = []
+          for dep in data:
+              name = dep.get("name", "unknown")
+              version = dep.get("version", "unknown")
+              vulns = dep.get("vulns", [])
+              for vuln in vulns:
+                  vuln_count += 1
+                  vid = vuln.get("id", "unknown")
+                  fixes = ", ".join(vuln.get("fix_versions", [])) or "none"
+                  rows.append((name, version, vid, fixes))
+
+          timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+          lines = [
+              "# QRTC Transit Dependency Audit",
+              "",
+              f"- Generated: {timestamp}",
+              f"- Packages with vulnerabilities: {len(data)}",
+              f"- Total vulnerabilities: {vuln_count}",
+              "",
+          ]
+
+          if rows:
+              lines.extend([
+                  "## Findings",
+                  "",
+                  "| Package | Version | Vulnerability | Fix Versions |",
+                  "|---|---|---|---|",
+              ])
+              for name, version, vid, fixes in rows:
+                  lines.append(f"| {name} | {version} | {vid} | {fixes} |")
+          else:
+              lines.extend([
+                  "## Findings",
+                  "",
+                  "No known vulnerabilities were reported by pip-audit.",
+              ])
+
+          md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
+
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qrtc-transit-pip-audit-${{ github.run_id }}
+          path: |
+            qrtc-transit/audit-artifacts/pip-audit.json
+            qrtc-transit/audit-artifacts/pip-audit-summary.md
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Fail when vulnerabilities exist
+        if: steps.pip_audit.outputs.exit_code != '0'
+        run: |
+          echo "pip-audit reported vulnerabilities. See uploaded artifacts for details."
+          exit 1
