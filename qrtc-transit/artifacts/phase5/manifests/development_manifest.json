@@ -1,0 +1,113 @@
+{
+  "families": [
+    "V1",
+    "V2",
+    "V3",
+    "V4"
+  ],
+  "mechanism_sets": {
+    "development": {
+      "V1": [
+        "gate_amplitude_clamp",
+        "boat_amplitude_compression",
+        "river_gaussian_dispersion",
+        "distributed_thermal_attenuation",
+        "witness_fixed_integration",
+        "jurisdiction_threshold_error"
+      ],
+      "V2": [
+        "pair_seen_m1",
+        "pair_seen_m2",
+        "pair_seen_m3",
+        "pair_seen_m4"
+      ],
+      "V3": [
+        "triple_seen_m1",
+        "triple_seen_m2",
+        "triple_seen_m3",
+        "triple_seen_m4"
+      ],
+      "V4": [
+        "unknown_seen_m1",
+        "unknown_seen_m2",
+        "unknown_seen_m3",
+        "unknown_seen_m4"
+      ]
+    },
+    "locked": {
+      "V1": [
+        "gate_state_dropout",
+        "boat_nonlinear_temporal_recoding",
+        "river_multipath_echo",
+        "distributed_cross_channel_delay",
+        "witness_adaptive_saturation",
+        "jurisdiction_context_boundary"
+      ],
+      "V2": [
+        "pair_ood_m1",
+        "pair_ood_m2",
+        "pair_ood_m3",
+        "pair_ood_m4"
+      ],
+      "V3": [
+        "triple_ood_m1",
+        "triple_ood_m2",
+        "triple_ood_m3",
+        "triple_ood_m4"
+      ],
+      "V4": [
+        "unknown_ood_m1",
+        "unknown_ood_m2",
+        "unknown_ood_m3",
+        "unknown_ood_m4"
+      ]
+    }
+  },
+  "pair_sets": {
+    "development": [
+      "FG+FW",
+      "FR+FJ",
+      "FD+FW",
+      "FB+FR",
+      "FG+FJ",
+      "FB+FD"
+    ],
+    "locked": [
+      "FG+FD",
+      "FG+FR",
+      "FB+FJ",
+      "FR+FW",
+      "FD+FJ",
+      "FB+FW"
+    ]
+  },
+  "phase5a": {
+    "cost_regimes": [
+      "familiar"
+    ],
+    "reliability_levels": [
+      0.8,
+      1.0
+    ]
+  },
+  "seed_family": [
+    701,
+    702,
+    703
+  ],
+  "split": "development",
+  "triple_sets": {
+    "development": [
+      "FG+FW+FJ",
+      "FB+FR+FJ",
+      "FG+FD+FW",
+      "FB+FR+FD"
+    ],
+    "locked": [
+      "FG+FW+FJ",
+      "FB+FR+FD",
+      "FG+FW+FJ",
+      "FB+FR+FD"
+    ]
+  }
+}

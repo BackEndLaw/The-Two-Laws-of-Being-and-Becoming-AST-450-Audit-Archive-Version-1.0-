@@ -1,0 +1,10 @@
+policy,mean_oracle_regret
+qrtc,0.10761176215277778
+qrtc_no_abstention,0.4048041449652778
+qrtc_untyped,0.2835503472222222
+greedy_gain,0.49230414496527775
+end_to_end,0.4231635199652778
+highest_stage_posterior,0.4048041449652778
+cheapest_first,0.6079969618055555
+random,0.7063910590277778
+oracle,0.0

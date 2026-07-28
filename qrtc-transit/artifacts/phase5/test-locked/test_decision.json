@@ -1,0 +1,10 @@
+{
+  "ci_high": 0.18515735598388328,
+  "ci_low": 0.1664348857266063,
+  "cluster_count": 7930,
+  "delta_utility": 0.17593858506944446,
+  "matched_trials": 9216,
+  "passes_primary": true,
+  "split": "test",
+  "strongest_nonoracle": "qrtc_untyped"
+}

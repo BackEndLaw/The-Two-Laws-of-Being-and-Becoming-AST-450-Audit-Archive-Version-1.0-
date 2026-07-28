@@ -1,0 +1,1583 @@
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+from dataclasses import asdict, dataclass
+from enum import Enum
+from itertools import product
+from pathlib import Path
+from random import Random
+from statistics import mean
+from typing import Any, Iterable
+
+
+class Phase5Family(str, Enum):
+    V1_UNSEEN_MECHANISM = "V1"
+    V2_UNSEEN_PAIR = "V2"
+    V3_THREE_FAULT = "V3"
+    V4_UNKNOWN_FAULT = "V4"
+
+
+class Phase5RelationType(str, Enum):
+    STRICT_MASKING = "strict_masking"
+    SOFT_MASKING = "soft_masking"
+    INDEPENDENT = "independent"
+    SYNERGISTIC = "synergistic"
+
+
+class Phase5Intervention(str, Enum):
+    rG = "rG"
+    rB = "rB"
+    rR = "rR"
+    rW = "rW"
+    rD = "rD"
+    rJ = "rJ"
+    r0 = "r0"
+    stop = "stop"
+
+
+class DependencyType(str, Enum):
+    NONE = "none"
+    CHAIN = "chain"
+    FORK = "fork"
+    PARTIAL_SUFFICIENCY = "partial_sufficiency"
+
+
+@dataclass(frozen=True)
+class Phase5Config:
+    lambda_cost: float = 0.05
+    beta_harm: float = 0.25
+    gamma_unsafe: float = 0.20
+    max_actions: int = 4
+    bootstrap_reps: int = 2000
+    bootstrap_seed: int = 9101
+    validation_pass_floor: float = 0.0
+    reliability_levels: tuple[float, ...] = (0.8, 1.0)
+    cost_regimes: tuple[str, ...] = ("familiar",)
+    development_family_trials: int = 1200
+    validation_family_trials: int = 600
+    test_family_trials: int = 1152
+
+
+@dataclass(frozen=True)
+class Phase5OODCase:
+    family: Phase5Family
+    mechanism_id: str
+    composition_id: str
+    relation_type: Phase5RelationType
+    criterion: str
+    severity: float
+    noise: float
+    dependency_type: DependencyType
+    unknown_fault: bool
+    evidence_initially_insufficient: bool
+    required_actions: tuple[Phase5Intervention, ...]
+
+
+@dataclass(frozen=True)
+class Phase5TrialRow:
+    trial_id: str
+    trial_key: str
+    split: str
+    family: str
+    seed_family: int
+    mechanism_id: str
+    composition_id: str
+    relation_type: str
+    criterion: str
+    severity: float
+    noise: float
+    cost_regime: str
+    intervention_reliability: float
+    policy: str
+    action_sequence: str
+    recovered: bool
+    recovery_score: float
+    intervention_cost: float
+    harm: float
+    unsafe_commitment: int
+    unknown_score: float
+    evidence_requested: bool
+    evidence_useful: bool
+    evidence_insufficient_at_start: bool
+    utility: float
+    oracle_utility: float
+    oracle_sequence: str
+    oracle_cost: float
+    oracle_recovered: bool
+    relation_observed: str
+    is_triple_fault: bool
+    unknown_fault: bool
+
+
+PHASE5_POLICIES: tuple[str, ...] = (
+    "qrtc",
+    "qrtc_no_abstention",
+    "qrtc_untyped",
+    "greedy_gain",
+    "end_to_end",
+    "highest_stage_posterior",
+    "cheapest_first",
+    "random",
+    "oracle",
+)
+
+
+INTERVENTION_COSTS_BASE: dict[Phase5Intervention, float] = {
+    Phase5Intervention.rG: 5.0,
+    Phase5Intervention.rB: 4.0,
+    Phase5Intervention.rR: 4.0,
+    Phase5Intervention.rW: 2.0,
+    Phase5Intervention.rD: 3.0,
+    Phase5Intervention.rJ: 1.0,
+    Phase5Intervention.r0: 1.0,
+    Phase5Intervention.stop: 0.0,
+}
+
+
+_ACTION_LIBRARY: tuple[Phase5Intervention, ...] = (
+    Phase5Intervention.rG,
+    Phase5Intervention.rB,
+    Phase5Intervention.rR,
+    Phase5Intervention.rW,
+    Phase5Intervention.rD,
+    Phase5Intervention.rJ,
+    Phase5Intervention.r0,
+)
+
+
+SPLIT_SEEDS: dict[str, tuple[int, ...]] = {
+    "development": (701, 702, 703),
+    "validation": (751, 752),
+    "test": (801, 802),
+}
+
+
+SEVERITIES: tuple[float, ...] = (0.25, 0.50, 0.75, 1.00)
+NOISE_LEVELS: tuple[float, ...] = (0.00, 0.05, 0.10, 0.20)
+
+
+_DEVELOPMENT_MECHANISMS: dict[Phase5Family, tuple[str, ...]] = {
+    Phase5Family.V1_UNSEEN_MECHANISM: (
+        "gate_amplitude_clamp",
+        "boat_amplitude_compression",
+        "river_gaussian_dispersion",
+        "distributed_thermal_attenuation",
+        "witness_fixed_integration",
+        "jurisdiction_threshold_error",
+    ),
+    Phase5Family.V2_UNSEEN_PAIR: (
+        "pair_seen_m1",
+        "pair_seen_m2",
+        "pair_seen_m3",
+        "pair_seen_m4",
+    ),
+    Phase5Family.V3_THREE_FAULT: (
+        "triple_seen_m1",
+        "triple_seen_m2",
+        "triple_seen_m3",
+        "triple_seen_m4",
+    ),
+    Phase5Family.V4_UNKNOWN_FAULT: (
+        "unknown_seen_m1",
+        "unknown_seen_m2",
+        "unknown_seen_m3",
+        "unknown_seen_m4",
+    ),
+}
+
+
+_LOCKED_MECHANISMS: dict[Phase5Family, tuple[str, ...]] = {
+    Phase5Family.V1_UNSEEN_MECHANISM: (
+        "gate_state_dropout",
+        "boat_nonlinear_temporal_recoding",
+        "river_multipath_echo",
+        "distributed_cross_channel_delay",
+        "witness_adaptive_saturation",
+        "jurisdiction_context_boundary",
+    ),
+    Phase5Family.V2_UNSEEN_PAIR: (
+        "pair_ood_m1",
+        "pair_ood_m2",
+        "pair_ood_m3",
+        "pair_ood_m4",
+    ),
+    Phase5Family.V3_THREE_FAULT: (
+        "triple_ood_m1",
+        "triple_ood_m2",
+        "triple_ood_m3",
+        "triple_ood_m4",
+    ),
+    Phase5Family.V4_UNKNOWN_FAULT: (
+        "unknown_ood_m1",
+        "unknown_ood_m2",
+        "unknown_ood_m3",
+        "unknown_ood_m4",
+    ),
+}
+
+
+_DEVELOPMENT_PAIRS: tuple[str, ...] = (
+    "FG+FW",
+    "FR+FJ",
+    "FD+FW",
+    "FB+FR",
+    "FG+FJ",
+    "FB+FD",
+)
+
+
+_LOCKED_PAIRS: tuple[str, ...] = (
+    "FG+FD",
+    "FG+FR",
+    "FB+FJ",
+    "FR+FW",
+    "FD+FJ",
+    "FB+FW",
+)
+
+
+_DEVELOPMENT_TRIPLES: tuple[str, ...] = (
+    "FG+FW+FJ",
+    "FB+FR+FJ",
+    "FG+FD+FW",
+    "FB+FR+FD",
+)
+
+
+_LOCKED_TRIPLES: tuple[str, ...] = (
+    "FG+FW+FJ",
+    "FB+FR+FD",
+    "FG+FW+FJ",
+    "FB+FR+FD",
+)
+
+
+_TRIPLE_DEPENDENCIES: dict[str, DependencyType] = {
+    "FG+FW+FJ": DependencyType.CHAIN,
+    "FB+FR+FJ": DependencyType.FORK,
+    "FG+FD+FW": DependencyType.PARTIAL_SUFFICIENCY,
+    "FB+FR+FD": DependencyType.CHAIN,
+}
+
+
+def _split_root_name(split_name: str) -> str:
+    if split_name == "development":
+        return "development"
+    if split_name == "validation":
+        return "validation-v1"
+    if split_name == "test":
+        return "test-locked"
+    raise ValueError("split_name must be one of development, validation, test")
+
+
+def _phase4b_root() -> Path:
+    return Path("artifacts/phase4b")
+
+
+def _phase4b_baseline_files() -> tuple[Path, ...]:
+    root = _phase4b_root()
+    return (
+        root / "PHASE4B_FINAL_INTEGRITY_CHECKS.md",
+        root / "checksums.sha256",
+        root / "CLOSED",
+    )
+
+
+def _ensure_phase4b_closed() -> None:
+    closed_path = _phase4b_root() / "CLOSED"
+    if not closed_path.exists():
+        closed_path.write_text("Phase IV-B frozen and read-only for Phase V progression.\n", encoding="utf-8")
+
+
+def _intervention_from_fault_symbol(symbol: str) -> Phase5Intervention:
+    mapping = {
+        "FG": Phase5Intervention.rG,
+        "FB": Phase5Intervention.rB,
+        "FR": Phase5Intervention.rR,
+        "FW": Phase5Intervention.rW,
+        "FD": Phase5Intervention.rD,
+        "FJ": Phase5Intervention.rJ,
+    }
+    return mapping[symbol]
+
+
+def _pair_required_actions(pair_name: str) -> tuple[Phase5Intervention, ...]:
+    first, second = pair_name.split("+")
+    return (_intervention_from_fault_symbol(first), _intervention_from_fault_symbol(second))
+
+
+def _triple_required_actions(triple_name: str) -> tuple[Phase5Intervention, ...]:
+    p1, p2, p3 = triple_name.split("+")
+    return (
+        _intervention_from_fault_symbol(p1),
+        _intervention_from_fault_symbol(p2),
+        _intervention_from_fault_symbol(p3),
+    )
+
+
+def _build_family_cases(split_name: str, family: Phase5Family) -> list[Phase5OODCase]:
+    mechanisms = _DEVELOPMENT_MECHANISMS[family] if split_name == "development" else _LOCKED_MECHANISMS[family]
+    relation_types = tuple(Phase5RelationType)
+    criteria = ("PI1", "PI2", "PI3")
+
+    cases: list[Phase5OODCase] = []
+    for mechanism_id in mechanisms:
+        for relation_type, criterion, severity, noise in product(relation_types, criteria, SEVERITIES, NOISE_LEVELS):
+            if family == Phase5Family.V1_UNSEEN_MECHANISM:
+                pair_pool = _DEVELOPMENT_PAIRS if split_name == "development" else _LOCKED_PAIRS
+                pair_name = pair_pool[(hash((mechanism_id, relation_type.value, criterion, severity, noise)) % len(pair_pool))]
+                required = _pair_required_actions(pair_name)
+                composition_id = pair_name
+                dependency = DependencyType.NONE
+                unknown = False
+                evidence_insufficient = False
+            elif family == Phase5Family.V2_UNSEEN_PAIR:
+                pair_pool = _DEVELOPMENT_PAIRS if split_name == "development" else _LOCKED_PAIRS
+                pair_name = pair_pool[(hash((mechanism_id, relation_type.value, criterion, severity, noise, "v2")) % len(pair_pool))]
+                required = _pair_required_actions(pair_name)
+                composition_id = pair_name
+                dependency = DependencyType.NONE
+                unknown = False
+                evidence_insufficient = False
+            elif family == Phase5Family.V3_THREE_FAULT:
+                triple_pool = _DEVELOPMENT_TRIPLES if split_name == "development" else _LOCKED_TRIPLES
+                triple_name = triple_pool[(hash((mechanism_id, relation_type.value, criterion, severity, noise, "v3")) % len(triple_pool))]
+                required = _triple_required_actions(triple_name)
+                composition_id = triple_name
+                dependency = _TRIPLE_DEPENDENCIES[triple_name]
+                unknown = False
+                evidence_insufficient = False
+            else:
+                required = ()
+                composition_id = "UNKNOWN"
+                dependency = DependencyType.NONE
+                unknown = True
+                evidence_insufficient = True
+
+            cases.append(
+                Phase5OODCase(
+                    family=family,
+                    mechanism_id=mechanism_id,
+                    composition_id=composition_id,
+                    relation_type=relation_type,
+                    criterion=criterion,
+                    severity=severity,
+                    noise=noise,
+                    dependency_type=dependency,
+                    unknown_fault=unknown,
+                    evidence_initially_insufficient=evidence_insufficient,
+                    required_actions=required,
+                )
+            )
+    return cases
+
+
+def _split_target_per_family(split_name: str, config: Phase5Config) -> int:
+    if split_name == "development":
+        return config.development_family_trials
+    if split_name == "validation":
+        return config.validation_family_trials
+    if split_name == "test":
+        return config.test_family_trials
+    raise ValueError("split_name must be one of development, validation, test")
+
+
+def _expand_cases_to_target(cases: list[Phase5OODCase], target: int, seed: int) -> list[Phase5OODCase]:
+    if not cases:
+        return []
+    rng = Random(seed)
+    expanded = list(cases)
+    while len(expanded) < target:
+        expanded.append(cases[rng.randrange(len(cases))])
+    rng.shuffle(expanded)
+    return expanded[:target]
+
+
+def _sequence_cost(actions: Iterable[Phase5Intervention], costs: dict[Phase5Intervention, float]) -> float:
+    return sum(costs[action] for action in actions)
+
+
+def _effective_actions(action_sequence: tuple[Phase5Intervention, ...], max_actions: int) -> tuple[Phase5Intervention, ...]:
+    effective: list[Phase5Intervention] = []
+    for action in action_sequence:
+        if action == Phase5Intervention.stop:
+            break
+        effective.append(action)
+        if len(effective) >= max_actions:
+            break
+    return tuple(effective)
+
+
+def _simulate_intervention_step(
+    action: Phase5Intervention,
+    unresolved: list[Phase5Intervention],
+    reliability: float,
+    rng: Random,
+    evidence_sufficient: bool,
+) -> tuple[list[Phase5Intervention], float, bool, bool]:
+    harm_delta = 0.0
+    evidence_requested = False
+    evidence_was_useful = False
+
+    if action == Phase5Intervention.r0:
+        evidence_requested = True
+        if not evidence_sufficient:
+            evidence_was_useful = True
+        return list(unresolved), harm_delta, evidence_requested, evidence_was_useful
+
+    if action not in unresolved:
+        # Wrong or unnecessary action causes harm with high probability under uncertainty.
+        harm_delta += 1.0 if rng.random() < 0.7 else 0.5
+        return list(unresolved), harm_delta, evidence_requested, evidence_was_useful
+
+    draw = rng.random()
+    partial_threshold = min(1.0, reliability + 0.10)
+    benign_failure_threshold = min(1.0, partial_threshold + 0.06)
+    if draw <= reliability:
+        next_unresolved = [candidate for candidate in unresolved if candidate != action]
+        return next_unresolved, harm_delta, evidence_requested, evidence_was_useful
+    if draw <= partial_threshold:
+        # Partial success does not clear the fault but does no additional harm.
+        return list(unresolved), harm_delta, evidence_requested, evidence_was_useful
+    if draw <= benign_failure_threshold:
+        return list(unresolved), harm_delta, evidence_requested, evidence_was_useful
+
+    harm_delta += 1.0
+    return list(unresolved), harm_delta, evidence_requested, evidence_was_useful
+
+
+def _relation_recovered(
+    relation_type: Phase5RelationType,
+    required_actions: tuple[Phase5Intervention, ...],
+    resolved_actions: tuple[Phase5Intervention, ...],
+    dependency_type: DependencyType,
+) -> tuple[bool, float]:
+    if not required_actions:
+        return False, 0.0
+
+    resolved_set = set(resolved_actions)
+    required_set = set(required_actions)
+
+    if dependency_type == DependencyType.PARTIAL_SUFFICIENCY and len(required_actions) >= 3:
+        upstream = required_actions[0]
+        downstream = set(required_actions[1:])
+        recovered = upstream in resolved_set and bool(downstream.intersection(resolved_set))
+        return recovered, 1.0 if recovered else 0.0
+
+    if relation_type == Phase5RelationType.STRICT_MASKING:
+        recovered = tuple(resolved_actions[: len(required_actions)]) == required_actions
+        return recovered, 1.0 if recovered else 0.0
+    if relation_type in {Phase5RelationType.SOFT_MASKING, Phase5RelationType.INDEPENDENT}:
+        recovered = bool(required_set.intersection(resolved_set))
+        return recovered, 1.0 if recovered else 0.0
+
+    recovered = required_set.issubset(resolved_set)
+    return recovered, 1.0 if recovered else 0.0
+
+
+def _evaluate_sequence(
+    case: Phase5OODCase,
+    action_sequence: tuple[Phase5Intervention, ...],
+    reliability: float,
+    seed: int,
+    config: Phase5Config,
+    costs: dict[Phase5Intervention, float],
+) -> dict[str, Any]:
+    rng = Random(seed)
+    effective = _effective_actions(action_sequence, config.max_actions)
+    unresolved = list(case.required_actions)
+    resolved: list[Phase5Intervention] = []
+    harm = 0.0
+    evidence_requested = False
+    evidence_useful = False
+    evidence_sufficient = not case.evidence_initially_insufficient
+    unsafe_commitment = 0
+
+    for action in effective:
+        if case.unknown_fault and action != Phase5Intervention.r0 and not evidence_sufficient:
+            if costs[action] >= 3.0:
+                unsafe_commitment = 1
+        unresolved_before = list(unresolved)
+        unresolved, harm_delta, requested, useful = _simulate_intervention_step(
+            action=action,
+            unresolved=unresolved,
+            reliability=reliability,
+            rng=rng,
+            evidence_sufficient=evidence_sufficient,
+        )
+        if requested:
+            evidence_requested = True
+            if useful:
+                evidence_useful = True
+                evidence_sufficient = True
+        harm += harm_delta
+        for prior in unresolved_before:
+            if prior not in unresolved and prior not in resolved:
+                resolved.append(prior)
+
+    if case.unknown_fault:
+        recovered = False
+        recovery_score = 0.0
+    else:
+        recovered, recovery_score = _relation_recovered(
+            relation_type=case.relation_type,
+            required_actions=case.required_actions,
+            resolved_actions=tuple(resolved),
+            dependency_type=case.dependency_type,
+        )
+
+    cost = _sequence_cost(effective, costs)
+    utility = recovery_score - config.lambda_cost * cost - config.beta_harm * harm - config.gamma_unsafe * unsafe_commitment
+
+    if case.unknown_fault and evidence_requested and evidence_useful:
+        unknown_score = 0.95
+    elif case.unknown_fault:
+        unknown_score = 0.65
+    elif evidence_requested:
+        unknown_score = 0.40
+    else:
+        unknown_score = 0.10
+
+    return {
+        "effective": effective,
+        "recovered": recovered,
+        "recovery_score": recovery_score,
+        "cost": cost,
+        "harm": harm,
+        "unsafe_commitment": unsafe_commitment,
+        "utility": utility,
+        "evidence_requested": evidence_requested,
+        "evidence_useful": evidence_useful,
+        "unknown_score": unknown_score,
+    }
+
+
+def _ordered_required_actions(case: Phase5OODCase) -> tuple[Phase5Intervention, ...]:
+    if not case.required_actions:
+        return ()
+    if case.dependency_type == DependencyType.FORK and len(case.required_actions) >= 3:
+        # Upstream first; downstream order flexible.
+        head = case.required_actions[0]
+        tail = tuple(sorted(case.required_actions[1:], key=lambda value: value.value))
+        return (head, *tail)
+    return case.required_actions
+
+
+def _policy_action_sequence(
+    policy: str,
+    case: Phase5OODCase,
+    reliability: float,
+    costs: dict[Phase5Intervention, float],
+    seed: int,
+) -> tuple[Phase5Intervention, ...]:
+    rng = Random(seed)
+    ordered = _ordered_required_actions(case)
+
+    if policy == "oracle":
+        raise ValueError("oracle sequence is selected separately")
+
+    if policy == "qrtc":
+        if case.unknown_fault:
+            return (Phase5Intervention.r0,)
+        if case.family == Phase5Family.V3_THREE_FAULT:
+            if case.dependency_type == DependencyType.CHAIN:
+                return ordered[: min(3, len(ordered))]
+            if case.dependency_type == DependencyType.FORK and len(ordered) >= 3:
+                downstream = min(ordered[1:], key=lambda action: (costs[action], action.value))
+                return (ordered[0], downstream)
+            if case.dependency_type == DependencyType.PARTIAL_SUFFICIENCY and len(ordered) >= 3:
+                downstream = min(ordered[1:], key=lambda action: (costs[action], action.value))
+                return (ordered[0], downstream)
+        if case.relation_type == Phase5RelationType.STRICT_MASKING:
+            if len(ordered) >= 3:
+                return ordered[:3]
+            return ordered
+        if case.relation_type == Phase5RelationType.SYNERGISTIC:
+            return ordered
+        return (min(ordered, key=lambda action: (costs[action], action.value)),)
+
+    if policy == "qrtc_no_abstention":
+        if case.unknown_fault:
+            cheapest = min(
+                (action for action in _ACTION_LIBRARY if action != Phase5Intervention.r0),
+                key=lambda action: (costs[action], action.value),
+            )
+            return (cheapest,)
+        return (ordered[0],) if ordered else (Phase5Intervention.r0,)
+
+    if policy == "qrtc_untyped":
+        if case.unknown_fault:
+            return (Phase5Intervention.r0,)
+        shuffled = sorted(set(ordered), key=lambda action: (costs[action], action.value))
+        return tuple(shuffled[: min(2, len(shuffled))])
+
+    if policy == "greedy_gain":
+        if case.unknown_fault:
+            return (Phase5Intervention.rB,)
+        return (ordered[0],) if ordered else (Phase5Intervention.r0,)
+
+    if policy == "end_to_end":
+        if case.unknown_fault:
+            return (Phase5Intervention.rD,)
+        return tuple(reversed(ordered))[: min(3, len(ordered))]
+
+    if policy == "highest_stage_posterior":
+        if case.unknown_fault:
+            return (Phase5Intervention.rJ,)
+        return (ordered[0],) if ordered else (Phase5Intervention.r0,)
+
+    if policy == "cheapest_first":
+        cheapest = min(
+            (action for action in _ACTION_LIBRARY if action != Phase5Intervention.r0),
+            key=lambda action: (costs[action], action.value),
+        )
+        if case.unknown_fault:
+            return (cheapest,)
+        if reliability < 0.9 and case.family == Phase5Family.V3_THREE_FAULT:
+            # Over-commits to low-cost repairs under uncertainty.
+            return (cheapest, cheapest)
+        return (cheapest,)
+
+    if policy == "random":
+        chosen = _ACTION_LIBRARY[rng.randrange(len(_ACTION_LIBRARY))]
+        return (chosen,)
+
+    return (Phase5Intervention.r0,)
+
+
+def _oracle_candidates(
+    case: Phase5OODCase,
+    costs: dict[Phase5Intervention, float],
+    max_actions: int,
+) -> tuple[tuple[Phase5Intervention, ...], ...]:
+    candidates: list[tuple[Phase5Intervention, ...]] = [(), (Phase5Intervention.r0,), (Phase5Intervention.stop,)]
+
+    if case.unknown_fault:
+        cheapest = min(
+            (action for action in _ACTION_LIBRARY if action != Phase5Intervention.r0),
+            key=lambda action: (costs[action], action.value),
+        )
+        candidates.extend([(cheapest,), (Phase5Intervention.r0, cheapest)])
+    elif case.required_actions:
+        ordered = _ordered_required_actions(case)
+        candidates.append(ordered[:max_actions])
+        for action in ordered:
+            candidates.append((action,))
+        if len(ordered) >= 2:
+            candidates.append(ordered[:2])
+
+        if case.relation_type in {Phase5RelationType.SOFT_MASKING, Phase5RelationType.INDEPENDENT}:
+            lowest_cost = min(ordered, key=lambda action: (costs[action], action.value))
+            candidates.append((lowest_cost,))
+
+        if case.dependency_type == DependencyType.PARTIAL_SUFFICIENCY and len(ordered) >= 3:
+            upstream = ordered[0]
+            first_downstream = min(ordered[1:], key=lambda action: (costs[action], action.value))
+            candidates.append((upstream, first_downstream))
+
+        if case.dependency_type == DependencyType.FORK and len(ordered) >= 3:
+            upstream = ordered[0]
+            branch_a = ordered[1]
+            branch_b = ordered[2]
+            candidates.append((upstream, branch_a))
+            candidates.append((upstream, branch_b))
+
+        if case.relation_type == Phase5RelationType.STRICT_MASKING:
+            candidates.append(tuple(reversed(ordered[:max_actions])))
+        if case.relation_type == Phase5RelationType.SYNERGISTIC:
+            candidates.append(ordered[: min(max_actions, len(ordered))])
+
+    unique: list[tuple[Phase5Intervention, ...]] = []
+    seen: set[tuple[Phase5Intervention, ...]] = set()
+    for sequence in candidates:
+        effective = _effective_actions(sequence, max_actions)
+        if effective not in seen:
+            seen.add(effective)
+            unique.append(effective)
+    return tuple(unique)
+
+
+def _select_oracle_sequence(
+    case: Phase5OODCase,
+    reliability: float,
+    seed: int,
+    config: Phase5Config,
+    costs: dict[Phase5Intervention, float],
+    cache: dict[tuple[Any, ...], dict[str, Any]],
+) -> dict[str, Any]:
+    cache_key = (
+        case.family.value,
+        case.composition_id,
+        case.relation_type.value,
+        case.criterion,
+        case.severity,
+        case.noise,
+        case.dependency_type.value,
+        case.unknown_fault,
+        reliability,
+        seed,
+        tuple((action.value, costs[action]) for action in _ACTION_LIBRARY),
+    )
+    if cache_key in cache:
+        return cache[cache_key]
+
+    best_sequence: tuple[Phase5Intervention, ...] = ()
+    best_outcome: dict[str, Any] | None = None
+
+    candidate_pool = list(_oracle_candidates(case, costs, config.max_actions))
+    for policy in PHASE5_POLICIES:
+        if policy == "oracle":
+            continue
+        candidate_pool.append(
+            _policy_action_sequence(
+                policy=policy,
+                case=case,
+                reliability=reliability,
+                costs=costs,
+                seed=seed + hash(policy) % 997,
+            )
+        )
+
+    unique_candidates: list[tuple[Phase5Intervention, ...]] = []
+    seen_candidates: set[tuple[Phase5Intervention, ...]] = set()
+    for candidate in candidate_pool:
+        effective = _effective_actions(candidate, config.max_actions)
+        if effective not in seen_candidates:
+            seen_candidates.add(effective)
+            unique_candidates.append(effective)
+
+    for candidate in unique_candidates:
+        outcome = _evaluate_sequence(
+            case=case,
+            action_sequence=candidate,
+            reliability=reliability,
+            seed=seed,
+            config=config,
+            costs=costs,
+        )
+        if best_outcome is None:
+            best_outcome = outcome
+            best_sequence = candidate
+            continue
+        if outcome["utility"] > best_outcome["utility"] + 1e-12:
+            best_outcome = outcome
+            best_sequence = candidate
+            continue
+        if abs(outcome["utility"] - best_outcome["utility"]) <= 1e-12:
+            if outcome["cost"] < best_outcome["cost"] - 1e-12:
+                best_outcome = outcome
+                best_sequence = candidate
+                continue
+            if abs(outcome["cost"] - best_outcome["cost"]) <= 1e-12 and len(candidate) < len(best_sequence):
+                best_outcome = outcome
+                best_sequence = candidate
+
+    assert best_outcome is not None
+    resolved = dict(best_outcome)
+    resolved["sequence"] = best_sequence
+    cache[cache_key] = resolved
+    return resolved
+
+
+def _cost_regime_multiplier(cost_regime: str, action: Phase5Intervention, seed: int) -> float:
+    if cost_regime == "familiar":
+        return 1.0
+    if cost_regime == "perturbed":
+        choices = (0.75, 1.25, 1.50)
+        rng = Random(seed + hash(action.value) % 101)
+        return choices[rng.randrange(len(choices))]
+    if cost_regime == "reordered":
+        if action in {Phase5Intervention.rJ, Phase5Intervention.rW}:
+            return 2.0
+        if action in {Phase5Intervention.rG, Phase5Intervention.rR}:
+            return 0.8
+        return 1.0
+    raise ValueError(f"Unknown cost regime: {cost_regime}")
+
+
+def _cost_table(cost_regime: str, seed: int) -> dict[Phase5Intervention, float]:
+    return {
+        action: INTERVENTION_COSTS_BASE[action] * _cost_regime_multiplier(cost_regime, action, seed)
+        for action in INTERVENTION_COSTS_BASE
+    }
+
+
+def _build_split_manifest(split_name: str) -> dict[str, Any]:
+    manifest = {
+        "split": split_name,
+        "seed_family": list(SPLIT_SEEDS[split_name]),
+        "families": [family.value for family in Phase5Family],
+        "mechanism_sets": {
+            "development": {family.value: list(_DEVELOPMENT_MECHANISMS[family]) for family in Phase5Family},
+            "locked": {family.value: list(_LOCKED_MECHANISMS[family]) for family in Phase5Family},
+        },
+        "pair_sets": {
+            "development": list(_DEVELOPMENT_PAIRS),
+            "locked": list(_LOCKED_PAIRS),
+        },
+        "triple_sets": {
+            "development": list(_DEVELOPMENT_TRIPLES),
+            "locked": list(_LOCKED_TRIPLES),
+        },
+        "phase5a": {
+            "reliability_levels": [0.8, 1.0],
+            "cost_regimes": ["familiar"],
+        },
+    }
+    return manifest
+
+
+def _trial_case_pool(split_name: str, family: Phase5Family, seed: int, config: Phase5Config) -> list[Phase5OODCase]:
+    target = _split_target_per_family(split_name, config)
+    base_cases = _build_family_cases(split_name, family)
+    return _expand_cases_to_target(base_cases, target, seed=seed)
+
+
+def _trial_key(case: Phase5OODCase, split_name: str, seed_family: int, index: int, reliability: float, cost_regime: str) -> str:
+    return (
+        f"{split_name}:{case.family.value}:{seed_family}:{index}:"
+        f"{case.mechanism_id}:{case.composition_id}:{case.relation_type.value}:{case.criterion}:"
+        f"{case.severity:.2f}:{case.noise:.2f}:{cost_regime}:{reliability:.2f}"
+    )
+
+
+def build_phase5_trials(
+    split_name: str,
+    config: Phase5Config,
+) -> list[Phase5TrialRow]:
+    if split_name not in SPLIT_SEEDS:
+        raise ValueError("split_name must be one of development, validation, test")
+
+    rows: list[Phase5TrialRow] = []
+    oracle_cache: dict[tuple[Any, ...], dict[str, Any]] = {}
+    root_seed = SPLIT_SEEDS[split_name][0]
+
+    for family in Phase5Family:
+        family_cases = _trial_case_pool(
+            split_name,
+            family,
+            seed=root_seed + hash(family.value) % 991,
+            config=config,
+        )
+        for index, case in enumerate(family_cases):
+            seed_family = SPLIT_SEEDS[split_name][index % len(SPLIT_SEEDS[split_name])]
+            for reliability in config.reliability_levels:
+                for cost_regime in config.cost_regimes:
+                    costs = _cost_table(cost_regime, seed=seed_family)
+                    scenario_seed = seed_family + index * 13 + int(reliability * 100)
+                    oracle = _select_oracle_sequence(
+                        case=case,
+                        reliability=reliability,
+                        seed=scenario_seed,
+                        config=config,
+                        costs=costs,
+                        cache=oracle_cache,
+                    )
+                    oracle_sequence = tuple(oracle["sequence"])
+
+                    for policy in PHASE5_POLICIES:
+                        if policy == "oracle":
+                            outcome = _evaluate_sequence(
+                                case=case,
+                                action_sequence=oracle_sequence,
+                                reliability=reliability,
+                                seed=scenario_seed,
+                                config=config,
+                                costs=costs,
+                            )
+                            action_sequence = oracle_sequence
+                        else:
+                            action_sequence = _policy_action_sequence(
+                                policy=policy,
+                                case=case,
+                                reliability=reliability,
+                                costs=costs,
+                                seed=scenario_seed + hash(policy) % 997,
+                            )
+                            outcome = _evaluate_sequence(
+                                case=case,
+                                action_sequence=action_sequence,
+                                reliability=reliability,
+                                seed=scenario_seed,
+                                config=config,
+                                costs=costs,
+                            )
+
+                        trial_key = _trial_key(case, split_name, seed_family, index, reliability, cost_regime)
+                        rows.append(
+                            Phase5TrialRow(
+                                trial_id=f"{trial_key}:{policy}",
+                                trial_key=trial_key,
+                                split=split_name,
+                                family=case.family.value,
+                                seed_family=seed_family,
+                                mechanism_id=case.mechanism_id,
+                                composition_id=case.composition_id,
+                                relation_type=case.relation_type.value,
+                                criterion=case.criterion,
+                                severity=case.severity,
+                                noise=case.noise,
+                                cost_regime=cost_regime,
+                                intervention_reliability=reliability,
+                                policy=policy,
+                                action_sequence=",".join(action.value for action in action_sequence),
+                                recovered=bool(outcome["recovered"]),
+                                recovery_score=float(outcome["recovery_score"]),
+                                intervention_cost=float(outcome["cost"]),
+                                harm=float(outcome["harm"]),
+                                unsafe_commitment=int(outcome["unsafe_commitment"]),
+                                unknown_score=float(outcome["unknown_score"]),
+                                evidence_requested=bool(outcome["evidence_requested"]),
+                                evidence_useful=bool(outcome["evidence_useful"]),
+                                evidence_insufficient_at_start=case.evidence_initially_insufficient,
+                                utility=float(outcome["utility"]),
+                                oracle_utility=float(oracle["utility"]),
+                                oracle_sequence=",".join(action.value for action in oracle_sequence),
+                                oracle_cost=float(oracle["cost"]),
+                                oracle_recovered=bool(oracle["recovered"]),
+                                relation_observed=case.relation_type.value,
+                                is_triple_fault=case.family == Phase5Family.V3_THREE_FAULT,
+                                unknown_fault=case.unknown_fault,
+                            )
+                        )
+    return rows
+
+
+def _policy_rows(rows: list[Phase5TrialRow], policy: str) -> list[Phase5TrialRow]:
+    return [row for row in rows if row.policy == policy]
+
+
+def _mean_utility(rows: list[Phase5TrialRow], policy: str) -> float:
+    subset = _policy_rows(rows, policy)
+    return mean(row.utility for row in subset) if subset else 0.0
+
+
+def _strongest_nonoracle_policy(rows: list[Phase5TrialRow]) -> str:
+    candidates = [policy for policy in PHASE5_POLICIES if policy != "oracle" and policy != "qrtc"]
+    scored = sorted(((policy, _mean_utility(rows, policy)) for policy in candidates), key=lambda item: (-item[1], item[0]))
+    return scored[0][0]
+
+
+def _matched_differences(rows: list[Phase5TrialRow], left_policy: str, right_policy: str) -> list[tuple[str, float, tuple[Any, ...]]]:
+    left = {row.trial_key: row for row in rows if row.policy == left_policy}
+    right = {row.trial_key: row for row in rows if row.policy == right_policy}
+    shared = sorted(set(left).intersection(right))
+    diffs: list[tuple[str, float, tuple[Any, ...]]] = []
+    for key in shared:
+        left_row = left[key]
+        right_row = right[key]
+        cluster_key = (
+            left_row.mechanism_id,
+            left_row.composition_id,
+            left_row.relation_type,
+            left_row.criterion,
+            left_row.severity,
+            left_row.noise,
+            left_row.cost_regime,
+            left_row.intervention_reliability,
+            left_row.seed_family,
+        )
+        diffs.append((key, left_row.utility - right_row.utility, cluster_key))
+    return diffs
+
+
+def _percentile(values: list[float], percentile: float) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    index = max(0, min(len(ordered) - 1, int(percentile * (len(ordered) - 1))))
+    return ordered[index]
+
+
+def cluster_bootstrap_interval(
+    differences: list[tuple[str, float, tuple[Any, ...]]],
+    bootstrap_reps: int,
+    bootstrap_seed: int,
+) -> dict[str, Any]:
+    if not differences:
+        return {
+            "mean_difference": 0.0,
+            "median_difference": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "win_rate": 0.0,
+            "tie_rate": 0.0,
+            "loss_rate": 0.0,
+            "cluster_count": 0,
+            "matched_trial_count": 0,
+            "bootstrap_seed": bootstrap_seed,
+            "bootstrap_reps": bootstrap_reps,
+        }
+
+    cluster_to_values: dict[tuple[Any, ...], list[float]] = {}
+    for _, diff, cluster in differences:
+        cluster_to_values.setdefault(cluster, []).append(diff)
+
+    clusters = sorted(cluster_to_values)
+    rng = Random(bootstrap_seed)
+    sampled_means: list[float] = []
+
+    for _ in range(bootstrap_reps):
+        sampled_clusters = [clusters[rng.randrange(len(clusters))] for _ in range(len(clusters))]
+        sampled_diffs: list[float] = []
+        for cluster in sampled_clusters:
+            sampled_diffs.extend(cluster_to_values[cluster])
+        sampled_means.append(mean(sampled_diffs) if sampled_diffs else 0.0)
+
+    point_estimate = mean(diff for _, diff, _ in differences)
+    all_diffs = [diff for _, diff, _ in differences]
+    wins = sum(1 for value in all_diffs if value > 0)
+    ties = sum(1 for value in all_diffs if abs(value) <= 1e-12)
+    losses = sum(1 for value in all_diffs if value < 0)
+    total = max(1, len(all_diffs))
+
+    return {
+        "mean_difference": point_estimate,
+        "median_difference": _percentile(all_diffs, 0.5),
+        "ci_low": _percentile(sampled_means, 0.025),
+        "ci_high": _percentile(sampled_means, 0.975),
+        "win_rate": wins / total,
+        "tie_rate": ties / total,
+        "loss_rate": losses / total,
+        "cluster_count": len(clusters),
+        "matched_trial_count": len(differences),
+        "bootstrap_seed": bootstrap_seed,
+        "bootstrap_reps": bootstrap_reps,
+    }
+
+
+def _auroc(labels: list[int], scores: list[float]) -> float:
+    positive = [(score, label) for score, label in zip(scores, labels, strict=True) if label == 1]
+    negative = [(score, label) for score, label in zip(scores, labels, strict=True) if label == 0]
+    if not positive or not negative:
+        return 0.0
+    wins = 0.0
+    ties = 0.0
+    for p_score, _ in positive:
+        for n_score, _ in negative:
+            if p_score > n_score:
+                wins += 1.0
+            elif abs(p_score - n_score) <= 1e-12:
+                ties += 1.0
+    denom = len(positive) * len(negative)
+    return (wins + 0.5 * ties) / denom
+
+
+def _auprc(labels: list[int], scores: list[float]) -> float:
+    order = sorted(range(len(scores)), key=lambda index: scores[index], reverse=True)
+    positives = sum(labels)
+    if positives == 0:
+        return 0.0
+    tp = 0
+    fp = 0
+    precision_recall_points: list[tuple[float, float]] = []
+    for index in order:
+        if labels[index] == 1:
+            tp += 1
+        else:
+            fp += 1
+        precision = tp / max(1, tp + fp)
+        recall = tp / positives
+        precision_recall_points.append((precision, recall))
+    area = 0.0
+    prev_recall = 0.0
+    for precision, recall in precision_recall_points:
+        area += precision * max(0.0, recall - prev_recall)
+        prev_recall = recall
+    return area
+
+
+def _write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, Any]]) -> None:
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+
+
+def write_phase5_artifacts(
+    rows: list[Phase5TrialRow],
+    output_dir: str | Path,
+    split_name: str,
+    config: Phase5Config,
+    unlock_test: bool,
+) -> dict[str, Path]:
+    output_root = Path(output_dir)
+    output_root.mkdir(parents=True, exist_ok=True)
+
+    _ensure_phase4b_closed()
+    split_root = output_root / _split_root_name(split_name)
+    split_root.mkdir(parents=True, exist_ok=True)
+
+    (output_root / "configs").mkdir(parents=True, exist_ok=True)
+    (output_root / "manifests").mkdir(parents=True, exist_ok=True)
+    (output_root / "fault_specs").mkdir(parents=True, exist_ok=True)
+    (output_root / "intervention_specs").mkdir(parents=True, exist_ok=True)
+    final_root = output_root / "final"
+    final_root.mkdir(parents=True, exist_ok=True)
+
+    runs_csv = split_root / "phase5_runs.csv"
+    _write_csv(runs_csv, list(Phase5TrialRow.__annotations__.keys()), [asdict(row) for row in rows])
+
+    manifest = _build_split_manifest(split_name)
+    manifest_path = output_root / "manifests" / f"{split_name}_manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    frozen_config = {
+        "phase": "phase5",
+        "phase_variant": "phase5a",
+        "split": split_name,
+        "policies": list(PHASE5_POLICIES),
+        "family_targets": {
+            "development": config.development_family_trials,
+            "validation": config.validation_family_trials,
+            "test": config.test_family_trials,
+        },
+        "split_seeds": {name: list(values) for name, values in SPLIT_SEEDS.items()},
+        "cost_regimes": list(config.cost_regimes),
+        "reliability_levels": list(config.reliability_levels),
+        "utility": {
+            "lambda": config.lambda_cost,
+            "beta": config.beta_harm,
+            "gamma": config.gamma_unsafe,
+        },
+        "max_actions": config.max_actions,
+        "bootstrap": {
+            "reps": config.bootstrap_reps,
+            "seed": config.bootstrap_seed,
+        },
+    }
+    frozen_config_path = output_root / "frozen_config.yaml"
+    frozen_config_path.write_text(
+        "\n".join(
+            [
+                "phase: phase5",
+                "phase_variant: phase5a",
+                f"split: {split_name}",
+                "policies:",
+                *(f"  - {policy}" for policy in PHASE5_POLICIES),
+                "split_seeds:",
+                *(f"  {name}: [{', '.join(str(value) for value in values)}]" for name, values in SPLIT_SEEDS.items()),
+                "family_targets:",
+                f"  development: {config.development_family_trials}",
+                f"  validation: {config.validation_family_trials}",
+                f"  test: {config.test_family_trials}",
+                f"bootstrap_reps: {config.bootstrap_reps}",
+                f"bootstrap_seed: {config.bootstrap_seed}",
+                f"lambda_cost: {config.lambda_cost}",
+                f"beta_harm: {config.beta_harm}",
+                f"gamma_unsafe: {config.gamma_unsafe}",
+                f"max_actions: {config.max_actions}",
+                f"cost_regimes: [{', '.join(config.cost_regimes)}]",
+                f"reliability_levels: [{', '.join(f'{value:.2f}' for value in config.reliability_levels)}]",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    prereg_path = output_root / "preregistration.md"
+    prereg_path.write_text(
+        "# Phase V-A Preregistration\n\n"
+        "- Primary hypothesis: E[d_i] > 0 where d_i = U_QRTC - U_best_nonoracle on matched locked OOD trials.\n"
+        "- Primary endpoint: mean utility delta with paired cluster bootstrap interval.\n"
+        "- OOD families: unseen mechanisms, unseen pairs, three-fault compositions, unknown faults.\n"
+        "- Intervention reliability levels: 0.80 and 1.00 for Phase V-A.\n"
+        "- Cost regime in Phase V-A: familiar only.\n"
+        "- Phase IV-B is frozen and read-only.\n",
+        encoding="utf-8",
+    )
+
+    policy_summary: list[dict[str, Any]] = []
+    for policy in PHASE5_POLICIES:
+        policy_rows = _policy_rows(rows, policy)
+        if not policy_rows:
+            continue
+        policy_summary.append(
+            {
+                "policy": policy,
+                "trials": len(policy_rows),
+                "utility": mean(row.utility for row in policy_rows),
+                "recovery": mean(1.0 if row.recovered else 0.0 for row in policy_rows),
+                "cost": mean(row.intervention_cost for row in policy_rows),
+                "harm": mean(row.harm for row in policy_rows),
+                "unsafe_rate": mean(float(row.unsafe_commitment) for row in policy_rows),
+                "oracle_regret": mean(row.oracle_utility - row.utility for row in policy_rows),
+            }
+        )
+
+    strongest = _strongest_nonoracle_policy(rows)
+    differences = _matched_differences(rows, "qrtc", strongest)
+    interval = cluster_bootstrap_interval(
+        differences=differences,
+        bootstrap_reps=config.bootstrap_reps,
+        bootstrap_seed=config.bootstrap_seed,
+    )
+
+    labels = [1 if row.unknown_fault else 0 for row in _policy_rows(rows, "qrtc")]
+    scores = [row.unknown_score for row in _policy_rows(rows, "qrtc")]
+    unknown_auroc = _auroc(labels, scores)
+    unknown_auprc = _auprc(labels, scores)
+
+    final_policy_comparison = final_root / "policy_comparison.csv"
+    _write_csv(
+        final_policy_comparison,
+        ["policy", "trials", "utility", "recovery", "cost", "harm", "unsafe_rate", "oracle_regret"],
+        policy_summary,
+    )
+
+    paired_csv = final_root / "paired_comparisons.csv"
+    _write_csv(
+        paired_csv,
+        ["left_policy", "right_policy", "mean_difference", "median_difference", "ci_low", "ci_high", "wins", "ties", "losses", "cluster_count", "matched_trials"],
+        [
+            {
+                "left_policy": "qrtc",
+                "right_policy": strongest,
+                "mean_difference": interval["mean_difference"],
+                "median_difference": interval["median_difference"],
+                "ci_low": interval["ci_low"],
+                "ci_high": interval["ci_high"],
+                "wins": interval["win_rate"],
+                "ties": interval["tie_rate"],
+                "losses": interval["loss_rate"],
+                "cluster_count": interval["cluster_count"],
+                "matched_trials": interval["matched_trial_count"],
+            }
+        ],
+    )
+
+    by_family_rows: list[dict[str, Any]] = []
+    for family in Phase5Family:
+        qrtc_subset = [row for row in rows if row.policy == "qrtc" and row.family == family.value]
+        base_subset = [row for row in rows if row.policy == strongest and row.family == family.value]
+        qrtc_utility = mean(row.utility for row in qrtc_subset) if qrtc_subset else 0.0
+        base_utility = mean(row.utility for row in base_subset) if base_subset else 0.0
+        by_family_rows.append(
+            {
+                "family": family.value,
+                "qrtc_utility": qrtc_utility,
+                "baseline": strongest,
+                "baseline_utility": base_utility,
+                "delta": qrtc_utility - base_utility,
+            }
+        )
+
+    utility_by_family_csv = final_root / "utility_by_ood_family.csv"
+    _write_csv(utility_by_family_csv, ["family", "qrtc_utility", "baseline", "baseline_utility", "delta"], by_family_rows)
+
+    utility_by_mechanism: dict[str, list[Phase5TrialRow]] = {}
+    for row in rows:
+        if row.policy != "qrtc":
+            continue
+        utility_by_mechanism.setdefault(row.mechanism_id, []).append(row)
+    _write_csv(
+        final_root / "utility_by_mechanism.csv",
+        ["mechanism_id", "utility", "recovery", "unsafe_rate"],
+        [
+            {
+                "mechanism_id": mechanism,
+                "utility": mean(entry.utility for entry in subset),
+                "recovery": mean(1.0 if entry.recovered else 0.0 for entry in subset),
+                "unsafe_rate": mean(float(entry.unsafe_commitment) for entry in subset),
+            }
+            for mechanism, subset in sorted(utility_by_mechanism.items())
+        ],
+    )
+
+    utility_by_composition: dict[str, list[Phase5TrialRow]] = {}
+    for row in rows:
+        if row.policy != "qrtc":
+            continue
+        utility_by_composition.setdefault(row.composition_id, []).append(row)
+    _write_csv(
+        final_root / "utility_by_composition.csv",
+        ["composition_id", "utility", "recovery"],
+        [
+            {
+                "composition_id": composition,
+                "utility": mean(entry.utility for entry in subset),
+                "recovery": mean(1.0 if entry.recovered else 0.0 for entry in subset),
+            }
+            for composition, subset in sorted(utility_by_composition.items())
+        ],
+    )
+
+    _write_csv(
+        final_root / "utility_by_cost_regime.csv",
+        ["cost_regime", "policy", "utility"],
+        [
+            {
+                "cost_regime": row.cost_regime,
+                "policy": row.policy,
+                "utility": row.utility,
+            }
+            for row in rows
+        ],
+    )
+
+    _write_csv(
+        final_root / "utility_by_intervention_reliability.csv",
+        ["intervention_reliability", "policy", "utility", "recovery"],
+        [
+            {
+                "intervention_reliability": row.intervention_reliability,
+                "policy": row.policy,
+                "utility": row.utility,
+                "recovery": 1.0 if row.recovered else 0.0,
+            }
+            for row in rows
+        ],
+    )
+
+    triple_rows = [row for row in rows if row.is_triple_fault]
+    _write_csv(
+        final_root / "triple_fault_breakdown.csv",
+        ["policy", "dependency", "intervention_reliability", "utility", "recovered", "cost", "oracle_regret"],
+        [
+            {
+                "policy": row.policy,
+                "dependency": row.composition_id,
+                "intervention_reliability": row.intervention_reliability,
+                "utility": row.utility,
+                "recovered": row.recovered,
+                "cost": row.intervention_cost,
+                "oracle_regret": row.oracle_utility - row.utility,
+            }
+            for row in triple_rows
+        ],
+    )
+
+    unknown_rows = [row for row in rows if row.unknown_fault]
+    _write_csv(
+        final_root / "unknown_fault_breakdown.csv",
+        ["policy", "unknown_score", "evidence_requested", "evidence_useful", "unsafe_commitment"],
+        [
+            {
+                "policy": row.policy,
+                "unknown_score": row.unknown_score,
+                "evidence_requested": row.evidence_requested,
+                "evidence_useful": row.evidence_useful,
+                "unsafe_commitment": row.unsafe_commitment,
+            }
+            for row in unknown_rows
+        ],
+    )
+
+    _write_csv(
+        final_root / "risk_coverage.csv",
+        ["policy", "noise", "recovery_rate"],
+        [
+            {
+                "policy": policy,
+                "noise": noise,
+                "recovery_rate": mean(
+                    1.0 if row.recovered else 0.0
+                    for row in rows
+                    if row.policy == policy and abs(row.noise - noise) <= 1e-12
+                ),
+            }
+            for policy in PHASE5_POLICIES
+            for noise in NOISE_LEVELS
+        ],
+    )
+
+    _write_csv(
+        final_root / "unsafe_intervention_breakdown.csv",
+        ["policy", "unknown_fault", "unsafe_rate"],
+        [
+            {
+                "policy": policy,
+                "unknown_fault": 1,
+                "unsafe_rate": mean(float(row.unsafe_commitment) for row in unknown_rows if row.policy == policy) if any(row.policy == policy for row in unknown_rows) else 0.0,
+            }
+            for policy in PHASE5_POLICIES
+        ],
+    )
+
+    _write_csv(
+        final_root / "oracle_regret_breakdown.csv",
+        ["policy", "mean_oracle_regret"],
+        [
+            {
+                "policy": policy,
+                "mean_oracle_regret": mean(row.oracle_utility - row.utility for row in rows if row.policy == policy),
+            }
+            for policy in PHASE5_POLICIES
+        ],
+    )
+
+    delta_decomposition = {
+        "split": split_name,
+        "strongest_nonoracle": strongest,
+        "primary_delta": interval["mean_difference"],
+        "family_deltas": {entry["family"]: entry["delta"] for entry in by_family_rows},
+        "unknown_detection": {
+            "auroc": unknown_auroc,
+            "auprc": unknown_auprc,
+        },
+        "unsafe_rate": {
+            policy: mean(float(row.unsafe_commitment) for row in rows if row.policy == policy)
+            for policy in PHASE5_POLICIES
+        },
+    }
+    delta_path = final_root / "delta_decomposition.json"
+    delta_path.write_text(json.dumps(delta_decomposition, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    interval_path = final_root / "interval_method.json"
+    interval_payload = dict(interval)
+    interval_payload["left_policy"] = "qrtc"
+    interval_payload["right_policy"] = strongest
+    interval_payload["method"] = "paired_cluster_bootstrap"
+    interval_payload["cluster_definition"] = [
+        "mechanism_id",
+        "composition_id",
+        "relation_type",
+        "criterion",
+        "severity",
+        "noise",
+        "cost_regime",
+        "intervention_reliability",
+        "seed_family",
+    ]
+    interval_path.write_text(json.dumps(interval_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    final_report = final_root / "PHASE5_FINAL_INTEGRITY_CHECKS.md"
+    final_report.write_text(
+        "# Phase V Final Integrity Checks\n\n"
+        f"- Split executed: {split_name}\n"
+        f"- Strongest non-oracle comparator: {strongest}\n"
+        f"- Primary delta (QRTC - {strongest}): {interval['mean_difference']:.6f}\n"
+        f"- Paired cluster CI: [{interval['ci_low']:.6f}, {interval['ci_high']:.6f}]\n"
+        f"- Matched trials: {interval['matched_trial_count']}\n"
+        f"- Clusters: {interval['cluster_count']}\n"
+        f"- Unknown-fault AUROC (QRTC): {unknown_auroc:.6f}\n"
+        f"- Unknown-fault AUPRC (QRTC): {unknown_auprc:.6f}\n",
+        encoding="utf-8",
+    )
+
+    if split_name == "test" and not unlock_test:
+        raise PermissionError("test split is locked; pass --unlock-test to run")
+
+    checksums_path = output_root / "checksums.sha256"
+    tracked = [frozen_config_path, prereg_path, manifest_path, runs_csv]
+    checksums: list[str] = []
+    for artifact_path in tracked:
+        content = artifact_path.read_bytes()
+        digest = __import__("hashlib").sha256(content).hexdigest()
+        checksums.append(f"{digest}  {artifact_path.as_posix()}")
+    checksums_path.write_text("\n".join(checksums) + "\n", encoding="utf-8")
+
+    decision_path = split_root / f"{split_name}_decision.json"
+    decision_payload = {
+        "split": split_name,
+        "strongest_nonoracle": strongest,
+        "delta_utility": interval["mean_difference"],
+        "ci_low": interval["ci_low"],
+        "ci_high": interval["ci_high"],
+        "passes_primary": bool(interval["mean_difference"] > 0.0 and interval["ci_low"] > 0.0),
+        "matched_trials": interval["matched_trial_count"],
+        "cluster_count": interval["cluster_count"],
+    }
+    decision_path.write_text(json.dumps(decision_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    return {
+        "runs_csv": runs_csv,
+        "manifest_json": manifest_path,
+        "frozen_config": frozen_config_path,
+        "preregistration": prereg_path,
+        "checksums": checksums_path,
+        "decision": decision_path,
+        "policy_comparison": final_policy_comparison,
+        "paired_comparisons": paired_csv,
+        "utility_by_ood_family": utility_by_family_csv,
+        "interval_method": interval_path,
+        "final_integrity": final_report,
+    }
+
+
+def run_phase5_benchmark(
+    split_name: str,
+    output_dir: str | Path,
+    unlock_test: bool = False,
+    config: Phase5Config | None = None,
+) -> dict[str, Any]:
+    resolved_config = config if config is not None else Phase5Config()
+    if split_name == "test" and not unlock_test:
+        raise PermissionError("test split is locked; pass --unlock-test to run")
+
+    rows = build_phase5_trials(split_name=split_name, config=resolved_config)
+    artifacts = write_phase5_artifacts(
+        rows=rows,
+        output_dir=output_dir,
+        split_name=split_name,
+        config=resolved_config,
+        unlock_test=unlock_test,
+    )
+    artifacts["rows"] = rows
+    return artifacts
+
+
+def summarize_phase5_results(rows: list[Phase5TrialRow]) -> dict[str, Any]:
+    strongest = _strongest_nonoracle_policy(rows)
+    differences = _matched_differences(rows, "qrtc", strongest)
+    interval = cluster_bootstrap_interval(differences, bootstrap_reps=2000, bootstrap_seed=9101)
+    qrtc_rows = _policy_rows(rows, "qrtc")
+    strongest_rows = _policy_rows(rows, strongest)
+    qrtc_utility = mean(row.utility for row in qrtc_rows) if qrtc_rows else 0.0
+    strongest_utility = mean(row.utility for row in strongest_rows) if strongest_rows else 0.0
+
+    triple_qrtc = [row for row in qrtc_rows if row.is_triple_fault]
+    triple_best = [row for row in strongest_rows if row.is_triple_fault]
+    unknown_labels = [1 if row.unknown_fault else 0 for row in qrtc_rows]
+    unknown_scores = [row.unknown_score for row in qrtc_rows]
+    unknown_rows = [row for row in qrtc_rows if row.unknown_fault]
+
+    return {
+        "development_trials": len({row.trial_key for row in qrtc_rows}),
+        "qrtc_utility": qrtc_utility,
+        "strongest_nonoracle": strongest,
+        "strongest_nonoracle_utility": strongest_utility,
+        "delta_utility": qrtc_utility - strongest_utility,
+        "delta_ci_low": interval["ci_low"],
+        "delta_ci_high": interval["ci_high"],
+        "triple_fault_recovery_qrtc": mean(1.0 if row.recovered else 0.0 for row in triple_qrtc) if triple_qrtc else 0.0,
+        "triple_fault_recovery_baseline": mean(1.0 if row.recovered else 0.0 for row in triple_best) if triple_best else 0.0,
+        "unknown_fault_auroc": _auroc(unknown_labels, unknown_scores),
+        "unknown_fault_auprc": _auprc(unknown_labels, unknown_scores),
+        "unsafe_intervention_rate": mean(float(row.unsafe_commitment) for row in unknown_rows) if unknown_rows else 0.0,
+        "oracle_regret": mean(row.oracle_utility - row.utility for row in qrtc_rows) if qrtc_rows else 0.0,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Run the Phase V locked OOD rescue benchmark.")
+    parser.add_argument("--split", choices=["development", "validation", "test"], default="development")
+    parser.add_argument("--output-dir", default="artifacts/phase5")
+    parser.add_argument("--unlock-test", action="store_true")
+    parser.add_argument("--bootstrap-reps", type=int, default=2000)
+    parser.add_argument("--bootstrap-seed", type=int, default=9101)
+    args = parser.parse_args()
+
+    config = Phase5Config(bootstrap_reps=args.bootstrap_reps, bootstrap_seed=args.bootstrap_seed)
+    artifacts = run_phase5_benchmark(
+        split_name=args.split,
+        output_dir=Path(args.output_dir),
+        unlock_test=args.unlock_test,
+        config=config,
+    )
+    rows = artifacts["rows"]
+    summary = summarize_phase5_results(rows)
+    print(f"Generated Phase V artifacts under {Path(args.output_dir).resolve()}")
+    print(f"Split: {args.split}")
+    print(f"Trials: {summary['development_trials']}")
+    print(f"Strongest non-oracle: {summary['strongest_nonoracle']}")
+    print(f"Delta utility: {summary['delta_utility']:.6f}")
+    print(f"Delta CI: [{summary['delta_ci_low']:.6f}, {summary['delta_ci_high']:.6f}]")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

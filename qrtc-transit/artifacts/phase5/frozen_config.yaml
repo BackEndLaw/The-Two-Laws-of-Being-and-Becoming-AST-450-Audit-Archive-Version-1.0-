@@ -1,0 +1,29 @@
+phase: phase5
+phase_variant: phase5a
+split: test
+policies:
+  - qrtc
+  - qrtc_no_abstention
+  - qrtc_untyped
+  - greedy_gain
+  - end_to_end
+  - highest_stage_posterior
+  - cheapest_first
+  - random
+  - oracle
+split_seeds:
+  development: [701, 702, 703]
+  validation: [751, 752]
+  test: [801, 802]
+family_targets:
+  development: 1200
+  validation: 600
+  test: 1152
+bootstrap_reps: 2000
+bootstrap_seed: 9101
+lambda_cost: 0.05
+beta_harm: 0.25
+gamma_unsafe: 0.2
+max_actions: 4
+cost_regimes: [familiar]
+reliability_levels: [0.80, 1.00]

@@ -1,0 +1,10 @@
+policy,unknown_fault,unsafe_rate
+qrtc,1,0.0
+qrtc_no_abstention,1,0.0
+qrtc_untyped,1,0.0
+greedy_gain,1,1.0
+end_to_end,1,1.0
+highest_stage_posterior,1,0.0
+cheapest_first,1,0.0
+random,1,0.5763888888888888
+oracle,1,0.0

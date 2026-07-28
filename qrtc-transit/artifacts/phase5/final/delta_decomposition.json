@@ -1,0 +1,26 @@
+{
+  "family_deltas": {
+    "V1": 0.2786892361111111,
+    "V2": 0.2773220486111111,
+    "V3": 0.14774305555555553,
+    "V4": 0.0
+  },
+  "primary_delta": 0.17593858506944446,
+  "split": "test",
+  "strongest_nonoracle": "qrtc_untyped",
+  "unknown_detection": {
+    "auprc": 1.0,
+    "auroc": 1.0
+  },
+  "unsafe_rate": {
+    "cheapest_first": 0.0,
+    "end_to_end": 0.25,
+    "greedy_gain": 0.25,
+    "highest_stage_posterior": 0.0,
+    "oracle": 0.0,
+    "qrtc": 0.0,
+    "qrtc_no_abstention": 0.0,
+    "qrtc_untyped": 0.0,
+    "random": 0.1440972222222222
+  }
+}
