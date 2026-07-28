@@ -1,0 +1,3 @@
+scope,policy,n,recovery_rate,mean_cost,harm_rate,mean_utility,first_action_validity,false_order_rate,oracle_regret
+unseen_pairs_only,qrtc,384,1.0,3.125,0.0,0.84375,1.0,0.0,0.0
+unseen_pairs_only,greedy_gain,384,1.0,5.0,0.0,0.75,1.0,0.0,0.09374999999999996

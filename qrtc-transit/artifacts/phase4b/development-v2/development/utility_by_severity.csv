@@ -1,0 +1,5 @@
+policy,severity,utility_mean
+qrtc,0.25,0.74375
+qrtc,0.5,0.74375
+qrtc,0.75,0.74375
+qrtc,1.0,0.74375

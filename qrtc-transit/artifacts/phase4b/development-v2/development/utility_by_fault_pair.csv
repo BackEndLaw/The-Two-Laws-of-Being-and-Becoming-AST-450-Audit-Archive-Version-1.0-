@@ -1,0 +1,5 @@
+policy,pair_name,utility_mean
+qrtc,FB+FR,0.7000000000000001
+qrtc,FD+FW,0.7999999999999999
+qrtc,FG+FW,0.6999999999999998
+qrtc,FR+FJ,0.775

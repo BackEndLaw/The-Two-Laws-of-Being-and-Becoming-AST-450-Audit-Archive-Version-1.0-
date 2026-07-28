@@ -1,0 +1,96 @@
+{
+  "policies": {
+    "cheapest_first": {
+      "evidence_request_rate": 0.0,
+      "excess_cost": -2.25,
+      "false_order_rate": 0.0,
+      "first_action_validity": 1.0,
+      "mean_confidence": 0.45,
+      "mean_cost": 1.0,
+      "oracle_regret": 0.9031250000000001,
+      "recovery_rate": 0.1875,
+      "trials": 768,
+      "utility_mean": -0.065625,
+      "wrong_intervention_harm": 0.8125
+    },
+    "end_to_end": {
+      "evidence_request_rate": 0.0,
+      "excess_cost": 0.3125,
+      "false_order_rate": 0.0,
+      "first_action_validity": 1.0,
+      "mean_confidence": 0.45,
+      "mean_cost": 3.5625,
+      "oracle_regret": 0.328125,
+      "recovery_rate": 0.75,
+      "trials": 768,
+      "utility_mean": 0.509375,
+      "wrong_intervention_harm": 0.25
+    },
+    "greedy_gain": {
+      "evidence_request_rate": 0.0,
+      "excess_cost": 1.3125,
+      "false_order_rate": 0.0,
+      "first_action_validity": 1.0,
+      "mean_confidence": 0.45,
+      "mean_cost": 4.5625,
+      "oracle_regret": 0.065625,
+      "recovery_rate": 1.0,
+      "trials": 768,
+      "utility_mean": 0.771875,
+      "wrong_intervention_harm": 0.0
+    },
+    "highest_stage_posterior": {
+      "evidence_request_rate": 0.0,
+      "excess_cost": 0.75,
+      "false_order_rate": 0.0,
+      "first_action_validity": 1.0,
+      "mean_confidence": 0.45,
+      "mean_cost": 4.0,
+      "oracle_regret": 0.35000000000000003,
+      "recovery_rate": 0.75,
+      "trials": 768,
+      "utility_mean": 0.48750000000000004,
+      "wrong_intervention_harm": 0.25
+    },
+    "oracle": {
+      "evidence_request_rate": 0.0,
+      "excess_cost": 0.0,
+      "false_order_rate": 0.0,
+      "first_action_validity": 1.0,
+      "mean_confidence": 0.55,
+      "mean_cost": 3.25,
+      "oracle_regret": 0.0,
+      "recovery_rate": 1.0,
+      "trials": 768,
+      "utility_mean": 0.8375,
+      "wrong_intervention_harm": 0.0
+    },
+    "qrtc": {
+      "evidence_request_rate": 0.0,
+      "excess_cost": 0.0,
+      "false_order_rate": 0.0,
+      "first_action_validity": 1.0,
+      "mean_confidence": 0.9499999999999998,
+      "mean_cost": 3.25,
+      "oracle_regret": 0.0,
+      "recovery_rate": 1.0,
+      "trials": 768,
+      "utility_mean": 0.8375,
+      "wrong_intervention_harm": 0.0
+    },
+    "random": {
+      "evidence_request_rate": 0.10416666666666667,
+      "excess_cost": -0.22916666666666666,
+      "false_order_rate": 0.0,
+      "first_action_validity": 0.8958333333333334,
+      "mean_confidence": 0.45,
+      "mean_cost": 3.0208333333333335,
+      "oracle_regret": 0.9553385416666668,
+      "recovery_rate": 0.2265625,
+      "trials": 768,
+      "utility_mean": -0.11783854166666667,
+      "wrong_intervention_harm": 0.7734375
+    }
+  },
+  "split": "development"
+}

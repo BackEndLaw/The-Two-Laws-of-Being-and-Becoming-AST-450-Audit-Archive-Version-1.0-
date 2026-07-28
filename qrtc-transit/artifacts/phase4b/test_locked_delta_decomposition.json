@@ -1,0 +1,11 @@
+{
+  "split": "test_locked",
+  "comparator": "greedy_gain",
+  "delta_recovery": 0.0,
+  "delta_cost": -1.4999999999999996,
+  "delta_harm": 0.0,
+  "delta_utility_direct": 0.07499999999999996,
+  "delta_utility_from_decomposition": 0.07499999999999998,
+  "lambda": 0.05,
+  "beta": 0.25
+}

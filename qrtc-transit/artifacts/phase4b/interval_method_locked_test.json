@@ -1,0 +1,48 @@
+{
+  "split": "test_locked",
+  "comparator": "greedy_gain",
+  "n_matched_trials": 1152,
+  "paired_difference_definition": "d_i = U_QRTC,i - U_greedy,i",
+  "deterministic_paired_normal_method": {
+    "ci": [
+      0.07066708995361937,
+      0.0793329100463806
+    ],
+    "standard_error": 0.002210668391010517,
+    "assumption": "independent matched trial-level differences"
+  },
+  "bootstrap_methods": {
+    "trial_level_percentile": {
+      "ci": [
+        0.07074652777777776,
+        0.0792534722222222
+      ],
+      "resampling_unit": "matched trial pairs",
+      "resamples": 10000,
+      "seed": 20260728,
+      "clustered": false
+    },
+    "cluster_by_seed_percentile": {
+      "ci": [
+        0.07499999999999998,
+        0.07499999999999998
+      ],
+      "resampling_unit": "seed clusters",
+      "clusters": 3,
+      "resamples": 10000,
+      "seed": 20260728,
+      "clustered": true
+    },
+    "cluster_by_configuration_percentile": {
+      "ci": [
+        0.06744791666666665,
+        0.08255208333333332
+      ],
+      "resampling_unit": "(pair, relation_type, severity, noise) clusters",
+      "clusters": 384,
+      "resamples": 10000,
+      "seed": 20260728,
+      "clustered": true
+    }
+  }
+}

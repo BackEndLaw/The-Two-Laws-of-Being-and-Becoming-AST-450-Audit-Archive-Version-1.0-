@@ -1,0 +1,65 @@
+phase4b:
+  benchmark_module: src/qrtc_benchmark/phase4b.py
+  policy_registry:
+    - qrtc
+    - end_to_end
+    - greedy_gain
+    - cheapest_first
+    - highest_stage_posterior
+    - random
+    - oracle
+  policy_behavior:
+    qrtc:
+      strict_masking: apply required_sequence
+      soft_masking: apply lowest-cost required action only
+      independent: apply lowest-cost required action only
+      synergistic: apply lowest-cost required action only
+    greedy_gain:
+      strict_masking: apply required_sequence
+      non_strict_relations: apply required_sequence[0] only
+  policy_name_aliases:
+    highest_posterior: highest_stage_posterior
+  intervention_costs:
+    rG: 5.0
+    rB: 4.0
+    rR: 4.0
+    rW: 2.0
+    rD: 3.0
+    rJ: 1.0
+    r0: 1.0
+    stop: 0.0
+  recovery_threshold:
+    type: categorical_outcome
+    description: recovered is determined by relation-specific recovery logic in evaluate_phase4b_action_sequence.
+  utility:
+    formula: U = Recover - lambda * Cost - beta * Harm
+    lambda: 0.05
+    beta: 0.25
+  max_action_count: 2
+  early_stopping:
+    stop_token: stop
+    effective_sequence_stops_at_first_stop: true
+    early_stop_position_definition: index_of_first_stop_or_sequence_length
+  tie_breaking:
+    oracle_selection:
+      - maximize_utility
+      - minimize_cost
+      - minimize_sequence_length
+      - lexicographic_order_of_action_sequence
+  split_manifest:
+    development:
+      seeds: [401, 402, 403]
+      pair_subset: first_4_default_pairs
+    validation:
+      seeds: [551, 552]
+      pair_subset: first_4_default_pairs
+    test:
+      seeds: [601, 602, 603]
+      pair_subset: all_default_pairs
+  relation_types:
+    - strict_masking
+    - soft_masking
+    - independent
+    - synergistic
+  severity_levels: [0.25, 0.5, 0.75, 1.0]
+  noise_levels: [0.0, 0.05, 0.1, 0.2]
