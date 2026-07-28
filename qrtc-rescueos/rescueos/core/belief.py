@@ -35,4 +35,5 @@ class SimpleBeliefUpdater:
             fault_probabilities=fault_probabilities,
             unknown_probability=unknown_probability,
             confidence=confidence,
+            local_health=observation.get("local_health", distinction_health),
         )

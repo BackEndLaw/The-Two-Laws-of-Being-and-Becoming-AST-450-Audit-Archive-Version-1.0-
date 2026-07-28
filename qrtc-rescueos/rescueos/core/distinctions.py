@@ -38,6 +38,7 @@ class BeliefState:
     fault_probabilities: Mapping[str, float]
     unknown_probability: float
     confidence: float
+    local_health: Mapping[str, float] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

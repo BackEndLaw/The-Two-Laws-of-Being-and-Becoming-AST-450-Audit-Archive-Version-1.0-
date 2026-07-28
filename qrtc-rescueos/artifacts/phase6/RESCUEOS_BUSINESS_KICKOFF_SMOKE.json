@@ -1,0 +1,23 @@
+{
+  "result_name": "RescueOS Business",
+  "artifact_type": "graph_integration_smoke_gate",
+  "checkpoint_commit": "a6fd9fd77b87e79f4c4d96f1d7582740aa19ea3a",
+  "existing_test_count": 29,
+  "existing_tests_passed": true,
+  "graph_test_count": 11,
+  "graph_tests_passed": true,
+  "total_test_count": 40,
+  "diagnostics_clean": true,
+  "realized_safety_separate_from_expected_risk": true,
+  "typed_and_untyped_planning_distinct": true,
+  "graph_aware_transition_integrated": true,
+  "graph_checksum": "561b2dca5ed3382984e44477541120909be5572aa7f9e9cb878b48ceb70b7e26",
+  "planner_simulator_checksum_match": true,
+  "deterministic_rollout_parity": true,
+  "upstream_propagation_correct": true,
+  "independent_downstream_fault_preserved": true,
+  "early_stopping_correct": true,
+  "hardware_actuation_enabled": false,
+  "hardware_gate": "NOT READY",
+  "next_gate": "hidden mechanisms and leakage checks"
+}

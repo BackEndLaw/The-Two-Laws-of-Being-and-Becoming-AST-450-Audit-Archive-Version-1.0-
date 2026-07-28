@@ -13,10 +13,13 @@ import yaml
 from rescueos import RESULT_NAME
 from rescueos.adapters.simulator import SimulatorAdapter
 from rescueos.audit.event_log import AuditEventLog
+from rescueos.compiler.graph_compiler import compile_graph
 from rescueos.compiler.loader import load_system_spec
+from rescueos.compiler.schema import CompiledGraph
 from rescueos.core.belief import SimpleBeliefUpdater
 from rescueos.core.controller import RescueController, RescueResult
 from rescueos.core.distinctions import Intervention, Task
+from rescueos.core.transition import TransitionModel
 from rescueos.policies import greedy, oracle, qrtc, qrtc_untyped
 from rescueos.simulator.communication_link import CommunicationLinkSimulator
 from rescueos.simulator.fault_injector import Fault
@@ -53,6 +56,7 @@ def run_benchmark(
         raise ValueError("System spec must include at least one task")
 
     task = spec.tasks[0]
+    graph = compile_graph(spec)
     interventions = list(spec.interventions)
     distinction_pool = _distinction_pool(task)
     fault_bank = _load_fault_bank(fault_bank_path)
@@ -77,6 +81,8 @@ def run_benchmark(
                     policy_builder=policy_builder,
                     seed=trial_seed,
                     max_actions=max_actions,
+                    graph=graph,
+                    typed_graph_access=policy_name == "qrtc",
                 )
                 row = {
                     "result_name": RESULT_NAME,
@@ -171,6 +177,7 @@ def run_benchmark(
             "seed": seed,
             "policies": sorted(POLICIES.keys()),
             "fault_bank_path": str(fault_bank_path) if fault_bank_path else None,
+            "graph_checksum": graph.checksum,
             "utility_weights": {
                 "lambda_cost": lambda_cost,
                 "eta_actions": eta_actions,
@@ -199,14 +206,26 @@ def _run_single_policy(
     policy_builder,
     seed: int,
     max_actions: int,
+    graph: CompiledGraph,
+    typed_graph_access: bool,
 ) -> RescueResult:
+    transition_model = TransitionModel(graph)
     simulator = CommunicationLinkSimulator(
         interventions,
         seed=seed,
         faults=faults,
+        graph=graph,
+        transition_model=transition_model,
     )
     adapter = SimulatorAdapter(simulator)
-    planner = policy_builder(interventions)
+    if typed_graph_access:
+        planner = policy_builder(
+            interventions,
+            graph=graph,
+            transition_model=transition_model,
+        )
+    else:
+        planner = policy_builder(interventions)
     controller = RescueController(
         adapter=adapter,
         inference=SimpleBeliefUpdater(),

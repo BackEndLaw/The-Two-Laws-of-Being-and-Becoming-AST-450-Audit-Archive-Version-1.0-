@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from rescueos.compiler.schema import CompiledGraph
 from rescueos.core.distinctions import (
     ActionKind,
     BeliefState,
@@ -9,6 +10,7 @@ from rescueos.core.distinctions import (
     PlannerDecision,
     Task,
 )
+from rescueos.core.transition import RealizedOutcome, SystemState, TransitionModel, evaluate_task
 from rescueos.core.utility import expected_utility, value_of_information
 
 
@@ -27,9 +29,19 @@ class BoundedLookaheadPlanner:
         self,
         interventions: list[Intervention],
         config: PlannerConfig | None = None,
+        graph: CompiledGraph | None = None,
+        transition_model: TransitionModel | None = None,
     ) -> None:
         self._interventions = interventions
         self._config = config or PlannerConfig()
+        self._graph = graph or (transition_model.graph if transition_model is not None else None)
+        self._transition_model = transition_model or TransitionModel(self._graph)
+        if self._graph is not None and self._transition_model.graph_checksum != self._graph.checksum:
+            raise ValueError("Planner and transition model graph checksums differ")
+
+    @property
+    def graph_checksum(self) -> str | None:
+        return self._transition_model.graph_checksum
 
     def choose(
         self,
@@ -65,6 +77,14 @@ class BoundedLookaheadPlanner:
             if action.kind == ActionKind.EVIDENCE:
                 if not self._evidence_has_positive_voi(action, belief, current_recovery):
                     continue
+
+            if (
+                self._config.typed_structure
+                and self._graph is not None
+                and action.kind == ActionKind.REPAIR
+                and not self._graph.action_can_influence(action.action_id, task.task_id)
+            ):
+                continue
 
             action_utility, expected_recovery = self._score_action(
                 action,
@@ -131,18 +151,42 @@ class BoundedLookaheadPlanner:
         task: Task,
         lost_distinctions: tuple[str, ...],
     ) -> tuple[float, float]:
-        if self._config.typed_structure:
+        if self._config.typed_structure and self._graph is not None:
+            state = SystemState(
+                local_health=dict(belief.local_health or belief.distinction_health),
+                distinction_quality=dict(belief.distinction_health),
+            )
+            succeeded = self._transition_model.apply(
+                state=state,
+                action=action,
+                realized_outcome=RealizedOutcome(succeeded=True),
+            )
+            failed = self._transition_model.apply(
+                state=state,
+                action=action,
+                realized_outcome=RealizedOutcome(succeeded=False),
+            )
+            expected_loss = (
+                action.success_probability * evaluate_task(succeeded, task)
+                + (1.0 - action.success_probability) * evaluate_task(failed, task)
+            )
+            expected_recovery = max(0.0, 1.0 - expected_loss)
+        elif self._config.typed_structure:
             overlap = len(set(lost_distinctions).intersection(action.restores))
             total_lost = len(lost_distinctions) if lost_distinctions else 1
             restored_fraction = overlap / total_lost
+            current_recovery = 1.0 - self._task_loss(belief, task)
+            expected_recovery = min(
+                1.0,
+                current_recovery + (restored_fraction * action.success_probability),
+            )
         else:
             restored_fraction = 1.0 if action.kind == ActionKind.REPAIR else 0.0
-
-        current_recovery = 1.0 - self._task_loss(belief, task)
-        expected_recovery = min(
-            1.0,
-            current_recovery + (restored_fraction * action.success_probability),
-        )
+            current_recovery = 1.0 - self._task_loss(belief, task)
+            expected_recovery = min(
+                1.0,
+                current_recovery + (restored_fraction * action.success_probability),
+            )
         unsafe_probability = action.harm_risk if action.kind == ActionKind.REPAIR else 0.0
 
         score = expected_utility(
