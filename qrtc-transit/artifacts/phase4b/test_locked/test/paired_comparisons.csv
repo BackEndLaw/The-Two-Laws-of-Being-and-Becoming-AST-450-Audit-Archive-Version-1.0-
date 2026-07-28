@@ -1,0 +1,7 @@
+policy,comparison_policy,utility_mean,recovery_rate
+qrtc,qrtc,0.8395833333333332,1.0
+qrtc,random,-0.14375,0.20833333333333334
+qrtc,cheapest_first,0.012499999999999997,0.25
+qrtc,highest_stage_posterior,0.4791666666666667,0.75
+qrtc,greedy_gain,0.7645833333333333,1.0
+qrtc,end_to_end,0.5041666666666668,0.75

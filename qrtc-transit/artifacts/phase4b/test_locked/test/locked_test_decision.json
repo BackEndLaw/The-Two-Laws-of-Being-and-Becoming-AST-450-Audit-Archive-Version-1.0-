@@ -1,0 +1,11 @@
+{
+  "delta_utility_qrtc_minus_strongest_non_oracle": 0.07499999999999998,
+  "locked_test_claim_holds": true,
+  "n_pairs": 1152,
+  "paired_95ci": [
+    0.07066708995361937,
+    0.0793329100463806
+  ],
+  "split": "test",
+  "strongest_non_oracle": "greedy_gain"
+}

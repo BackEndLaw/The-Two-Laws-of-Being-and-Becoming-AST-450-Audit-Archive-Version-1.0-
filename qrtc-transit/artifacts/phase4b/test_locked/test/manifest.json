@@ -1,0 +1,13 @@
+{
+  "policies": [
+    "qrtc",
+    "random",
+    "cheapest_first",
+    "highest_stage_posterior",
+    "greedy_gain",
+    "end_to_end",
+    "oracle"
+  ],
+  "split": "test",
+  "trials": 8064
+}

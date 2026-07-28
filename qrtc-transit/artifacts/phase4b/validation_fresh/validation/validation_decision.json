@@ -1,0 +1,11 @@
+{
+  "delta_utility_qrtc_minus_strongest_non_oracle": 0.06562499999999999,
+  "n_pairs": 512,
+  "paired_95ci": [
+    0.05974461045810878,
+    0.0715053895418912
+  ],
+  "split": "validation",
+  "strongest_non_oracle": "greedy_gain",
+  "validation_decision": "pass"
+}
