@@ -51,6 +51,32 @@ def test_simulator_repair_can_improve_state() -> None:
     assert after < before
 
 
+def test_checkpoint_restore_replays_identical_stochastic_outcome() -> None:
+    intervention = Intervention(
+        action_id="repair",
+        kind=ActionKind.REPAIR,
+        targets=frozenset({"receiver"}),
+        restores=frozenset({"decoded_message", "confidence"}),
+        cost=1.0,
+        harm_risk=0.5,
+        success_probability=0.5,
+    )
+    sim = CommunicationLinkSimulator(
+        [intervention],
+        seed=19,
+        faults=[Fault("drop", ("decoded_message", "confidence"), 0.5)],
+    )
+    checkpoint = sim.checkpoint()
+
+    first = sim.apply("repair")
+    first_state = sim.state
+    sim.restore(checkpoint)
+    replay = sim.apply("repair")
+
+    assert replay == first
+    assert sim.state == first_state
+
+
 def test_explanation_contains_required_fields() -> None:
     decision = PlannerDecision(
         action_id="lower_data_rate",

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from dataclasses import dataclass
 from typing import Iterable
 
 from rescueos.compiler.schema import CompiledGraph
@@ -8,6 +9,13 @@ from rescueos.core.distinctions import ActionKind, ActionOutcome, Intervention, 
 from rescueos.core.transition import RealizedOutcome, SystemState, TransitionModel, evaluate_task
 from rescueos.simulator.fault_injector import Fault, apply_faults
 from rescueos.simulator.observations import make_snapshot
+
+
+@dataclass(frozen=True)
+class SimulatorCheckpoint:
+    state: SystemState
+    rng_state: object
+    stopped: bool
 
 
 class CommunicationLinkSimulator:
@@ -54,6 +62,18 @@ class CommunicationLinkSimulator:
     @property
     def state(self) -> SystemState:
         return self._state.copy()
+
+    def checkpoint(self) -> SimulatorCheckpoint:
+        return SimulatorCheckpoint(
+            state=self._state.copy(),
+            rng_state=self._rng.getstate(),
+            stopped=self._stopped,
+        )
+
+    def restore(self, checkpoint: SimulatorCheckpoint) -> None:
+        self._state = checkpoint.state.copy()
+        self._rng.setstate(checkpoint.rng_state)
+        self._stopped = checkpoint.stopped
 
     def observe(self) -> dict:
         confidence = float(self._state.distinction_quality.get("confidence", 0.0))

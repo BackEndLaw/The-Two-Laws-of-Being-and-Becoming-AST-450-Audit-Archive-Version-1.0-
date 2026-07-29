@@ -48,7 +48,7 @@ class RescueController:
 
             outcome = self.adapter.apply(decision.action_id)
             history.append(outcome)
-            self.audit_log.record_outcome(step=step, outcome=outcome)
+            self.audit_log.record_outcome(step=step, outcome=outcome, decision=decision)
 
             post_action_loss = self.adapter.evaluate_task(task)
             if post_action_loss <= task.recovery_threshold:

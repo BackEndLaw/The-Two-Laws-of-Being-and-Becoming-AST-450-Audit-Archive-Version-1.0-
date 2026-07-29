@@ -19,13 +19,29 @@ class AuditEventLog:
             }
         )
 
-    def record_outcome(self, *, step: int, outcome) -> None:
-        self.outcomes.append(
-            {
-                "step": step,
-                "outcome": asdict(outcome),
+    def record_outcome(self, *, step: int, outcome, decision=None) -> None:
+        record = {
+            "step": step,
+            "outcome": asdict(outcome),
+        }
+        transit = getattr(decision, "transit", None)
+        if transit is not None:
+            passage_executed = transit.passage_committed
+            record["transit_witness"] = {
+                **asdict(transit),
+                "passage_executed": passage_executed,
+                "destination_branch": (
+                    transit.candidate_branch if passage_executed else None
+                ),
+                "destination_realized": passage_executed,
+                "ingress_erased": passage_executed,
+                "v2_retained_jurisdiction": (
+                    transit.retained_jurisdiction == "baseline_v2"
+                ),
+                "resulting_action": outcome.action_id,
+                "action_succeeded": outcome.succeeded,
             }
-        )
+        self.outcomes.append(record)
 
     def reconstructable(self) -> bool:
         if not self.decisions:

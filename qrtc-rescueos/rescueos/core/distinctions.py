@@ -53,6 +53,18 @@ class ActionOutcome:
 
 
 @dataclass(frozen=True)
+class TransitCommitment:
+    candidate_branch: str
+    gate_admitted: bool
+    passage_committed: bool
+    retained_jurisdiction: str | None = None
+    passage_executed: bool = False
+    destination_branch: str | None = None
+    destination_realized: bool = False
+    ingress_erased: bool = False
+
+
+@dataclass(frozen=True)
 class PlannerDecision:
     action_id: str
     kind: ActionKind
@@ -64,3 +76,4 @@ class PlannerDecision:
     candidate_utilities: Mapping[str, float]
     unknown_fault_probability: float
     safety_gate: str
+    transit: TransitCommitment | None = None
