@@ -1,0 +1,13 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "scenario_id": "GF-04",
+  "name": "no-safe-alternate-route",
+  "simulator": "graph",
+  "initial_conditions": {"authority": "baseline_v2", "position": "B", "route": ["A", "B", "D"], "alternate_route": null},
+  "fault": {"type": "no_safe_alternate_route", "injection_step": 1, "blocked_edges": [["B", "D"], ["B", "C"]]},
+  "expected_authority_transitions": [],
+  "terminal_conditions": {"authority": "baseline_v2", "terminal_state": "minimal_risk"},
+  "acceptance_criteria": ["unsafe_recovery_rejected", "controlled_stop", "no_passage", "deterministic_replay"],
+  "expected": {"admitted": false, "passage_requested": false, "passage_executed": false, "destination_realized": false, "fallback_required": true, "terminal_state": "minimal_risk"},
+  "native_carla_physics": "NOT_EVALUATED"
+}
