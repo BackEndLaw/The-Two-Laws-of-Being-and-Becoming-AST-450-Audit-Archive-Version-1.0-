@@ -66,6 +66,34 @@ def test_development_benchmark_reports_required_breakdowns_and_diagnostics() -> 
     assert payload["hardware_gate"] == "NOT READY"
 
 
+def test_development_benchmark_decomposes_deficit_and_calibration() -> None:
+    payload = _payload()
+    diagnostics = payload["precision_diagnostics"]
+    calibration = diagnostics["counterfactual_calibration"]
+
+    assert payload["utility_deficit_by_mechanism"]
+    assert payload["counterfactual_action_probes"]
+    assert all(probe["graph_admissible"] for probe in payload["counterfactual_action_probes"])
+    assert calibration["overall"]["brier_score"] >= 0.0
+    assert calibration["overall"]["expected_calibration_error"] >= 0.0
+    assert calibration["by_mechanism_family"]
+    assert diagnostics["qrtc_selected_action_distribution"]
+    assert 0.0 <= diagnostics["qrtc_first_action_accuracy"] <= 1.0
+    assert 0.0 <= diagnostics["qrtc_graph_coverage_error_rate"] <= 1.0
+    for row in payload["utility_deficit_by_mechanism"]:
+        expected = sum(
+            row[field]
+            for field in (
+                "recovery_component",
+                "cost_component",
+                "harm_component",
+                "unsafe_component",
+                "action_component",
+            )
+        )
+        assert row["safety_adjusted_delta_utility"] == expected
+
+
 def test_cluster_bootstrap_uses_cluster_level_paired_differences() -> None:
     rows = [
         {"cluster_id": "a", "policy": "qrtc", "utility": 1.0},

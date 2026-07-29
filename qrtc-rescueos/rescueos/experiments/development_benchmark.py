@@ -194,7 +194,7 @@ def _run_policy(
     graph,
     weights: dict[str, dict[str, float]],
     max_actions: int,
-) -> RescueResult:
+) -> tuple[RescueResult, AuditEventLog]:
     interventions = _configured_interventions(
         base_interventions, float(trial["intervention_reliability"])
     )
@@ -206,6 +206,7 @@ def _run_policy(
         graph=graph,
         transition_model=transition,
     )
+    audit_log = AuditEventLog()
     controller = RescueController(
         adapter=NoisyPolicyAdapter(
             simulator,
@@ -215,15 +216,17 @@ def _run_policy(
         ),
         inference=SimpleBeliefUpdater(),
         planner=_policy(name, interventions, graph, weights, int(trial["trial_seed"])),
-        audit_log=AuditEventLog(),
+        audit_log=audit_log,
     )
-    return controller.rescue(task, max_actions=max_actions)
+    return controller.rescue(task, max_actions=max_actions), audit_log
 
 
 def _row(
     name: str,
     trial: dict[str, Any],
     result: RescueResult,
+    audit_log: AuditEventLog,
+    evidence_action_ids: set[str],
     *,
     lambda_cost: float,
     eta_actions: float,
@@ -246,13 +249,201 @@ def _row(
         "replicate": trial["replicate"],
         "seed": trial["trial_seed"],
         "policy": name,
+        "selected_actions": [outcome.action_id for outcome in result.history],
+        "first_action": result.history[0].action_id if result.history else "stop",
+        "first_predicted_recovery": (
+            float(audit_log.decisions[0]["decision"]["expected_recovery_probability"])
+            if audit_log.decisions
+            else 0.0
+        ),
+        "first_predicted_utility": (
+            float(audit_log.decisions[0]["decision"]["expected_utility"])
+            if audit_log.decisions
+            else 0.0
+        ),
         "utility": utility,
         "recovered": float(result.status == "recovered"),
         "cost": total_cost,
         "harm": total_harm,
         "unsafe_event": unsafe,
         "abstain_event": float(result.status == "abstained"),
+        "evidence_requests": sum(
+            outcome.action_id in evidence_action_ids for outcome in result.history
+        ),
+        "action_count": result.actions_executed,
     }
+
+
+def _counterfactual_probes(
+    trial: dict[str, Any],
+    base_interventions: list[Intervention],
+    task,
+    graph,
+    *,
+    lambda_cost: float,
+    beta_harm: float,
+    gamma_unsafe: float,
+) -> list[dict[str, Any]]:
+    interventions = _configured_interventions(
+        base_interventions, float(trial["intervention_reliability"])
+    )
+    initial_simulator = CommunicationLinkSimulator(
+        interventions,
+        seed=int(trial["trial_seed"]),
+        faults=scenario_faults(trial),
+        graph=graph,
+    )
+    initial_adapter = NoisyPolicyAdapter(
+        initial_simulator,
+        noise=float(trial["observation_noise"]),
+        seed=int(trial["trial_seed"]),
+        oracle=False,
+    )
+    observation = initial_adapter.observe()
+    belief = SimpleBeliefUpdater().update(observation, [], task)
+    planner = qrtc.build_policy(interventions, graph=graph)
+    action_by_id = {action.action_id: action for action in interventions}
+    probes: list[dict[str, Any]] = []
+    for prediction in planner.predict_actions(belief, task):
+        if not bool(prediction["graph_admissible"]):
+            continue
+        action_id = str(prediction["action_id"])
+        action = action_by_id[action_id]
+        simulator = CommunicationLinkSimulator(
+            interventions,
+            seed=int(trial["trial_seed"]),
+            faults=scenario_faults(trial),
+            graph=graph,
+        )
+        outcome = simulator.apply(action_id)
+        realized_recovery = float(simulator.evaluate_task(task) <= task.recovery_threshold)
+        realized_utility = (
+            realized_recovery
+            - lambda_cost * action.cost
+            - beta_harm * float(outcome.harm)
+            - gamma_unsafe * float(outcome.unsafe)
+        )
+        probes.append(
+            {
+                "mechanism_family": trial["mechanism_family"],
+                "mechanism_split": trial["mechanism_split"],
+                "cluster_id": trial["cluster_id"],
+                "replicate": trial["replicate"],
+                "action_id": action_id,
+                "action_kind": prediction["action_kind"],
+                "graph_admissible": True,
+                "public_observation": {
+                    "distinction_health": dict(observation["distinction_health"]),
+                    "confidence": float(observation["confidence"]),
+                    "unknown_probability": float(observation["unknown_probability"]),
+                },
+                "predicted_recovery": float(prediction["predicted_recovery"]),
+                "realized_recovery": realized_recovery,
+                "predicted_utility": float(prediction["predicted_utility"]),
+                "realized_utility": realized_utility,
+                "utility_error": float(prediction["predicted_utility"]) - realized_utility,
+            }
+        )
+    return probes
+
+
+def _calibration_metrics(probes: list[dict[str, Any]]) -> dict[str, Any]:
+    def summarize(selected: list[dict[str, Any]]) -> dict[str, float]:
+        brier = statistics.fmean(
+            (float(row["predicted_recovery"]) - float(row["realized_recovery"])) ** 2
+            for row in selected
+        )
+        utility_errors = [float(row["utility_error"]) for row in selected]
+        bins: dict[int, list[dict[str, Any]]] = defaultdict(list)
+        for row in selected:
+            bins[min(9, int(float(row["predicted_recovery"]) * 10))].append(row)
+        calibration_curve = [
+            {
+                "bin": index,
+                "count": len(group),
+                "mean_predicted": statistics.fmean(float(row["predicted_recovery"]) for row in group),
+                "mean_realized": statistics.fmean(float(row["realized_recovery"]) for row in group),
+            }
+            for index, group in sorted(bins.items())
+        ]
+        ece = sum(
+            item["count"] / len(selected)
+            * abs(item["mean_predicted"] - item["mean_realized"])
+            for item in calibration_curve
+        )
+        return {
+            "count": float(len(selected)),
+            "brier_score": brier,
+            "expected_calibration_error": ece,
+            "mean_utility_error": statistics.fmean(utility_errors),
+            "mean_absolute_utility_error": statistics.fmean(abs(value) for value in utility_errors),
+        }
+
+    by_family = {
+        family: summarize([row for row in probes if row["mechanism_family"] == family])
+        for family in sorted({str(row["mechanism_family"]) for row in probes})
+    }
+    overall = summarize(probes)
+    bins: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    for row in probes:
+        bins[min(9, int(float(row["predicted_recovery"]) * 10))].append(row)
+    curve = [
+        {
+            "bin": index,
+            "count": len(group),
+            "mean_predicted": statistics.fmean(float(row["predicted_recovery"]) for row in group),
+            "mean_realized": statistics.fmean(float(row["realized_recovery"]) for row in group),
+        }
+        for index, group in sorted(bins.items())
+    ]
+    return {"overall": overall, "by_mechanism_family": by_family, "calibration_curve": curve}
+
+
+def _utility_deficit(
+    rows: list[dict[str, Any]],
+    baseline: str,
+    *,
+    lambda_cost: float,
+    eta_actions: float,
+    beta_harm: float,
+    gamma_unsafe: float,
+) -> list[dict[str, Any]]:
+    output = []
+    for mechanism in sorted({str(row["mechanism_id"]) for row in rows}):
+        qrtc_rows = [row for row in rows if row["mechanism_id"] == mechanism and row["policy"] == "qrtc"]
+        baseline_rows = [row for row in rows if row["mechanism_id"] == mechanism and row["policy"] == baseline]
+        delta_recovery = statistics.fmean(row["recovered"] for row in qrtc_rows) - statistics.fmean(row["recovered"] for row in baseline_rows)
+        delta_cost = statistics.fmean(row["cost"] for row in qrtc_rows) - statistics.fmean(row["cost"] for row in baseline_rows)
+        delta_harm = statistics.fmean(row["harm"] for row in qrtc_rows) - statistics.fmean(row["harm"] for row in baseline_rows)
+        delta_unsafe = statistics.fmean(row["unsafe_event"] for row in qrtc_rows) - statistics.fmean(row["unsafe_event"] for row in baseline_rows)
+        delta_actions = statistics.fmean(row["action_count"] for row in qrtc_rows) - statistics.fmean(row["action_count"] for row in baseline_rows)
+        output.append(
+            {
+                "mechanism_id": mechanism,
+                "baseline": baseline,
+                "delta_recovery": delta_recovery,
+                "delta_cost": delta_cost,
+                "delta_harm": delta_harm,
+                "delta_unsafe": delta_unsafe,
+                "delta_action_count": delta_actions,
+                "recovery_component": delta_recovery,
+                "cost_component": -lambda_cost * delta_cost,
+                "harm_component": -beta_harm * delta_harm,
+                "unsafe_component": -gamma_unsafe * delta_unsafe,
+                "action_component": -eta_actions * delta_actions,
+                "safety_adjusted_delta_utility": (
+                    delta_recovery
+                    - lambda_cost * delta_cost
+                    - beta_harm * delta_harm
+                    - gamma_unsafe * delta_unsafe
+                    - eta_actions * delta_actions
+                ),
+                "qrtc_evidence_requests": statistics.fmean(row["evidence_requests"] for row in qrtc_rows),
+                "qrtc_abstention_rate": statistics.fmean(row["abstain_event"] for row in qrtc_rows),
+                "qrtc_oracle_regret": statistics.fmean(row["oracle_regret"] for row in qrtc_rows),
+            }
+        )
+    return output
 
 
 def _means(rows: list[dict[str, Any]]) -> dict[str, float]:
@@ -383,6 +574,7 @@ def run_development_benchmark(
     lambda_cost: float = 0.05,
     eta_actions: float = 0.02,
     beta_harm: float = 0.25,
+    gamma_unsafe: float = 0.2,
 ) -> dict[str, Any]:
     development = load_manifest(development_path)
     hidden = load_manifest(hidden_path)
@@ -400,18 +592,33 @@ def run_development_benchmark(
         noise_levels=noise_levels,
         reliability_levels=reliability_levels,
     )
-    rows = [
-        _row(
-            policy,
-            trial,
-            _run_policy(policy, trial, interventions, task, graph, weights, max_actions),
-            lambda_cost=lambda_cost,
-            eta_actions=eta_actions,
-            beta_harm=beta_harm,
-        )
-        for trial in trial_specs
-        for policy in POLICIES
-    ]
+    evidence_action_ids = {
+        action.action_id for action in interventions if action.kind.value == "evidence"
+    }
+    rows: list[dict[str, Any]] = []
+    for trial in trial_specs:
+        for policy in POLICIES:
+            result, audit_log = _run_policy(
+                policy,
+                trial,
+                interventions,
+                task,
+                graph,
+                weights,
+                max_actions,
+            )
+            rows.append(
+                _row(
+                    policy,
+                    trial,
+                    result,
+                    audit_log,
+                    evidence_action_ids,
+                    lambda_cost=lambda_cost,
+                    eta_actions=eta_actions,
+                    beta_harm=beta_harm,
+                )
+            )
     oracle_utility = {
         (row["cluster_id"], row["replicate"]): row["utility"]
         for row in rows
@@ -421,6 +628,38 @@ def run_development_benchmark(
         signed_gap = oracle_utility[(row["cluster_id"], row["replicate"])] - row["utility"]
         row["signed_oracle_gap"] = signed_gap
         row["oracle_regret"] = max(0.0, signed_gap)
+    oracle_first_actions = {
+        (row["cluster_id"], row["replicate"]): row["first_action"]
+        for row in rows
+        if row["policy"] == "oracle"
+    }
+    qrtc_probes = [
+        probe
+        for trial in trial_specs
+        for probe in _counterfactual_probes(
+            trial,
+            interventions,
+            task,
+            graph,
+            lambda_cost=lambda_cost,
+            beta_harm=beta_harm,
+            gamma_unsafe=gamma_unsafe,
+        )
+    ]
+    admissible_actions = {
+        (probe["cluster_id"], probe["replicate"], probe["action_id"])
+        for probe in qrtc_probes
+    }
+    for row in rows:
+        oracle_action = oracle_first_actions[(row["cluster_id"], row["replicate"])]
+        row["oracle_first_action"] = oracle_action
+        row["first_action_accuracy"] = float(row["first_action"] == oracle_action)
+        row["graph_coverage_error"] = float(
+            row["policy"] == "qrtc"
+            and oracle_action != "stop"
+            and (row["cluster_id"], row["replicate"], oracle_action)
+            not in admissible_actions
+        )
     overall, breakdowns = summarize(rows)
     mean_utility = {row["policy"]: row["utility"] for row in overall}
     strongest = max(COMPARATORS, key=lambda policy: mean_utility[policy])
@@ -429,6 +668,30 @@ def run_development_benchmark(
     primary_interval = cluster_bootstrap(primary_differences, samples=bootstrap_samples, seed=bootstrap_seed)
     typed_interval = cluster_bootstrap(typed_differences, samples=bootstrap_samples, seed=bootstrap_seed + 1)
     diagnostics = _width_diagnostics(rows, primary_differences, target_half_width)
+    action_distribution: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    for row in rows:
+        if row["policy"] == "qrtc":
+            action_distribution[row["mechanism_id"]][row["first_action"]] += 1
+    diagnostics["qrtc_selected_action_distribution"] = {
+        mechanism: dict(sorted(counts.items()))
+        for mechanism, counts in sorted(action_distribution.items())
+    }
+    diagnostics["qrtc_first_action_accuracy"] = statistics.fmean(
+        row["first_action_accuracy"] for row in rows if row["policy"] == "qrtc"
+    )
+    diagnostics["qrtc_graph_coverage_error_rate"] = statistics.fmean(
+        row["graph_coverage_error"] for row in rows if row["policy"] == "qrtc"
+    )
+    diagnostics["counterfactual_calibration"] = _calibration_metrics(qrtc_probes)
+    diagnostics["counterfactual_probe_count"] = len(qrtc_probes)
+    utility_deficit = _utility_deficit(
+        rows,
+        strongest,
+        lambda_cost=lambda_cost,
+        eta_actions=eta_actions,
+        beta_harm=beta_harm,
+        gamma_unsafe=gamma_unsafe,
+    )
     qrtc_domains = [row for dimension in breakdowns.values() for row in dimension if row["policy"] == "qrtc"]
     acceptance = {
         "aggregate_advantage_positive": primary_interval["estimate"] > 0.0,
@@ -465,11 +728,14 @@ def run_development_benchmark(
             "lambda_cost": lambda_cost,
             "eta_actions": eta_actions,
             "beta_harm": beta_harm,
+            "gamma_unsafe": gamma_unsafe,
         },
         "frozen_safety_thresholds": {"maximum_unsafe_rate": 0.05, "maximum_harm_rate": 0.05},
         "overall": overall,
         "breakdowns": breakdowns,
         "precision_diagnostics": diagnostics,
+        "utility_deficit_by_mechanism": utility_deficit,
+        "counterfactual_action_probes": qrtc_probes,
         "development_acceptance": acceptance,
         "hardware_actuation_enabled": False,
         "hardware_gate": "NOT READY",

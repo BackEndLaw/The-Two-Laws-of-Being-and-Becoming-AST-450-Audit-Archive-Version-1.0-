@@ -43,6 +43,32 @@ class BoundedLookaheadPlanner:
     def graph_checksum(self) -> str | None:
         return self._transition_model.graph_checksum
 
+    def predict_actions(
+        self,
+        belief: BeliefState,
+        task: Task,
+    ) -> tuple[dict[str, float | str | bool], ...]:
+        lost = tuple(sorted(self._lost_distinctions(belief, task)))
+        predictions: list[dict[str, float | str | bool]] = []
+        for action in self._interventions:
+            graph_admissible = not (
+                self._config.typed_structure
+                and self._graph is not None
+                and action.kind == ActionKind.REPAIR
+                and not self._graph.action_can_influence(action.action_id, task.task_id)
+            )
+            score, recovery = self._score_action(action, belief, task, lost)
+            predictions.append(
+                {
+                    "action_id": action.action_id,
+                    "action_kind": action.kind.value,
+                    "graph_admissible": graph_admissible,
+                    "predicted_recovery": recovery,
+                    "predicted_utility": score,
+                }
+            )
+        return tuple(predictions)
+
     def choose(
         self,
         belief: BeliefState,
