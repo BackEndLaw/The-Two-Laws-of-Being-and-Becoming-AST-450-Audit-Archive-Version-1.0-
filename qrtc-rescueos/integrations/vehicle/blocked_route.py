@@ -52,7 +52,8 @@ def run_blocked_route(
     request_formed = blocked_edge_detected
     gate_admitted = request_formed and specialist_admitted
     passage_committed = gate_admitted
-    passage_executed = passage_committed and execute_handoff
+    handoff_requested = passage_committed and execute_handoff
+    passage_executed = False
     destination_realized = False
     fallback_invoked = False
 
@@ -60,13 +61,14 @@ def run_blocked_route(
         selected_action = baseline_proposal
         realized = environment.apply(selected_action)
         outcome = "safe" if realized["succeeded"] else "failed"
-    elif not passage_executed:
+    elif not handoff_requested:
         selected_action = {"type": "none", "reason": "handoff_not_executed"}
         realized = {"executed": False, "succeeded": False, "collision": False}
         outcome = "pending"
     else:
         selected_action = {**specialist_proposal, "succeeds": handoff_succeeds}
         realized = environment.apply(selected_action)
+        passage_executed = bool(realized["executed"])
         if realized["succeeded"]:
             destination_realized = True
             outcome = "route_resumed_safely"
@@ -90,6 +92,7 @@ def run_blocked_route(
         "specialist_admitted": gate_admitted,
         "retained_jurisdiction": None if gate_admitted else "v2",
         "passage_committed": passage_committed,
+        "handoff_requested": handoff_requested,
         "passage_executed": passage_executed,
         "destination_realized": destination_realized,
         "destination": "alternate-route controller active" if destination_realized else None,

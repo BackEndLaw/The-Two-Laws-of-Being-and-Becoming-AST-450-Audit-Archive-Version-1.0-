@@ -79,11 +79,59 @@ def test_failed_handoff_invokes_safe_fallback_without_destination(scenario: dict
     assert event["collision"] is False
 
 
+def test_rejected_handoff_does_not_claim_executed_passage_or_destination(
+    scenario: dict,
+) -> None:
+    class RejectingAdapter:
+        def __init__(self) -> None:
+            self.controller = "baseline_v2"
+            self.stopped = False
+
+        def observe(self) -> dict:
+            return {
+                "position": scenario["initial_state"]["position"],
+                "route": scenario["route"],
+                "route_graph": scenario["route_graph"],
+                "blocked_edges": scenario["blocked_edges"],
+                "controller": self.controller,
+                "stopped": self.stopped,
+                "collision": False,
+            }
+
+        def apply(self, _action: dict) -> dict:
+            return {"executed": False, "succeeded": False, "collision": False}
+
+        def safe_stop(self) -> None:
+            self.controller = "baseline_v2"
+            self.stopped = True
+
+    event = run_blocked_route(
+        scenario,
+        seed=4,
+        specialist_admitted=True,
+        adapter=RejectingAdapter(),
+    ).events[0]
+
+    assert event["handoff_requested"] is True
+    assert event["passage_committed"] is True
+    assert event["passage_executed"] is False
+    assert event["destination_realized"] is False
+    assert event["fallback_invoked"] is True
+    assert event["final_state"]["controller"] == "baseline_v2"
+
+
 def test_matrix_writes_fixed_seed_replayable_witnesses(scenario: dict, tmp_path: Path) -> None:
     summary = run_matrix(SCENARIO, tmp_path)
 
     assert summary["acceptance_passed"] is True
+    assert summary["evidence_bundle_version"] == "vehicle-contract-v1"
+    assert summary["simulator"] == "graph"
     assert summary["carla_used"] is False
+    assert summary["native_carla_status"] == "NOT_EVALUATED"
+    assert summary["hardware_status"] == "NOT_EVALUATED"
+    assert len(summary["git_commit"]) == 40
+    assert len(summary["inputs"]["scenario_sha256"]) == 64
+    assert summary["replay_verified"] is True
     assert len(summary["runs"]) == 10
     assert {run["mode"] for run in summary["runs"]} == {"denied", "authorized"}
     assert len(list(tmp_path.glob("*.jsonl"))) == 10

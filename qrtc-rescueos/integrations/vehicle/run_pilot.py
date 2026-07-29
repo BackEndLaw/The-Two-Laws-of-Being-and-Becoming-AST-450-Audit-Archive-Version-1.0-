@@ -2,14 +2,18 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
+import platform
+import subprocess
 from pathlib import Path
 
 from integrations.vehicle.blocked_route import load_scenario, replay_trace, run_blocked_route
 
 
 def run_matrix(scenario_path: str | Path, output_dir: str | Path) -> dict:
-    scenario = load_scenario(scenario_path)
+    scenario_file = Path(scenario_path)
+    scenario = load_scenario(scenario_file)
     destination = Path(output_dir)
     destination.mkdir(parents=True, exist_ok=True)
     runs = []
@@ -46,10 +50,27 @@ def run_matrix(scenario_path: str | Path, output_dir: str | Path) -> dict:
             )
 
     summary = {
+        "evidence_bundle_version": "vehicle-contract-v1",
         "scenario_id": scenario["scenario_id"],
-        "simulator": "graph-only vehicle adapter",
+        "simulator": "graph",
         "carla_used": False,
+        "native_carla_status": "NOT_EVALUATED",
+        "hardware_status": "NOT_EVALUATED",
+        "git_commit": _git_commit(),
+        "environment": {
+            "python": platform.python_version(),
+            "platform": platform.platform(),
+            "dependencies": {
+                "PyYAML": importlib.metadata.version("PyYAML"),
+                "pytest": importlib.metadata.version("pytest"),
+            },
+        },
+        "inputs": {
+            "scenario": str(scenario_file),
+            "scenario_sha256": hashlib.sha256(scenario_file.read_bytes()).hexdigest(),
+        },
         "seeds": [1, 2, 3, 4, 5],
+        "replay_verified": all(run["replay_verified"] for run in runs),
         "acceptance_passed": all(
             not run["collision"] and run["witness_complete"] and run["replay_verified"]
             for run in runs
@@ -61,6 +82,16 @@ def run_matrix(scenario_path: str | Path, output_dir: str | Path) -> dict:
         encoding="utf-8",
     )
     return summary
+
+
+def _git_commit() -> str:
+    completed = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return completed.stdout.strip()
 
 
 def main() -> None:

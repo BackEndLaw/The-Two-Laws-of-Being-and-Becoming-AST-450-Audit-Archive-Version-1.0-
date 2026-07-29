@@ -75,7 +75,7 @@ def run(config_path: str | Path, scenario_path: str | Path, output_dir: str | Pa
         result.write_jsonl(destination / "denied-seed-1.jsonl")
         summary = {
             "scenario_id": result.scenario_id,
-            "simulator": "CARLA",
+            "simulator": "native_carla",
             "carla_client_version": client.get_client_version(),
             "carla_server_version": client.get_server_version(),
             "case": "denied",
