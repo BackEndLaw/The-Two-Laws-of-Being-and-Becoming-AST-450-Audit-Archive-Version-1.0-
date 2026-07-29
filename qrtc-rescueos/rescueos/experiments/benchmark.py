@@ -217,7 +217,10 @@ def _run_single_policy(
         graph=graph,
         transition_model=transition_model,
     )
-    adapter = SimulatorAdapter(simulator)
+    adapter = SimulatorAdapter(
+        simulator,
+        oracle_observations=policy_builder is oracle.build_policy,
+    )
     if typed_graph_access:
         planner = policy_builder(
             interventions,
