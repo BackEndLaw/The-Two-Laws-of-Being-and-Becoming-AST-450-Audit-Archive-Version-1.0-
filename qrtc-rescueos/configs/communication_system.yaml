@@ -1,0 +1,68 @@
+system:
+  name: communication_link
+  allow_feedback_cycles: false
+
+stages:
+  - id: source
+    produces: [symbol_identity, timing]
+
+  - id: transmitter
+    consumes: [symbol_identity, timing]
+    produces: [encoded_amplitude, encoded_phase, timing]
+
+  - id: channel
+    consumes: [encoded_amplitude, encoded_phase, timing]
+    produces: [received_amplitude, received_phase, timing]
+
+  - id: receiver
+    consumes: [received_amplitude, received_phase, timing]
+    produces: [symbol_estimate, confidence]
+
+  - id: decision
+    consumes: [symbol_estimate, confidence]
+    produces: [decoded_message]
+
+tasks:
+  - id: reliable_message
+    required_distinctions:
+      decoded_message: 0.99
+      confidence: 0.90
+    recovery_threshold: 0.05
+
+interventions:
+  - id: recalibrate_receiver
+    kind: repair
+    targets: [receiver]
+    restores: [symbol_estimate, confidence]
+    cost: 2.0
+    harm_risk: 0.01
+    success_probability: 0.95
+
+  - id: switch_channel
+    kind: repair
+    targets: [channel]
+    restores: [received_amplitude, received_phase, timing]
+    cost: 3.0
+    harm_risk: 0.02
+    success_probability: 0.90
+
+  - id: lower_data_rate
+    kind: repair
+    targets: [transmitter, receiver]
+    restores: [timing, confidence]
+    cost: 1.5
+    harm_risk: 0.0
+    success_probability: 0.98
+
+  - id: inspect_receiver
+    kind: evidence
+    targets: [receiver]
+    restores: []
+    cost: 0.5
+    information_channels: [gain, saturation, clock_drift]
+
+  - id: abstain
+    kind: abstain
+    targets: [decision]
+    restores: []
+    cost: 0.25

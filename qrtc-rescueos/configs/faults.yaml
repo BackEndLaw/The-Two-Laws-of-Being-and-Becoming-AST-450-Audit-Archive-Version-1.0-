@@ -1,0 +1,13 @@
+faults:
+  - id: clipping
+    affected_distinctions: [encoded_amplitude]
+    severity: 0.4
+  - id: timing_drift
+    affected_distinctions: [timing]
+    severity: 0.5
+  - id: attenuation
+    affected_distinctions: [received_amplitude]
+    severity: 0.35
+  - id: detector_dead_time
+    affected_distinctions: [confidence]
+    severity: 0.45
