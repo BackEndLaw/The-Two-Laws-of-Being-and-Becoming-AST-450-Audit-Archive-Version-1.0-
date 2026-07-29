@@ -124,6 +124,7 @@ def test_targeted_v3_reports_every_family_diagnostic_and_stays_closed() -> None:
         assert all(required_metrics <= set(metrics) for metrics in family["policies"].values())
         assert {"graph_brier", "conservative_brier", "expected_calibration_error"} <= set(family["calibration"])
     assert payload["development_acceptance"]["graph_invalid_action_rate_zero"]
+    assert "Infinity" not in json.dumps(payload, allow_nan=False)
     assert payload["hardware_actuation_enabled"] is False
     assert payload["hardware_gate"] == "NOT READY"
 

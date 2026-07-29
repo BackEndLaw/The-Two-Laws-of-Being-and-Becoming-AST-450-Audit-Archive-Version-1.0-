@@ -71,6 +71,7 @@ def _temporal_probes(trial, interventions, task, graph) -> list[dict[str, Any]]:
         beta_harm=0.25,
         gamma_unsafe=0.2,
     )
+    probes = [probe for probe in probes if probe["action_kind"] == "repair"]
     for probe in probes:
         probe["public_history"] = []
         probe["probe_phase"] = "initial"
@@ -475,7 +476,10 @@ def main() -> None:
         args.protocol,
     )
     output = Path(args.output)
-    output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    output.write_text(
+        json.dumps(payload, indent=2, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
 
 
 if __name__ == "__main__":
