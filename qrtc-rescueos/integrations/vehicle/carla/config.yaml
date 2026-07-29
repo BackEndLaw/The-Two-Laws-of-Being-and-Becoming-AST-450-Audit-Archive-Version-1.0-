@@ -1,0 +1,38 @@
+experiment:
+  seed: 1
+server:
+  host: 127.0.0.1
+  port: 2100
+  timeout_seconds: 10.0
+world:
+  map: Town01
+  weather: ClearNoon
+  fixed_delta_seconds: 0.05
+  no_rendering_mode: true
+vehicle:
+  blueprint: vehicle.tesla.model3
+  spawn_point_index: 0
+  target_speed_mps: 3.0
+  warmup_max_ticks: 200
+fault:
+  obstacle_blueprint: static.prop.streetbarrier
+  obstacle_distance_m: 20.0
+sensors:
+  collision_blueprint: sensor.other.collision
+  lane_invasion_blueprint: sensor.other.lane_invasion
+controlled_stop:
+  max_ticks: 200
+  speed_threshold_mps: 0.1
+acceptance_thresholds:
+  max_collisions: 0
+  max_lane_invasions: 0
+  max_stopping_distance_m: 15.0
+  max_gate_latency_ms: 100.0
+  minimum_fault_detection_speed_mps: 2.5
+  maximum_fault_detection_speed_mps: 3.5
+  maximum_stopped_speed_mps: 0.1
+  minimum_obstacle_clearance_m: 1.0
+  minimum_time_to_collision_s: 1.0
+trajectory_replay_tolerances:
+  position_m: 0.25
+  speed_mps: 0.1
