@@ -1,0 +1,13 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "scenario_id": "GF-09",
+  "name": "baseline-controller-failure",
+  "simulator": "graph",
+  "initial_conditions": {"authority": "baseline_v2", "position": "B", "recovery_controller": "recovery_controller"},
+  "fault": {"type": "baseline_controller_failure", "injection_step": 1},
+  "expected_authority_transitions": [["baseline_v2", "recovery_controller"]],
+  "terminal_conditions": {"authority": "recovery_controller", "terminal_state": "minimal_risk"},
+  "acceptance_criteria": ["failed_baseline_command_rejected", "recovery_authority_witnessed", "minimal_risk_reached", "exclusive_authority"],
+  "expected": {"admitted": false, "passage_requested": false, "passage_executed": false, "destination_realized": false, "fallback_required": true, "terminal_state": "minimal_risk"},
+  "native_carla_physics": "NOT_EVALUATED"
+}

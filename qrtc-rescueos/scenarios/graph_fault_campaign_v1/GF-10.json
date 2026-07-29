@@ -1,0 +1,13 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "scenario_id": "GF-10",
+  "name": "fallback-controller-failure",
+  "simulator": "graph",
+  "initial_conditions": {"authority": "baseline_v2", "position": "B", "alternate_route": ["B", "C", "D"]},
+  "fault": {"type": "fallback_controller_failure", "injection_steps": [2, 3]},
+  "expected_authority_transitions": [["baseline_v2", "specialist"], ["specialist", "fallback_controller"], ["fallback_controller", "minimal_risk_controller"]],
+  "terminal_conditions": {"authority": "minimal_risk_controller", "terminal_state": "degraded_minimal_risk"},
+  "acceptance_criteria": ["specialist_failure_witnessed", "fallback_failure_witnessed", "final_minimal_risk_state", "destination_not_realized"],
+  "expected": {"admitted": true, "passage_requested": true, "passage_executed": true, "destination_realized": false, "fallback_required": true, "terminal_state": "degraded_minimal_risk"},
+  "native_carla_physics": "NOT_EVALUATED"
+}

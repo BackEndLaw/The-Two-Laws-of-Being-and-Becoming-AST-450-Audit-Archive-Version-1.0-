@@ -1,0 +1,13 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "scenario_id": "GF-08",
+  "name": "stale-controller-authority",
+  "simulator": "graph",
+  "initial_conditions": {"authority": "baseline_v2", "position": "B", "expired_controller": "specialist", "authority_epoch": 4},
+  "fault": {"type": "stale_controller_authority", "injection_step": 1, "stale_epoch": 3},
+  "expected_authority_transitions": [],
+  "terminal_conditions": {"authority": "baseline_v2", "terminal_state": "safe"},
+  "acceptance_criteria": ["stale_command_rejected", "current_authority_preserved", "exclusive_authority", "rejection_witnessed"],
+  "expected": {"admitted": false, "passage_requested": false, "passage_executed": false, "destination_realized": false, "fallback_required": false, "terminal_state": "safe"},
+  "native_carla_physics": "NOT_EVALUATED"
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "scenario_id": "GF-07",
+  "name": "conflicting-map-information",
+  "simulator": "graph",
+  "initial_conditions": {"authority": "baseline_v2", "position": "B", "public_map_edge_state": "open", "private_map_edge_state": "blocked"},
+  "fault": {"type": "conflicting_map_information", "injection_step": 1, "edge": ["B", "D"]},
+  "expected_authority_transitions": [],
+  "terminal_conditions": {"authority": "baseline_v2", "terminal_state": "minimal_risk"},
+  "acceptance_criteria": ["conservative_resolution", "no_private_detail_exposed", "gate_denied", "controlled_stop"],
+  "expected": {"admitted": false, "passage_requested": false, "passage_executed": false, "destination_realized": false, "fallback_required": true, "terminal_state": "minimal_risk"},
+  "native_carla_physics": "NOT_EVALUATED"
+}
