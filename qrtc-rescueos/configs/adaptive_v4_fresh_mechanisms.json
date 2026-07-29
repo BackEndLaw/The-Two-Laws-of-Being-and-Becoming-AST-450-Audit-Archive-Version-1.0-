@@ -1,0 +1,63 @@
+{
+  "manifest_version": 1,
+  "split": "fresh_development_v4",
+  "frozen": true,
+  "mechanisms": [
+    {
+      "mechanism_id": "fresh_timing_wander",
+      "dynamical_class": "temporal_instability",
+      "hidden_parameters": {"wander_scale": 0.38},
+      "scenarios": [
+        {
+          "scenario_id": "fresh-v4-timing-001",
+          "seed": 171001,
+          "faults": [
+            {"fault_id": "fresh-v4-fault-timing", "affected_distinctions": ["timing"], "severity": 0.38}
+          ]
+        }
+      ]
+    },
+    {
+      "mechanism_id": "fresh_receiver_fade",
+      "dynamical_class": "amplitude_response",
+      "hidden_parameters": {"fade_depth": 0.39},
+      "scenarios": [
+        {
+          "scenario_id": "fresh-v4-fade-001",
+          "seed": 171002,
+          "faults": [
+            {"fault_id": "fresh-v4-fault-fade", "affected_distinctions": ["received_amplitude"], "severity": 0.39}
+          ]
+        }
+      ]
+    },
+    {
+      "mechanism_id": "fresh_phase_walk",
+      "dynamical_class": "phase_response",
+      "hidden_parameters": {"walk_scale": 0.36},
+      "scenarios": [
+        {
+          "scenario_id": "fresh-v4-phase-001",
+          "seed": 171003,
+          "faults": [
+            {"fault_id": "fresh-v4-fault-phase", "affected_distinctions": ["received_phase"], "severity": 0.36}
+          ]
+        }
+      ]
+    },
+    {
+      "mechanism_id": "fresh_path_attenuation",
+      "dynamical_class": "distributed_attenuation",
+      "hidden_parameters": {"path_loss": 0.42},
+      "scenarios": [
+        {
+          "scenario_id": "fresh-v4-path-001",
+          "seed": 171004,
+          "faults": [
+            {"fault_id": "fresh-v4-fault-path", "affected_distinctions": ["encoded_amplitude", "received_amplitude"], "severity": 0.42}
+          ]
+        }
+      ]
+    }
+  ]
+}
