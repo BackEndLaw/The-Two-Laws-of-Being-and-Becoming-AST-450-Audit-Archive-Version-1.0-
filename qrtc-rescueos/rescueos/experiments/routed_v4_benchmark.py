@@ -53,6 +53,15 @@ def _utility(result) -> float:
     )
 
 
+def _graph_invalid_first_action(row, audit, evidence_action_ids: set[str]) -> bool:
+    if row["first_action"] == "stop" or row["first_action"] in evidence_action_ids:
+        return False
+    if not audit.decisions:
+        return True
+    candidates = audit.decisions[0]["decision"]["candidate_utilities"]
+    return row["first_action"] not in candidates
+
+
 def _policy(name, interventions, graph, v2_model, v3_model, router):
     if name == "hybrid_qrtc_v2":
         return HybridQRTCPolicy(interventions, graph, v2_model)
@@ -327,10 +336,8 @@ def run_routed_v4(spec_path, development_path, hidden_path, hidden_lock_path, fr
     graph_invalid = []
     for row in v4_rows:
         audit = audits[(row["cluster_id"], row["replicate"], "routed_hybrid_qrtc_v4")]
-        if audit.decisions:
-            candidates = audit.decisions[0]["decision"]["candidate_utilities"]
-            if row["first_action"] != "stop" and row["first_action"] not in candidates:
-                graph_invalid.append(row)
+        if _graph_invalid_first_action(row, audit, evidence_ids):
+            graph_invalid.append(row)
     acceptance = {
         "aggregate_advantage_positive": primary["estimate"] > float(thresholds["aggregate_advantage_minimum"]),
         "aggregate_interval_positive": primary["lower_95"] > float(thresholds["aggregate_interval_lower_minimum"]),

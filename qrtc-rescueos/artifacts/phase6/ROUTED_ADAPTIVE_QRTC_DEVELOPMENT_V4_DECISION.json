@@ -1,0 +1,44 @@
+{
+  "decision_type": "one_shot_development_v4_non_acceptance",
+  "implementation_commit": "7bd08ae493b6257bfb721fba217486736dc238ec",
+  "result_artifact": "ROUTED_ADAPTIVE_QRTC_DEVELOPMENT_V4.json",
+  "result_sha256": "43346b1205736bbcd7ce432e659a00b7d3fee8e46f8041aa94a013ac9b57f4fa",
+  "primary_comparison": {
+    "policy": "routed_hybrid_qrtc_v4",
+    "comparator": "hybrid_qrtc_v2",
+    "estimate": 0.0,
+    "lower_95": 0.0,
+    "upper_95": 0.0
+  },
+  "router_outcome": {
+    "cross_fit_activation_rate": 0.0,
+    "fresh_activation_rate": 0.0,
+    "fresh_fallback_rate": 1.0,
+    "activated_incremental_utility": 0.0,
+    "positive_family_count": 0
+  },
+  "reporting_correction": {
+    "field": "development_acceptance.graph_invalid_action_rate_zero",
+    "artifact_value": false,
+    "corrected_value": true,
+    "reason": "All 128 V4 first actions were the registered graph-safe evidence action inspect_receiver. The original report predicate incorrectly required evidence actions to appear in the repair candidate map.",
+    "changes_acceptance": false
+  },
+  "acceptance": {
+    "aggregate_advantage_positive": false,
+    "aggregate_interval_positive": false,
+    "family_noninferiority": true,
+    "benefit_in_multiple_classes": false,
+    "unsafe_margin_pass": true,
+    "harm_threshold_pass": true,
+    "graph_invalid_action_rate_zero": true,
+    "activated_increment_positive": false,
+    "fresh_manifest_disjoint": true,
+    "one_shot_execution": true,
+    "validation_authorized": false
+  },
+  "series_status": "STOPPED",
+  "stop_reason": "The frozen positive-LCB router never activated and produced no advantage over V2; the preregistered one-shot failure policy requires redesign rather than tuning or rerun.",
+  "hardware_actuation_enabled": false,
+  "hardware_gate": "NOT READY"
+}

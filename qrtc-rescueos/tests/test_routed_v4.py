@@ -7,7 +7,11 @@ from pathlib import Path
 import pytest
 
 from rescueos.core.distinctions import ActionKind, BeliefState, PlannerDecision, Task
-from rescueos.experiments.routed_v4_benchmark import run_routed_v4
+from rescueos.audit.event_log import AuditEventLog
+from rescueos.experiments.routed_v4_benchmark import (
+    _graph_invalid_first_action,
+    run_routed_v4,
+)
 from rescueos.policies.routed_hybrid_qrtc import (
     PublicIncrementalUtilityRouter,
     RoutedHybridQRTCPolicy,
@@ -143,3 +147,9 @@ def test_routed_v4_rejects_reused_mechanism_ids(tmp_path: Path) -> None:
             path,
             REPO_ROOT / "configs" / "adaptive_v4_protocol.json",
         )
+
+
+def test_graph_validity_accepts_registered_evidence_action() -> None:
+    row = {"first_action": "inspect_receiver"}
+
+    assert not _graph_invalid_first_action(row, AuditEventLog(), {"inspect_receiver"})
