@@ -1,8 +1,8 @@
 capture_date_utc=2026-07-29
 repository_subdirectory=qrtc-rescueos
 branch=vehicle-simulation-pilot
-base_commit=f2614fe2ff37a964a0a6662c3455dbc6e41c0f69
-pilot_source_in_base_commit=false
+implementation_commit=20067dc5c980bd703f6454de3f0ce1297b242ecb
+pilot_source_in_implementation_commit=true
 python=3.12.3
 pip=24.0
 operating_system=Ubuntu 24.04.4 LTS development container

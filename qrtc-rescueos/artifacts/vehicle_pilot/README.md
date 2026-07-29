@@ -32,7 +32,7 @@ The blocked edge must be detected, both controller proposals recorded, and the G
 
 ## Environment
 
-- Base Git commit: `f2614fe2ff37a964a0a6662c3455dbc6e41c0f69`
+- Implementation Git commit: `20067dc5c980bd703f6454de3f0ce1297b242ecb`
 - Branch at capture: `vehicle-simulation-pilot`
 - Python: `3.12.3`
 - pip: `24.0`
@@ -40,7 +40,7 @@ The blocked edge must be detected, both controller proposals recorded, and the G
 - Kernel: `Linux 6.8.0-1052-azure x86_64`
 - Seeds: `1, 2, 3, 4, 5`
 
-The pilot source and artifacts were untracked at capture time. The base commit does not contain them; `SHA256SUMS` identifies the exact source, scenario, tests, and outputs used for this result. Create a commit and tag only after reviewing the intended versioned files.
+The implementation commit contains the pilot source, scenario, tests, and original result artifacts. `SHA256SUMS` identifies their exact contents; the annotated `rescueos-vehicle-graph-v1` tag identifies the final provenance record after clean-checkout verification.
 
 ## Artifact Layout
 
