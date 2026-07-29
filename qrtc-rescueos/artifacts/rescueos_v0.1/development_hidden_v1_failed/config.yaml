@@ -1,0 +1,9 @@
+experiment_class: development_not_validation
+bootstrap_resamples: 2000
+bootstrap_seed: 450
+cluster_definition: mechanism/scenario/noise/reliability configuration
+lambda_cost: 0.05
+eta_actions: 0.02
+beta_harm: 0.25
+validation_authorized: false
+hardware_actuation_enabled: false
