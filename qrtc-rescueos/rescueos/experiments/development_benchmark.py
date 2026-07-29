@@ -72,7 +72,9 @@ class NoisyPolicyAdapter(SimulatorAdapter):
         self._rng = random.Random(seed + 700_001)
 
     def observe(self) -> dict:
-        observation = super().observe()
+        return self._apply_noise(super().observe())
+
+    def _apply_noise(self, observation: dict) -> dict:
         if self._noise <= 0.0 or "distinction_health" not in observation:
             return observation
         noisy = dict(observation)
@@ -84,7 +86,7 @@ class NoisyPolicyAdapter(SimulatorAdapter):
 
     def apply(self, action_id: str) -> ActionOutcome:
         outcome = super().apply(action_id)
-        return replace(outcome, observation={})
+        return replace(outcome, observation=self._apply_noise(dict(outcome.observation)))
 
 
 def _configured_interventions(
