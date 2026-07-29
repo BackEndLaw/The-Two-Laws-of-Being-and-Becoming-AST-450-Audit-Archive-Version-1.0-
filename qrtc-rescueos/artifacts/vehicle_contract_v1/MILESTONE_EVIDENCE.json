@@ -1,0 +1,29 @@
+{
+  "result_name": "RescueOS Vehicle Contract V1",
+  "artifact_type": "software_only_vehicle_handoff_milestone",
+  "implementation_commit": "a0d1aaacd3355db3305eb2ed999357f954057447",
+  "implementation_tree": "c0b27318836fbb92882a99bcc6ea669d621d57cc",
+  "implementation_committed_at": "2026-07-29T19:21:29Z",
+  "simulator": "graph",
+  "graph_pilot": "PASSED",
+  "software_semantic_tests": "PASSED",
+  "route_controller_contract_tests": "PASSED",
+  "generated_invariant_tests": "PASSED",
+  "full_suite": {
+    "status": "PASSED",
+    "test_count": 104,
+    "duration_seconds": 1.25,
+    "command": "PYTHONPATH=. /usr/bin/python3 -m pytest -ra"
+  },
+  "diagnostics": "CLEAN",
+  "native_carla": {
+    "version": "0.9.16",
+    "physics_status": "NOT_EVALUATED",
+    "hardware_status": "NOT_EVALUATED",
+    "preserved_config": "integrations/vehicle/carla/config.yaml",
+    "preserved_config_sha256": "7d1d859c6233d35f5ffcd10b53363f1c19a568948d5ec482a7cd4798b840accb"
+  },
+  "expanded_ten_scenario_graph_campaign": "NOT_YET_RUN",
+  "hardware_actuation_enabled": false,
+  "physics_claim_made": false
+}
