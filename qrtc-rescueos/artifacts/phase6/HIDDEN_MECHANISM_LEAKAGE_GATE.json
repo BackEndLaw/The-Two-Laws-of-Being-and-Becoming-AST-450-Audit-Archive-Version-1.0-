@@ -1,6 +1,6 @@
 {
   "artifact_type": "hidden_mechanism_leakage_gate",
-  "checkpoint_commit": "a48a9c184dc51a2ccd82b06599257bf8e0b70fda",
+  "checkpoint_commit": "8c7b4848b8ce34e10c4574feb7b317b4cc837fe4",
   "base_commit": "a6fd9fd77b87e79f4c4d96f1d7582740aa19ea3a",
   "test_count": 50,
   "all_tests_passed": true,
