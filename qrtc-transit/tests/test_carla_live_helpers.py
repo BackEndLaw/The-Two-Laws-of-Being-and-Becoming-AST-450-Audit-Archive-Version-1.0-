@@ -7,7 +7,7 @@ from qrtc import carla_live
 
 def test_load_live_config_defaults() -> None:
     config = carla_live.load_live_config({})
-    assert config.host == "120.0.0.1"
+    assert config.host == "127.0.0.1"
     assert config.port == 2000
     assert config.timeout_seconds == 5.0
     assert config.tick_count == 20
@@ -55,7 +55,7 @@ def test_live_testing_required_flag() -> None:
 
 def test_smoke_result_json_uses_runner(monkeypatch) -> None:
     def fake_run(config):
-        assert config.host == "120.0.0.1"
+        assert config.host == "127.0.0.1"
         return {"ok": True}
 
     monkeypatch.setattr(carla_live, "run_live_smoke", fake_run)

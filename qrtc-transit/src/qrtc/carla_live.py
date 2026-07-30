@@ -9,7 +9,7 @@ from typing import Any
 
 @dataclass(frozen=True)
 class CarlaLiveConfig:
-    host: str = "120.0.0.1"
+    host: str = "127.0.0.1"
     port: int = 2000
     timeout_seconds: float = 5.0
     tick_count: int = 20
@@ -57,7 +57,7 @@ def live_testing_required(env: dict[str, str] | None = None) -> bool:
 def load_live_config(env: dict[str, str] | None = None) -> CarlaLiveConfig:
     values = dict(os.environ if env is None else env)
     return CarlaLiveConfig(
-        host=values.get("QRTC_CARLA_HOST", "120.0.0.1"),
+        host=values.get("QRTC_CARLA_HOST", "127.0.0.1"),
         port=_env_int(values, "QRTC_CARLA_PORT", 2000, minimum=1),
         timeout_seconds=_env_float(
             values, "QRTC_CARLA_TIMEOUT_SECONDS", 5.0, minimum=0.1

@@ -23,13 +23,18 @@ This project compares an implemented Gate against a declared future family and c
 The CARLA integration is intentionally opt-in and excluded from the default pytest run.
 
 1. Start a CARLA server separately (for example, CARLA UE server on your workstation) and keep it running.
+	- On the Windows server, run `CarlaUE4.exe -carla-rpc-port=2000`.
+	- In an elevated PowerShell window, allow CARLA's TCP ports on private networks:
+	  `New-NetFirewallRule -DisplayName "CARLA TCP 2000-2002" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 2000-2002 -Profile Private`
+	- Verify the listener on the Windows server:
+	  `Test-NetConnection 10.0.0.70 -Port 2000`
 2. Install qrtc-transit with optional live extras:
 	- `pip install -e ".[dev,carla-live]"`
 3. If `carla-live` resolution fails for your platform/version, install CARLA manually from an official CARLA Python wheel matching your simulator build, then install project dependencies normally:
 	- `pip install -e ".[dev]"`
 	- `pip install <path-or-url-to-carla-wheel>`
 4. Configure optional environment variables (defaults shown):
-	- `QRTC_CARLA_HOST=120.0.0.1`
+	- `QRTC_CARLA_HOST=127.0.0.1`
 	- `QRTC_CARLA_PORT=2000`
 	- `QRTC_CARLA_TIMEOUT_SECONDS=5.0`
 	- `QRTC_CARLA_TICK_COUNT=20`
@@ -41,7 +46,11 @@ The CARLA integration is intentionally opt-in and excluded from the default pyte
 	- `PYTEST_ADDOPTS='' pytest -m "carla and integration" tests/integration/test_carla_live.py`
 6. Or run the same smoke harness manually and capture JSON output for later QRTC evidence ingestion:
 	- `qrtc-carla-smoke`
+	- From another computer on the same private network:
+	  `QRTC_CARLA_HOST=10.0.0.70 QRTC_CARLA_PORT=2000 qrtc-carla-smoke`
 
 Notes:
 - The live test expects an already-running CARLA server and performs bounded low-speed ticks with cleanup of actors/world settings.
 - GitHub Actions runners cannot reach a CARLA server on your local machine; this test is not run in default CI by design.
+- For automated private-network runs, use a self-hosted runner on the CARLA server's LAN or connect the runner and server through a private VPN. Set `QRTC_CARLA_HOST` to the server's reachable LAN or VPN address.
+- Do not expose CARLA's RPC ports directly to the public internet.
