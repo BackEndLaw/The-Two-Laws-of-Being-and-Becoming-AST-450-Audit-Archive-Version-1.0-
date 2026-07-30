@@ -176,3 +176,35 @@ The Back-End Law is designed to survive institutions, time, and substrate change
 ---
 
 ## Repository Structure
+
+- Root-level Python scripts contain the reproducible empirical analyses.
+- `qrtc-transit/` contains the installable QRTC Transit package and test suite.
+- `main.tex` is the manuscript source built by GitHub Actions.
+
+## Running the analyses
+
+Use Python 3.11 or newer:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python Atlas_Analysis.py
+```
+
+Other analyses can be run the same way, for example:
+
+```bash
+python NDE_40_Analysis_with_Verification.py
+python gate_regression_panel.py
+python remainder_quality_framework.py
+```
+
+## Running QRTC Transit
+
+```bash
+cd qrtc-transit
+python -m pip install -e ".[dev]"
+qrtc --help
+pytest
+```
