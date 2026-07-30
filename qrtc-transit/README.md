@@ -68,6 +68,7 @@ reports an overall assessment with individual pass/fail checks.
   - `QRTC_CARLA_ROUTE_WAYPOINT_COUNT=25`
   - `QRTC_CARLA_TRAFFIC_VEHICLE_COUNT=3`
   - `QRTC_CARLA_TRAFFIC_MANAGER_PORT=8000`
+  - `QRTC_CARLA_TRAFFIC_SEED=450`
   - `QRTC_CARLA_WAYPOINT_TOLERANCE_M=3.0`
 - Pass/fail thresholds:
   - `QRTC_CARLA_MIN_ROUTE_PROGRESS=0.6`

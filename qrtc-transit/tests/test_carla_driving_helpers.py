@@ -24,6 +24,7 @@ def test_load_driving_config_defaults() -> None:
     assert config.braking_tick_count == 40
     assert config.target_speed_mps == 6.0
     assert config.traffic_vehicle_count == 3
+    assert config.traffic_seed == 450
     assert config.min_route_progress == 0.6
 
 
@@ -34,6 +35,7 @@ def test_load_driving_config_from_env() -> None:
             "QRTC_CARLA_BRAKING_TICK_COUNT": "20",
             "QRTC_CARLA_TARGET_SPEED_MPS": "4.5",
             "QRTC_CARLA_TRAFFIC_VEHICLE_COUNT": "2",
+            "QRTC_CARLA_TRAFFIC_SEED": "123",
             "QRTC_CARLA_MIN_ROUTE_PROGRESS": "0.75",
         }
     )
@@ -41,6 +43,7 @@ def test_load_driving_config_from_env() -> None:
     assert config.braking_tick_count == 20
     assert config.target_speed_mps == 4.5
     assert config.traffic_vehicle_count == 2
+    assert config.traffic_seed == 123
     assert config.min_route_progress == 0.75
 
 

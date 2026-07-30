@@ -2,6 +2,8 @@ README.md
 pyproject.toml
 src/qrtc/__init__.py
 src/qrtc/boat.py
+src/qrtc/carla_driving.py
+src/qrtc/carla_driving_cli.py
 src/qrtc/carla_live.py
 src/qrtc/carla_live_cli.py
 src/qrtc/cli.py
@@ -36,6 +38,8 @@ src/qrtc_transit.egg-info/entry_points.txt
 src/qrtc_transit.egg-info/requires.txt
 src/qrtc_transit.egg-info/top_level.txt
 tests/test_boat.py
+tests/test_carla_driving_helpers.py
+tests/test_carla_driving_cli.py
 tests/test_carla_live_helpers.py
 tests/test_cli.py
 tests/test_evidence_store.py

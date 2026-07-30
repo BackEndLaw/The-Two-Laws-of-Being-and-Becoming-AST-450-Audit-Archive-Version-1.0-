@@ -18,6 +18,7 @@ class CarlaDrivingConfig(CarlaLiveConfig):
     route_waypoint_count: int = 25
     traffic_vehicle_count: int = 3
     traffic_manager_port: int = 8000
+    traffic_seed: int = 450
     waypoint_tolerance_m: float = 3.0
     min_route_progress: float = 0.6
     max_speed_mps: float = 12.0
@@ -114,6 +115,9 @@ def load_driving_config(env: dict[str, str] | None = None) -> CarlaDrivingConfig
             "QRTC_CARLA_TRAFFIC_MANAGER_PORT",
             defaults.traffic_manager_port,
             minimum=1,
+        ),
+        traffic_seed=_env_int(
+            values, "QRTC_CARLA_TRAFFIC_SEED", defaults.traffic_seed
         ),
         waypoint_tolerance_m=_env_float(
             values,
@@ -303,6 +307,7 @@ def run_live_driving_test(
         if config.traffic_vehicle_count:
             traffic_manager = client.get_trafficmanager(config.traffic_manager_port)
             traffic_manager.set_synchronous_mode(True)
+            traffic_manager.set_random_device_seed(config.traffic_seed)
             traffic_blueprints = sorted(
                 world.get_blueprint_library().filter("vehicle.*"),
                 key=lambda item: item.id,
@@ -430,6 +435,8 @@ def run_live_driving_test(
             "telemetry": telemetry,
         }
     finally:
+        if traffic_manager is not None:
+            traffic_manager.set_synchronous_mode(False)
         for actor in reversed(actors):
             try:
                 stop = getattr(actor, "stop", None)
@@ -441,8 +448,6 @@ def run_live_driving_test(
                 actor.destroy()
             except RuntimeError:
                 pass
-        if traffic_manager is not None:
-            traffic_manager.set_synchronous_mode(False)
         if world is not None:
             _restore_world_settings(
                 world,
