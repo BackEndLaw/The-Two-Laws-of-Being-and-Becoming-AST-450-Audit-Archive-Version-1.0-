@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: qrtc-transit
+Version: 0.1.0
+Summary: Formal kernel for QRTC Transit analysis
+Requires-Python: >=3.11
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: hypothesis>=6.112; extra == "dev"
+Requires-Dist: mypy>=1.11; extra == "dev"
+Requires-Dist: ruff>=0.6; extra == "dev"
+Requires-Dist: build>=1.2; extra == "dev"
+Requires-Dist: pip-audit>=2.7; extra == "dev"
+Provides-Extra: carla-live
+Requires-Dist: carla>=0.9.13; platform_system == "Linux" and extra == "carla-live"

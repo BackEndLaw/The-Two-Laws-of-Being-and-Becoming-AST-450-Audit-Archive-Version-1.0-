@@ -1,0 +1,13 @@
+
+[carla-live]
+
+[carla-live:platform_system == "Linux"]
+carla>=0.9.13
+
+[dev]
+pytest>=8.0
+hypothesis>=6.112
+mypy>=1.11
+ruff>=0.6
+build>=1.2
+pip-audit>=2.7
