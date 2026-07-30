@@ -29,7 +29,7 @@ The CARLA integration is intentionally opt-in and excluded from the default pyte
 	- `pip install -e ".[dev]"`
 	- `pip install <path-or-url-to-carla-wheel>`
 4. Configure optional environment variables (defaults shown):
-	- `QRTC_CARLA_HOST=127.0.0.1`
+	- `QRTC_CARLA_HOST=120.0.0.1`
 	- `QRTC_CARLA_PORT=2000`
 	- `QRTC_CARLA_TIMEOUT_SECONDS=5.0`
 	- `QRTC_CARLA_TICK_COUNT=20`
