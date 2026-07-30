@@ -82,7 +82,9 @@ def _restore_world_settings(
     world.apply_settings(restore_settings)
 
 
-def run_live_smoke(config: CarlaLiveConfig, carla_module: Any | None = None) -> dict[str, Any]:
+def run_live_smoke(
+    config: CarlaLiveConfig, carla_module: Any | None = None
+) -> dict[str, Any]:
     carla = carla_module
     if carla is None:
         import carla as imported_carla  # type: ignore[import-not-found]
@@ -143,7 +145,9 @@ def run_live_smoke(config: CarlaLiveConfig, carla_module: Any | None = None) -> 
         actors.append(ego_vehicle)
         ego_vehicle.set_autopilot(False)
 
-        collision_blueprint = world.get_blueprint_library().find("sensor.other.collision")
+        collision_blueprint = world.get_blueprint_library().find(
+            "sensor.other.collision"
+        )
         collision_sensor = world.spawn_actor(
             collision_blueprint,
             carla.Transform(),
@@ -153,13 +157,17 @@ def run_live_smoke(config: CarlaLiveConfig, carla_module: Any | None = None) -> 
         collision_sensor.listen(lambda event: collisions.append(int(event.frame)))
 
         for _ in range(config.tick_count):
-            ego_vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=0.0, brake=0.0))
+            ego_vehicle.apply_control(
+                carla.VehicleControl(throttle=0.2, steer=0.0, brake=0.0)
+            )
             world.tick()
             snapshot = world.get_snapshot()
             transform = ego_vehicle.get_transform()
             velocity = ego_vehicle.get_velocity()
             speed_mps = math.sqrt(
-                velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z
+                velocity.x * velocity.x
+                + velocity.y * velocity.y
+                + velocity.z * velocity.z
             )
             telemetry.append(
                 {
@@ -178,7 +186,9 @@ def run_live_smoke(config: CarlaLiveConfig, carla_module: Any | None = None) -> 
             "port": config.port,
             "map": world_map.name,
             "initial_frame": int(initial_snapshot.frame),
-            "final_frame": int(telemetry[-1]["frame"]) if telemetry else int(initial_snapshot.frame),
+            "final_frame": int(telemetry[-1]["frame"])
+            if telemetry
+            else int(initial_snapshot.frame),
             "tick_count": config.tick_count,
             "spawn_point_index": spawn_index,
             "vehicle_blueprint": blueprint.id,

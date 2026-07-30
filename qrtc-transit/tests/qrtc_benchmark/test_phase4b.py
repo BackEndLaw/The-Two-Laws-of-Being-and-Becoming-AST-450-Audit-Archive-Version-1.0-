@@ -30,17 +30,36 @@ def test_phase4b_generates_metrics_and_artifacts(tmp_path: Path) -> None:
     assert "qrtc" in metrics["policies"]
     assert "oracle" in metrics["policies"]
     assert metrics["policies"]["qrtc"]["recovery_rate"] >= 0.0
-    assert metrics["policies"]["oracle"]["utility_mean"] >= metrics["policies"]["qrtc"]["utility_mean"]
+    assert (
+        metrics["policies"]["oracle"]["utility_mean"]
+        >= metrics["policies"]["qrtc"]["utility_mean"]
+    )
 
 
 def test_phase4b_invariants_hold_for_relation_types(tmp_path: Path) -> None:
     bundle = run_phase4b_benchmark("development", tmp_path, repeats_per_pair=1)
     rows = bundle["rows"]
 
-    strict_rows = [row for row in rows if row.policy == "qrtc" and row.relation_type == "strict_masking"]
-    soft_rows = [row for row in rows if row.policy == "qrtc" and row.relation_type == "soft_masking"]
-    independent_rows = [row for row in rows if row.policy == "qrtc" and row.relation_type == "independent"]
-    synergistic_rows = [row for row in rows if row.policy == "qrtc" and row.relation_type == "synergistic"]
+    strict_rows = [
+        row
+        for row in rows
+        if row.policy == "qrtc" and row.relation_type == "strict_masking"
+    ]
+    soft_rows = [
+        row
+        for row in rows
+        if row.policy == "qrtc" and row.relation_type == "soft_masking"
+    ]
+    independent_rows = [
+        row
+        for row in rows
+        if row.policy == "qrtc" and row.relation_type == "independent"
+    ]
+    synergistic_rows = [
+        row
+        for row in rows
+        if row.policy == "qrtc" and row.relation_type == "synergistic"
+    ]
 
     assert strict_rows
     assert soft_rows
@@ -60,13 +79,17 @@ def test_phase4b_oracle_dominance_and_breakdown_artifacts(tmp_path: Path) -> Non
     bundle = run_phase4b_benchmark("development", tmp_path, repeats_per_pair=1)
     rows = bundle["rows"]
 
-    assert all(row.oracle_utility >= row.utility for row in rows if row.policy != "oracle")
+    assert all(
+        row.oracle_utility >= row.utility for row in rows if row.policy != "oracle"
+    )
 
     with bundle["policy_summary_csv"].open(encoding="utf-8", newline="") as handle:
         policy_rows = list(csv.DictReader(handle))
     with bundle["regret_breakdown_csv"].open(encoding="utf-8", newline="") as handle:
         regret_rows = list(csv.DictReader(handle))
-    with bundle["action_sequence_breakdown_csv"].open(encoding="utf-8", newline="") as handle:
+    with bundle["action_sequence_breakdown_csv"].open(
+        encoding="utf-8", newline=""
+    ) as handle:
         action_rows = list(csv.DictReader(handle))
 
     assert policy_rows
@@ -96,8 +119,12 @@ def test_oracle_utility_dominates_every_policy_per_trial(tmp_path: Path) -> None
 
 def test_oracle_selects_minimum_cost_successful_path() -> None:
     pair_spec = DEFAULT_PHASE4B_PAIRS[0]
-    oracle_sequence = select_phase4b_oracle_sequence(pair_spec, Phase4BRelationType.SOFT_MASKING, 0.5, 0.1)
-    outcome = evaluate_phase4b_action_sequence(oracle_sequence, pair_spec, Phase4BRelationType.SOFT_MASKING, 0.5, 0.1)
+    oracle_sequence = select_phase4b_oracle_sequence(
+        pair_spec, Phase4BRelationType.SOFT_MASKING, 0.5, 0.1
+    )
+    outcome = evaluate_phase4b_action_sequence(
+        oracle_sequence, pair_spec, Phase4BRelationType.SOFT_MASKING, 0.5, 0.1
+    )
 
     assert outcome["recovered"]
     assert oracle_sequence == (Phase4BIntervention.rW,)

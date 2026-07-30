@@ -24,11 +24,6 @@ carla-live = [
 [project.scripts]
 qrtc = "qrtc.cli:main"
 qrtc-demo = "qrtc.telemetry_demo:main"
-qrtc-benchmark-phase1 = "qrtc_benchmark.run_phase1:main"
-qrtc-benchmark-phase2 = "qrtc_benchmark.run_phase2:main"
-qrtc-benchmark-phase2-sweep = "qrtc_benchmark.run_phase2_sweep:main"
-qrtc-benchmark-phase3 = "qrtc_benchmark.run_phase3:main"
-qrtc-benchmark-phase4 = "qrtc_benchmark.run_phase4:main"
 qrtc-benchmark-phase5 = "qrtc_benchmark.run_phase5:main"
 qrtc-carla-smoke = "qrtc.carla_live_cli:main"
 

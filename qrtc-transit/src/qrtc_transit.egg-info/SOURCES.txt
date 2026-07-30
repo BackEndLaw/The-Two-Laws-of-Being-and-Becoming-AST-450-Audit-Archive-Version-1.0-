@@ -24,9 +24,11 @@ src/qrtc/telemetry_demo.py
 src/qrtc/transit.py
 src/qrtc/verification.py
 src/qrtc/witness.py
+src/qrtc_benchmark/__init__.py
 src/qrtc_benchmark/phase4b.py
 src/qrtc_benchmark/phase5.py
 src/qrtc_benchmark/run_phase5.py
+src/qrtc_benchmark/specification.py
 src/qrtc_transit.egg-info/PKG-INFO
 src/qrtc_transit.egg-info/SOURCES.txt
 src/qrtc_transit.egg-info/dependency_links.txt
