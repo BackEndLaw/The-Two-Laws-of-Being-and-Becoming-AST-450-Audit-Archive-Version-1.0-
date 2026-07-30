@@ -17,20 +17,25 @@ dev = [
 	"build>=1.2",
 	"pip-audit>=2.7",
 ]
+carla-live = [
+	"carla>=0.9.13; platform_system == 'Linux'",
+]
 
 [project.scripts]
 qrtc = "qrtc.cli:main"
 qrtc-demo = "qrtc.telemetry_demo:main"
-qrtc-benchmark-phase1 = "qrtc_benchmark.run_phase1:main"
-qrtc-benchmark-phase2 = "qrtc_benchmark.run_phase2:main"
-qrtc-benchmark-phase2-sweep = "qrtc_benchmark.run_phase2_sweep:main"
-qrtc-benchmark-phase3 = "qrtc_benchmark.run_phase3:main"
-qrtc-benchmark-phase4 = "qrtc_benchmark.run_phase4:main"
 qrtc-benchmark-phase5 = "qrtc_benchmark.run_phase5:main"
+qrtc-carla-smoke = "qrtc.carla_live_cli:main"
+qrtc-carla-driving = "qrtc.carla_driving_cli:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+addopts = "-m 'not carla'"
+markers = [
+	"carla: opt-in live CARLA simulator integration tests",
+	"integration: integration tests that may require external services",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

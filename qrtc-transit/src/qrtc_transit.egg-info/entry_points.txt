@@ -1,0 +1,6 @@
+[console_scripts]
+qrtc = qrtc.cli:main
+qrtc-benchmark-phase5 = qrtc_benchmark.run_phase5:main
+qrtc-carla-driving = qrtc.carla_driving_cli:main
+qrtc-carla-smoke = qrtc.carla_live_cli:main
+qrtc-demo = qrtc.telemetry_demo:main

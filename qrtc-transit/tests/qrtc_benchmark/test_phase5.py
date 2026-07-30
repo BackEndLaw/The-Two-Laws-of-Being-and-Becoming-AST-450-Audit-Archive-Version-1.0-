@@ -13,7 +13,6 @@ from qrtc_benchmark.phase5 import (
     run_phase5_benchmark,
 )
 
-
 SMALL_CFG = Phase5Config(
     bootstrap_reps=200,
     development_family_trials=72,
@@ -89,7 +88,11 @@ def test_strong_holdout_excludes_constituent_pairs() -> None:
         parts = row.composition_id.split("+")
         if len(parts) != 3:
             continue
-        pair_projections = {f"{parts[0]}+{parts[1]}", f"{parts[0]}+{parts[2]}", f"{parts[1]}+{parts[2]}"}
+        pair_projections = {
+            f"{parts[0]}+{parts[1]}",
+            f"{parts[0]}+{parts[2]}",
+            f"{parts[1]}+{parts[2]}",
+        }
         assert pair_projections.isdisjoint(locked_pair_candidates)
 
 
@@ -104,9 +107,7 @@ def test_unknown_fault_not_forced_into_known_label() -> None:
 def test_evidence_request_does_not_repair_system() -> None:
     rows = build_phase5_trials("development", SMALL_CFG)
     request_only = [
-        row
-        for row in rows
-        if row.policy == "qrtc" and row.action_sequence == "r0"
+        row for row in rows if row.policy == "qrtc" and row.action_sequence == "r0"
     ]
     assert request_only
     assert all(row.recovery_score in {0.0, 1.0} for row in request_only)
@@ -143,22 +144,43 @@ def test_failed_intervention_still_increments_cost() -> None:
 
 def test_three_fault_chain_respects_dependency() -> None:
     rows = build_phase5_trials("development", SMALL_CFG)
-    qrtc_rows = [row for row in rows if row.policy == "qrtc" and row.family == "V3" and row.composition_id == "FG+FW+FJ"]
+    qrtc_rows = [
+        row
+        for row in rows
+        if row.policy == "qrtc"
+        and row.family == "V3"
+        and row.composition_id == "FG+FW+FJ"
+    ]
     assert qrtc_rows
     assert all(row.action_sequence.startswith("rG") for row in qrtc_rows)
 
 
 def test_three_fault_fork_accepts_multiple_valid_orders() -> None:
     rows = build_phase5_trials("development", SMALL_CFG)
-    qrtc_rows = [row for row in rows if row.policy == "qrtc" and row.family == "V3" and row.composition_id == "FB+FR+FJ"]
+    qrtc_rows = [
+        row
+        for row in rows
+        if row.policy == "qrtc"
+        and row.family == "V3"
+        and row.composition_id == "FB+FR+FJ"
+    ]
     assert qrtc_rows
     valid_prefixes = {"rB,rR", "rB,rJ"}
-    assert any(",".join(row.action_sequence.split(",")[:2]) in valid_prefixes for row in qrtc_rows)
+    assert any(
+        ",".join(row.action_sequence.split(",")[:2]) in valid_prefixes
+        for row in qrtc_rows
+    )
 
 
 def test_partial_sufficiency_stops_after_recovery() -> None:
     rows = build_phase5_trials("development", SMALL_CFG)
-    qrtc_rows = [row for row in rows if row.policy == "qrtc" and row.family == "V3" and row.composition_id == "FG+FD+FW"]
+    qrtc_rows = [
+        row
+        for row in rows
+        if row.policy == "qrtc"
+        and row.family == "V3"
+        and row.composition_id == "FG+FD+FW"
+    ]
     assert qrtc_rows
     assert all(len(row.action_sequence.split(",")) <= 3 for row in qrtc_rows)
 

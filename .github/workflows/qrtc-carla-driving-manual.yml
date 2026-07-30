@@ -1,0 +1,65 @@
+name: QRTC CARLA Driving Manual Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      carla_host:
+        description: CARLA server host reachable from the runner
+        required: true
+        default: "127.0.0.1"
+        type: string
+      carla_port:
+        description: CARLA RPC port
+        required: true
+        default: "2000"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qrtc-carla-driving
+  cancel-in-progress: false
+
+jobs:
+  live-driving:
+    runs-on: [self-hosted, Windows, X64, carla]
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: qrtc-transit
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify CARLA Python client
+        run: |
+          python --version
+          python -c "import carla; print('CARLA Python client is available')"
+
+      - name: Install qrtc-transit
+        run: python -m pip install -e ".[dev,carla-live]"
+
+      - name: Run live driving assessment
+        env:
+          QRTC_CARLA_HOST: ${{ inputs.carla_host }}
+          QRTC_CARLA_PORT: ${{ inputs.carla_port }}
+          QRTC_CARLA_LIVE_REQUIRED: "true"
+        run: |
+          qrtc-carla-driving | Tee-Object -FilePath carla-driving-result.json
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+      - name: Upload replay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qrtc-carla-driving-${{ github.run_id }}
+          path: qrtc-transit/carla-driving-result.json
+          if-no-files-found: warn
+          retention-days: 30
