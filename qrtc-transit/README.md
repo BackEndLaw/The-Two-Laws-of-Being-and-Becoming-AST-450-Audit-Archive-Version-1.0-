@@ -82,3 +82,39 @@ Notes:
 - GitHub Actions runners cannot reach a CARLA server on your local machine; this test is not run in default CI by design.
 - For automated private-network runs, use a self-hosted runner on the CARLA server's LAN or connect the runner and server through a private VPN. Set `QRTC_CARLA_HOST` to the server's reachable LAN or VPN address.
 - Do not expose CARLA's RPC ports directly to the public internet.
+
+### Private Windows Self-Hosted Runner
+
+The manual `QRTC CARLA Driving Manual Run` workflow runs only on a Windows x64
+self-hosted runner carrying the `carla` label. It is not triggered by pushes or
+pull requests.
+
+1. In the repository, open **Settings → Actions → Runners → New self-hosted
+   runner**, select **Windows x64**, and run GitHub's displayed PowerShell
+   commands on the private CARLA computer.
+2. During runner configuration, add the custom label `carla`. Treat the
+   short-lived registration token as a secret: enter it only on that computer
+   and never save it in the repository, workflow, logs, or screenshots.
+3. Start the runner with `.\run.cmd`. Alternatively, from an elevated shell,
+   install and start it as a service using the service commands supplied with
+   the downloaded runner. Confirm that GitHub reports it as **Idle**.
+4. Install Python 3.11, an official CARLA Python wheel matching the simulator
+   build, and the project on that computer:
+   - `python -m pip install <path-to-matching-carla-wheel>`
+   - From `qrtc-transit`, `python -m pip install -e ".[dev,carla-live]"`
+   - Confirm the same `python` available to the runner can execute
+     `python -c "import carla"`.
+5. Start CARLA on the runner computer with
+   `CarlaUE4.exe -carla-rpc-port=2000`. If CARLA runs on another private host,
+   allow TCP ports 2000–2002 only on the private network.
+6. Open **Actions → QRTC CARLA Driving Manual Run → Run workflow**. Keep the
+   default host `127.0.0.1` when CARLA and the runner share a computer;
+   otherwise enter CARLA's private LAN or VPN address.
+7. Download the `qrtc-carla-driving-<run_id>` artifact from the completed run.
+   Its JSON records collision frames and count, route completion, individual
+   gate decisions and overall pass/fail status, and per-frame telemetry for
+   replay evidence.
+
+Use this runner only with trusted, private repositories and workflows. Restrict
+repository access to trusted collaborators, keep the runner and CARLA patched,
+and do not expose CARLA RPC or the runner host directly to the public internet.
