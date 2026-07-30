@@ -49,6 +49,33 @@ The CARLA integration is intentionally opt-in and excluded from the default pyte
 	- From another computer on the same private network:
 	  `QRTC_CARLA_HOST=10.0.0.70 QRTC_CARLA_PORT=2000 qrtc-carla-smoke`
 
+### Full Live Driving Test
+
+The full test follows a route generated from the selected spawn point, exercises
+steering and braking, adds autopilot traffic, records vehicle dynamics, and
+reports an overall assessment with individual pass/fail checks.
+
+- Run it with `qrtc-carla-driving`.
+- Run its opt-in integration test with:
+  `PYTEST_ADDOPTS='' pytest -m "carla and integration" tests/integration/test_carla_live_driving.py`
+- General connection, timestep, spawn, and vehicle environment variables above
+  also apply.
+- Scenario controls:
+  - `QRTC_CARLA_DRIVING_TICK_COUNT=200`
+  - `QRTC_CARLA_BRAKING_TICK_COUNT=40`
+  - `QRTC_CARLA_TARGET_SPEED_MPS=6.0`
+  - `QRTC_CARLA_ROUTE_SPACING_M=2.0`
+  - `QRTC_CARLA_ROUTE_WAYPOINT_COUNT=25`
+  - `QRTC_CARLA_TRAFFIC_VEHICLE_COUNT=3`
+  - `QRTC_CARLA_TRAFFIC_MANAGER_PORT=8000`
+  - `QRTC_CARLA_WAYPOINT_TOLERANCE_M=3.0`
+- Pass/fail thresholds:
+  - `QRTC_CARLA_MIN_ROUTE_PROGRESS=0.6`
+  - `QRTC_CARLA_MAX_SPEED_MPS=12.0`
+  - `QRTC_CARLA_MAX_LONGITUDINAL_ACCEL_MPS2=12.0`
+  - `QRTC_CARLA_MAX_LATERAL_ACCEL_MPS2=10.0`
+  - `QRTC_CARLA_MAX_FINAL_SPEED_MPS=0.75`
+
 Notes:
 - The live test expects an already-running CARLA server and performs bounded low-speed ticks with cleanup of actors/world settings.
 - GitHub Actions runners cannot reach a CARLA server on your local machine; this test is not run in default CI by design.
