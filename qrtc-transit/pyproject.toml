@@ -27,10 +27,15 @@ qrtc-benchmark-phase2-sweep = "qrtc_benchmark.run_phase2_sweep:main"
 qrtc-benchmark-phase3 = "qrtc_benchmark.run_phase3:main"
 qrtc-benchmark-phase4 = "qrtc_benchmark.run_phase4:main"
 qrtc-benchmark-phase5 = "qrtc_benchmark.run_phase5:main"
+carla-live-drive = "qrtc.carla_harness:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = [
+    "carla_live: marks tests that require a running CARLA server (deselect with '-m not carla_live')",
+]
+addopts = "-m 'not carla_live'"
 
 [tool.setuptools.packages.find]
 where = ["src"]
