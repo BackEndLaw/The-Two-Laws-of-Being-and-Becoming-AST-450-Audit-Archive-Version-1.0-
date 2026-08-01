@@ -17,10 +17,15 @@ dev = [
 	"build>=1.2",
 	"pip-audit>=2.7",
 ]
+# carla extras are intentionally not pinned here; install the wheel from
+# the CARLA 0.9.16 release bundle (requires CPython 3.12).
+# e.g.: pip install <path>/carla-0.9.16-cp312-cp312-win_amd64.whl
+carla = []
 
 [project.scripts]
 qrtc = "qrtc.cli:main"
 qrtc-demo = "qrtc.telemetry_demo:main"
+carla-live-drive = "qrtc.carla_harness:main"
 qrtc-benchmark-phase1 = "qrtc_benchmark.run_phase1:main"
 qrtc-benchmark-phase2 = "qrtc_benchmark.run_phase2:main"
 qrtc-benchmark-phase2-sweep = "qrtc_benchmark.run_phase2_sweep:main"
@@ -31,6 +36,9 @@ qrtc-benchmark-phase5 = "qrtc_benchmark.run_phase5:main"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = [
+    "live: mark test as requiring a live CARLA simulator (excluded by default; pass --live to run)",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
