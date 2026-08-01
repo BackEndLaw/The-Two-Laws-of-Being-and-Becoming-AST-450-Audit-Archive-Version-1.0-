@@ -1,0 +1,22 @@
+﻿[
+    {
+        "file":  "carla-result.json",
+        "algorithm":  "SHA256",
+        "hash":  "57561B5EF3C6A1D9CE764A45A2A441012BAA3AD5DC64DA541042B08CA94461CE"
+    },
+    {
+        "file":  "public-summary.json",
+        "algorithm":  "SHA256",
+        "hash":  "E0B949A37AEBC4EC785EF9EFDFDC0402D9E4E6C26F09DED74F190DBEBA0C44CC"
+    },
+    {
+        "file":  "qrtc-evidence.sqlite3",
+        "algorithm":  "SHA256",
+        "hash":  "A4826F4B329B168AD34530600122818AAC2EC169D0EE4DB21C7938114F522AD1"
+    },
+    {
+        "file":  "terminal.log",
+        "algorithm":  "SHA256",
+        "hash":  "6D50060CE0605A170B1FBA795B72CA5F5A35AB37CECE884A13E48F280B781EDF"
+    }
+]

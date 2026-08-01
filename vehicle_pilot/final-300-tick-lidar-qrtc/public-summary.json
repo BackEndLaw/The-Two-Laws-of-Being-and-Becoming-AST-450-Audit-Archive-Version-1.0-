@@ -1,0 +1,41 @@
+﻿{
+    "validation_date_utc":  "2026-08-01T20:28:50.8174909Z",
+    "branch":  "pr6-qrtc-fix",
+    "commit":  "a5a5da6ea1bee3ceea7b40f1589ce56be032cd34",
+    "run_id":  "122dbbda-302f-4c7d-9b95-d0eec6d13a88",
+    "status":  "completed",
+    "ticks_requested":  300,
+    "ticks_completed":  300,
+    "collisions":  0,
+    "missing_data":  0,
+    "displacement_m":  66.37876374304456,
+    "mean_speed_mps":  5.68632394520311,
+    "max_speed_mps":  6.902020006994496,
+    "lidar_frames":  300,
+    "lidar_dropped":  0,
+    "lidar_errors":  0,
+    "lidar_points":  350526,
+    "lidar_invalid":  0,
+    "nearest_obstacle_m":  2.5520985368213362,
+    "nearest_front_m":  4.374977940313096,
+    "qrtc_submitted":  true,
+    "qrtc_status":  "accepted",
+    "qrtc_transit_id":  "122dbbda-302f-4c7d-9b95-d0eec6d13a88",
+    "authorization_reason":  "identity, class, future, destination, expiration, and policy matched",
+    "guards":  [
+                   {
+                       "guard_id":  "carla-schema-v1",
+                       "qualified":  true,
+                       "reason":  "CARLA schema accepted"
+                   },
+                   {
+                       "guard_id":  "carla-health-v1",
+                       "qualified":  true,
+                       "reason":  "CARLA health accepted"
+                   }
+               ],
+    "evidence_preserved":  true,
+    "config_digest":  "45c78b80634219bf6f936c1419624b18e52db7081f21253a4705097a436dd5be",
+    "evidence_digest":  "56ba2df74ae50ad81d3314026ba96e9f53a4a5c0d8470972cada60b71d89f766",
+    "validation_passed":  true
+}

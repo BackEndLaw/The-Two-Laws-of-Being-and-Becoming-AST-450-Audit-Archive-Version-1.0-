@@ -1,4 +1,6 @@
 
+[carla]
+
 [dev]
 pytest>=8.0
 hypothesis>=6.112

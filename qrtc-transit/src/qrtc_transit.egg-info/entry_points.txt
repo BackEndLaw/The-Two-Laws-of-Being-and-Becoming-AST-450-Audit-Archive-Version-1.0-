@@ -1,4 +1,5 @@
 [console_scripts]
+carla-live-drive = qrtc.carla_harness:main
 qrtc = qrtc.cli:main
 qrtc-benchmark-phase1 = qrtc_benchmark.run_phase1:main
 qrtc-benchmark-phase2 = qrtc_benchmark.run_phase2:main
