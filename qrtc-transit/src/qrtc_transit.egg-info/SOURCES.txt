@@ -2,6 +2,10 @@ README.md
 pyproject.toml
 src/qrtc/__init__.py
 src/qrtc/boat.py
+src/qrtc/carla_config.py
+src/qrtc/carla_harness.py
+src/qrtc/carla_lidar.py
+src/qrtc/carla_telemetry.py
 src/qrtc/cli.py
 src/qrtc/config.py
 src/qrtc/destination.py
@@ -32,6 +36,10 @@ src/qrtc_transit.egg-info/entry_points.txt
 src/qrtc_transit.egg-info/requires.txt
 src/qrtc_transit.egg-info/top_level.txt
 tests/test_boat.py
+tests/test_carla_config.py
+tests/test_carla_harness.py
+tests/test_carla_lidar.py
+tests/test_carla_telemetry.py
 tests/test_cli.py
 tests/test_evidence_store.py
 tests/test_kernel.py

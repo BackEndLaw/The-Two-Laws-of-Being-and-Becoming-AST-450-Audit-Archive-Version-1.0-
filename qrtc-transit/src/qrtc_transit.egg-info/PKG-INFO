@@ -10,3 +10,4 @@ Requires-Dist: mypy>=1.11; extra == "dev"
 Requires-Dist: ruff>=0.6; extra == "dev"
 Requires-Dist: build>=1.2; extra == "dev"
 Requires-Dist: pip-audit>=2.7; extra == "dev"
+Provides-Extra: carla
