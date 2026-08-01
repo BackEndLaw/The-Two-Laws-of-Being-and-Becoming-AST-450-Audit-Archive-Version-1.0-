@@ -222,6 +222,10 @@ class QrtcSubmissionResult:
     failure_reason: str | None
     db_path: str | None
     evidence_preserved: bool
+    # Detailed authorization and guard decision information (may be None
+    # when the pipeline did not reach the relevant stage).
+    authorization_reason: str | None = None
+    guard_reasons: tuple[dict[str, Any], ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -232,6 +236,8 @@ class QrtcSubmissionResult:
             "failure_reason": self.failure_reason,
             "db_path": self.db_path,
             "evidence_preserved": self.evidence_preserved,
+            "authorization_reason": self.authorization_reason,
+            "guard_reasons": list(self.guard_reasons),
         }
 
 
@@ -240,6 +246,7 @@ def submit_to_qrtc_pipeline(
     *,
     db_path: str = "qrtc_evidence.sqlite3",
     policy_path: str | None = None,
+    carla_principal: str | None = None,
 ) -> QrtcSubmissionResult:
     """
     Attempt to submit ``projection`` through the configured QRTC pipeline.
@@ -247,8 +254,14 @@ def submit_to_qrtc_pipeline(
     Returns a result describing acceptance/rejection, stage, and evidence DB
     location.  The evidence is *always* preserved regardless of outcome.
 
-    If ``policy_path`` is None the function attempts to locate the bundled
-    example telemetry policy shipped with qrtc-transit.
+    If ``policy_path`` is None the function locates the bundled CARLA-specific
+    policy (``examples/carla-policy.json``) shipped with qrtc-transit.
+
+    ``carla_principal`` is forwarded to :func:`~qrtc.registry.build_default_registry`
+    so the CARLA key policy authorises the same principal used in the projection.
+    When *None* the value is read from the ``CARLA_PRINCIPAL`` environment
+    variable (default ``"carla-operator"``), matching the behaviour of
+    :func:`~qrtc.carla_config.carla_config_from_env`.
     """
     import json
     import tempfile
@@ -261,17 +274,18 @@ def submit_to_qrtc_pipeline(
     from qrtc.registry import build_default_registry
     from qrtc.transit import TransitFailureState
 
-    # Locate example policy when none is explicitly provided
+    # Locate the CARLA-specific policy when none is explicitly provided
     if policy_path is None:
         _here = Path(__file__).resolve().parent
-        candidate = _here.parent.parent / "examples" / "telemetry-policy.json"
+        candidate = _here.parent.parent / "examples" / "carla-policy.json"
         if not candidate.exists():
+            # Fall back gracefully rather than silently using the wrong policy
             return QrtcSubmissionResult(
                 submitted=False,
                 transit_id=projection.transit_id,
                 status="skipped",
                 failure_stage="policy_load",
-                failure_reason="no policy path provided and bundled example not found",
+                failure_reason="no policy path provided and bundled carla-policy.json not found",
                 db_path=db_path,
                 evidence_preserved=False,
             )
@@ -316,29 +330,9 @@ def submit_to_qrtc_pipeline(
             pass
 
     try:
-        registry = build_default_registry()
+        registry = build_default_registry(carla_principal=carla_principal)
         configured, outcome = execute_configured_transit(
             policy, input_record, registry
-        )
-        store = EvidenceStore(db_path)
-        store.record_transit(
-            policy,
-            input_record,
-            configured.request,
-            outcome,
-            policy_hash=configured.policy_digest,
-            registry_snapshot_id=configured.registry_snapshot_id,
-            resolved_components=configured.resolved_component_ids,
-        )
-        accepted = outcome.failure_state is None
-        return QrtcSubmissionResult(
-            submitted=True,
-            transit_id=outcome.transit_id,
-            status="accepted" if accepted else "rejected",
-            failure_stage=outcome.failure_state.value if outcome.failure_state else None,
-            failure_reason=None if accepted else str(outcome.failure_state),
-            db_path=db_path,
-            evidence_preserved=True,
         )
     except Exception as exc:  # noqa: BLE001
         return QrtcSubmissionResult(
@@ -350,3 +344,54 @@ def submit_to_qrtc_pipeline(
             db_path=db_path,
             evidence_preserved=False,
         )
+
+    # Record the outcome in the evidence database.  A serialization error
+    # (e.g. NaN in the interface) must not suppress the pipeline result.
+    evidence_preserved = False
+    try:
+        store = EvidenceStore(db_path)
+        store.record_transit(
+            policy,
+            input_record,
+            configured.request,
+            outcome,
+            policy_hash=configured.policy_digest,
+            registry_snapshot_id=configured.registry_snapshot_id,
+            resolved_components=configured.resolved_component_ids,
+        )
+        evidence_preserved = True
+    except Exception:  # noqa: BLE001
+        pass
+
+    accepted = outcome.failure_state is None
+
+    # Extract authorization and guard reasons for richer reporting
+    auth_reason: str | None = outcome.authorization.reason
+    guard_reasons: tuple[dict[str, Any], ...] = tuple(
+        {
+            "guard_id": d.guard_id,
+            "qualified": d.qualified,
+            "reason": d.reason,
+        }
+        for d in outcome.guard_decisions
+    )
+
+    return QrtcSubmissionResult(
+        submitted=True,
+        transit_id=outcome.transit_id,
+        status="accepted" if accepted else "rejected",
+        failure_stage=outcome.failure_state.value if outcome.failure_state else None,
+        failure_reason=None if accepted else (
+            outcome.authorization.reason
+            if outcome.failure_state is TransitFailureState.REJECTED_BY_KEY
+            else (
+                guard_reasons[-1]["reason"]
+                if guard_reasons
+                else str(outcome.failure_state)
+            )
+        ),
+        db_path=db_path,
+        evidence_preserved=evidence_preserved,
+        authorization_reason=auth_reason,
+        guard_reasons=guard_reasons,
+    )
