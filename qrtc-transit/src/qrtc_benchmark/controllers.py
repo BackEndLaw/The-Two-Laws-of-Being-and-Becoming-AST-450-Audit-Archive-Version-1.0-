@@ -84,10 +84,17 @@ def _select_qrtc(
         if case.dependency_type == DependencyType.CHAIN:
             return ordered[: min(3, len(ordered))]
         if case.dependency_type == DependencyType.FORK and len(ordered) >= 3:
-            downstream = min(ordered[1:], key=lambda action: (costs[action], action.value))
+            downstream = min(
+                ordered[1:], key=lambda action: (costs[action], action.value)
+            )
             return (ordered[0], downstream)
-        if case.dependency_type == DependencyType.PARTIAL_SUFFICIENCY and len(ordered) >= 3:
-            downstream = min(ordered[1:], key=lambda action: (costs[action], action.value))
+        if (
+            case.dependency_type == DependencyType.PARTIAL_SUFFICIENCY
+            and len(ordered) >= 3
+        ):
+            downstream = min(
+                ordered[1:], key=lambda action: (costs[action], action.value)
+            )
             return (ordered[0], downstream)
     if case.relation_type == Phase5RelationType.STRICT_MASKING:
         if len(ordered) >= 3:
@@ -293,12 +300,15 @@ def get_controller(controller_id: str) -> ControllerDefinition:
 
 
 def mandatory_selection_controllers() -> tuple[ControllerDefinition, ...]:
-    return tuple(get_controller(controller_id) for controller_id in MANDATORY_CONTROLLER_IDS)
+    return tuple(
+        get_controller(controller_id) for controller_id in MANDATORY_CONTROLLER_IDS
+    )
 
 
 def optional_descriptive_baselines() -> tuple[ControllerDefinition, ...]:
     return tuple(
-        get_controller(controller_id) for controller_id in OPTIONAL_DESCRIPTIVE_BASELINE_IDS
+        get_controller(controller_id)
+        for controller_id in OPTIONAL_DESCRIPTIVE_BASELINE_IDS
     )
 
 

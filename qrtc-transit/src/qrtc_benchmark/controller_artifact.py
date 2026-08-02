@@ -91,7 +91,9 @@ def canonical_action_catalog_payload() -> dict[str, object]:
     }
 
 
-def canonical_configuration_payload(controller: controllers.ControllerDefinition) -> dict[str, object]:
+def canonical_configuration_payload(
+    controller: controllers.ControllerDefinition,
+) -> dict[str, object]:
     return {
         "controller_id": controller.controller_id,
         "controller_version": controller.controller_version,
@@ -102,7 +104,9 @@ def canonical_configuration_payload(controller: controllers.ControllerDefinition
     }
 
 
-def canonical_implementation_payload(controller: controllers.ControllerDefinition) -> dict[str, object]:
+def canonical_implementation_payload(
+    controller: controllers.ControllerDefinition,
+) -> dict[str, object]:
     source_path = Path(controllers.__file__).resolve()
     return {
         "controller_id": controller.controller_id,
@@ -188,7 +192,9 @@ def freeze_controller_artifact(
     return artifact
 
 
-def _validated_controller(payload: dict[str, object]) -> controllers.ControllerDefinition:
+def _validated_controller(
+    payload: dict[str, object],
+) -> controllers.ControllerDefinition:
     controller_id = payload["controller_id"]
     if not isinstance(controller_id, str):
         raise ControllerArtifactValidationError("controller_id must be a string")
@@ -236,9 +242,13 @@ def load_controller_artifact(
         )
 
     if deployable_only and not controller.deployable:
-        raise ControllerArtifactValidationError("non-deployable controller is not allowed")
+        raise ControllerArtifactValidationError(
+            "non-deployable controller is not allowed"
+        )
     if controller.role is controllers.ControllerRole.ORACLE and not allow_oracle:
-        raise ControllerArtifactValidationError("oracle loading requires explicit allow")
+        raise ControllerArtifactValidationError(
+            "oracle loading requires explicit allow"
+        )
 
     expected_hashes = {
         "causal_schema_sha256": _sha256_hex(

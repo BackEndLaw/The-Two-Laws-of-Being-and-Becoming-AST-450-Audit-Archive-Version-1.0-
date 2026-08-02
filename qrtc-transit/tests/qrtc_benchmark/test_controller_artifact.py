@@ -70,7 +70,9 @@ def test_deployable_freeze_rejects_oracle(tmp_path: Path) -> None:
         )
 
 
-def test_default_loader_rejects_oracle_but_allow_flag_permits_it(tmp_path: Path) -> None:
+def test_default_loader_rejects_oracle_but_allow_flag_permits_it(
+    tmp_path: Path,
+) -> None:
     output = tmp_path / "oracle.json"
     freeze_controller_artifact(
         controller_id="oracle",

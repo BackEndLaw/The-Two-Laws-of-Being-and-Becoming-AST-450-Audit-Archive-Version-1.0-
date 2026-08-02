@@ -191,7 +191,9 @@ def test_parity_fixtures_for_reference_policy_behavior() -> None:
             Phase5Intervention.rJ,
         ),
     )
-    assert controllers.select_policy_action_sequence("qrtc", chain, 1.0, costs, 100) == (
+    assert controllers.select_policy_action_sequence(
+        "qrtc", chain, 1.0, costs, 100
+    ) == (
         Phase5Intervention.rG,
         Phase5Intervention.rW,
         Phase5Intervention.rJ,
@@ -224,7 +226,9 @@ def test_parity_fixtures_for_reference_policy_behavior() -> None:
             Phase5Intervention.rW,
         ),
     )
-    assert controllers.select_policy_action_sequence("qrtc", partial, 1.0, costs, 100) == (
+    assert controllers.select_policy_action_sequence(
+        "qrtc", partial, 1.0, costs, 100
+    ) == (
         Phase5Intervention.rG,
         Phase5Intervention.rW,
     )
@@ -240,7 +244,9 @@ def test_parity_fixtures_for_reference_policy_behavior() -> None:
             Phase5Intervention.rJ,
         ),
     )
-    assert controllers.select_policy_action_sequence("qrtc", strict, 1.0, costs, 100) == (
+    assert controllers.select_policy_action_sequence(
+        "qrtc", strict, 1.0, costs, 100
+    ) == (
         Phase5Intervention.rB,
         Phase5Intervention.rR,
         Phase5Intervention.rJ,
@@ -264,9 +270,9 @@ def test_parity_fixtures_for_reference_policy_behavior() -> None:
         unknown_fault=False,
         required=(Phase5Intervention.rD, Phase5Intervention.rW),
     )
-    assert controllers.select_policy_action_sequence("qrtc", ordinary, 1.0, costs, 100) == (
-        Phase5Intervention.rW,
-    )
+    assert controllers.select_policy_action_sequence(
+        "qrtc", ordinary, 1.0, costs, 100
+    ) == (Phase5Intervention.rW,)
 
     assert controllers.select_policy_action_sequence(
         "greedy_gain", ordinary, 1.0, costs, 100
@@ -297,7 +303,9 @@ def test_oracle_controller_matches_oracle_selection_integration_boundary() -> No
         costs=costs,
         cache={},
     )
-    selected = controllers.select_policy_action_sequence("oracle", case, 0.8, costs, 404)
+    selected = controllers.select_policy_action_sequence(
+        "oracle", case, 0.8, costs, 404
+    )
     assert selected == tuple(expected["sequence"])
 
 
