@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+import os
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from types import MappingProxyType
@@ -12,6 +14,9 @@ from qrtc.guards import GuardRule
 from qrtc.key import TransitKey
 from qrtc.policy import TransitPolicy
 from qrtc.transit import AuthorizationDecision, TransitEnvelope
+
+# Recognized CARLA run completion statuses accepted by the schema guard.
+_CARLA_RECOGNIZED_STATUSES = frozenset({"completed", "failed", "aborted", "partial"})
 
 
 class PolicyResolutionError(ValueError):
@@ -192,8 +197,126 @@ class ComponentRegistry:
         )
 
 
-def build_default_registry() -> FrozenComponentRegistry:
+def _carla_schema_guard(envelope: TransitEnvelope) -> bool:
+    """
+    Accept a CARLA interface projection when:
+    - ``status`` is a recognized string
+    - ``ticks_requested`` is a positive integer
+    - ``ticks_completed == ticks_requested`` for a completed run
+    - ``collision_count`` and ``missing_data_count`` are nonnegative integers
+    """
+    iface = envelope.interface
+    status = iface.get("status")
+    if not isinstance(status, str) or status not in _CARLA_RECOGNIZED_STATUSES:
+        return False
+
+    ticks_requested = iface.get("ticks_requested")
+    if not (type(ticks_requested) is int) or ticks_requested <= 0:
+        return False
+
+    ticks_completed = iface.get("ticks_completed")
+    if not (type(ticks_completed) is int) or ticks_completed < 0:
+        return False
+
+    if status == "completed" and ticks_completed != ticks_requested:
+        return False
+
+    collision_count = iface.get("collision_count")
+    if not (type(collision_count) is int) or collision_count < 0:
+        return False
+
+    missing_data_count = iface.get("missing_data_count")
+    if not (type(missing_data_count) is int) or missing_data_count < 0:
+        return False
+
+    return True
+
+
+def _carla_health_guard(envelope: TransitEnvelope) -> bool:
+    """
+    Accept a CARLA interface projection when:
+    - ``displacement_m`` is a finite, nonnegative number
+    - ``mean_speed_mps`` and ``max_speed_mps`` are finite, nonnegative or None
+    - If lidar is enabled:
+      - ``lidar_frames_received`` is a positive integer
+      - ``ticks_completed`` is a positive integer
+      - ``lidar_frames_received`` equals ``ticks_completed``
+      - ``lidar_frames_dropped`` is integer zero
+      - ``lidar_callback_errors`` is integer zero
+      - any reported nearest ranges are finite and nonnegative
+    - No NaN or infinite values for the numeric fields
+    """
+    iface = envelope.interface
+
+    def _finite_nonneg(v: Any) -> bool:
+        return isinstance(v, (int, float)) and math.isfinite(v) and v >= 0.0
+
+    def _finite_nonneg_or_none(v: Any) -> bool:
+        return v is None or _finite_nonneg(v)
+
+    displacement_m = iface.get("displacement_m")
+    if not _finite_nonneg(displacement_m):
+        return False
+
+    if not _finite_nonneg_or_none(iface.get("mean_speed_mps")):
+        return False
+    if not _finite_nonneg_or_none(iface.get("max_speed_mps")):
+        return False
+
+    lidar_enabled = iface.get("lidar_enabled")
+    if lidar_enabled:
+        lidar_frames = iface.get("lidar_frames_received")
+        if not (type(lidar_frames) is int) or lidar_frames <= 0:
+            return False
+
+        ticks_completed = iface.get("ticks_completed")
+        if not (type(ticks_completed) is int) or ticks_completed <= 0:
+            return False
+
+        if lidar_frames != ticks_completed:
+            return False
+
+        lidar_dropped = iface.get("lidar_frames_dropped")
+        if not (type(lidar_dropped) is int) or lidar_dropped != 0:
+            return False
+
+        lidar_cb_errors = iface.get("lidar_callback_errors")
+        if not (type(lidar_cb_errors) is int) or lidar_cb_errors != 0:
+            return False
+
+        # Validate optional natural/injected drop counters when present.
+        lidar_natural_dropped = iface.get("lidar_frames_natural_dropped")
+        if lidar_natural_dropped is not None:
+            if not (type(lidar_natural_dropped) is int) or lidar_natural_dropped != 0:
+                return False
+
+        lidar_injected_dropped = iface.get("lidar_frames_injected_dropped")
+        if lidar_injected_dropped is not None:
+            if not (type(lidar_injected_dropped) is int) or lidar_injected_dropped != 0:
+                return False
+
+        if not _finite_nonneg_or_none(iface.get("lidar_nearest_obstacle_m")):
+            return False
+        if not _finite_nonneg_or_none(iface.get("lidar_nearest_front_m")):
+            return False
+
+    return True
+
+
+def build_default_registry(*, carla_principal: str | None = None) -> FrozenComponentRegistry:
+    """
+    Build the default component registry.
+
+    ``carla_principal`` sets the principal that the CARLA key policy authorises.
+    When *None* the value is taken from the ``CARLA_PRINCIPAL`` environment
+    variable, defaulting to ``"carla-operator"``.  The equipment telemetry
+    components are registered unchanged alongside the new CARLA components.
+    """
     builder = ComponentRegistry()
+
+    # ------------------------------------------------------------------
+    # Equipment telemetry components (unchanged)
+    # ------------------------------------------------------------------
 
     def key_policy(
         policy: TransitPolicy, input_record: TransitInputRecord
@@ -285,6 +408,107 @@ def build_default_registry() -> FrozenComponentRegistry:
             stabilizer_id="alarm-persistence-v1",
             policy_version="1.0.0",
             route_version="operations-route-v1",
+        ),
+        version="1.0.0",
+    )
+
+    # ------------------------------------------------------------------
+    # CARLA drive telemetry components
+    # ------------------------------------------------------------------
+
+    # The CARLA key authorises the principal carried by the CARLA run
+    # configuration.  By construction, ``carla_config_from_env()`` reads
+    # CARLA_PRINCIPAL and sets it on both the run report *and* the
+    # projection, so the key and the input always use the same value when
+    # the pipeline is invoked through the normal harness path.
+    _carla_principal: str = carla_principal or os.environ.get(
+        "CARLA_PRINCIPAL", "carla-operator"
+    )
+
+    def carla_key_policy(
+        policy: TransitPolicy, input_record: TransitInputRecord
+    ) -> TransitKey:
+        return TransitKey(
+            key_id=policy.key_policy,
+            principal=_carla_principal,
+            predecessor_class=policy.predecessor_class,
+            declared_future=policy.future_family,
+            destination=input_record.destination,
+            expiration=input_record.expiration,
+            policy_version=policy.policy_version,
+        )
+
+    def carla_gate(
+        request: Any, authorization: AuthorizationDecision
+    ) -> TransitEnvelope:
+        return TransitEnvelope(
+            transit_id=request.transit_id,
+            principal=request.principal,
+            predecessor_class=request.predecessor_class,
+            declared_future=request.declared_future,
+            destination=request.destination,
+            policy_version=request.policy_version,
+            route_version=request.route_version,
+            schema_version=request.schema_version,
+            encoding_version=request.encoding_version,
+            authorization=authorization,
+            interface=request.interface,
+        )
+
+    builder.register_key_policy("carla-key-v1", carla_key_policy, version="1.0.0")
+    builder.register_gate("carla-gate-v1", carla_gate, version="1.0.0")
+    builder.register_guard(
+        "carla-schema-v1",
+        GuardRule(
+            guard_id="carla-schema-v1",
+            policy_version="1.0.0",
+            predicate=_carla_schema_guard,
+            pass_reason="CARLA schema accepted",
+            fail_reason=(
+                "CARLA schema rejected: missing or invalid status, ticks, "
+                "collision_count, or missing_data_count"
+            ),
+        ),
+        version="1.0.0",
+    )
+    builder.register_guard(
+        "carla-health-v1",
+        GuardRule(
+            guard_id="carla-health-v1",
+            policy_version="1.0.0",
+            predicate=_carla_health_guard,
+            pass_reason="CARLA health accepted",
+            fail_reason=(
+                "CARLA health rejected: non-finite/negative displacement or speed, "
+                "or lidar health failure (frame count mismatch, dropped frames, "
+                "callback errors, or invalid range) when lidar is enabled"
+            ),
+        ),
+        version="1.0.0",
+    )
+    builder.register_boat(
+        "carla-json-v1",
+        BoatCodec(
+            schema_version="carla-interface-v1",
+            encoding_version="carla-json-v1",
+        ),
+        version="1.0.0",
+    )
+    builder.register_realizer(
+        "carla-drive-record-v1",
+        DefaultRealizer(
+            destination="carla-drive-record",
+            policy_version="1.0.0",
+            route_version="carla-drive-route-v1",
+        ),
+        version="1.0.0",
+    )
+    builder.register_stabilizer(
+        "carla-persistence-v1",
+        DefaultStabilizer(
+            stabilizer_id="carla-persistence-v1",
+            policy_version="1.0.0",
+            route_version="carla-drive-route-v1",
         ),
         version="1.0.0",
     )

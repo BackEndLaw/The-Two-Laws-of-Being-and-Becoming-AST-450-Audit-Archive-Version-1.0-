@@ -1,5 +1,18 @@
 ## Core latex/pdflatex auxiliary files:
 *.aux
+
+# Python generated artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+
 *.lof
 *.log
 *.lot
