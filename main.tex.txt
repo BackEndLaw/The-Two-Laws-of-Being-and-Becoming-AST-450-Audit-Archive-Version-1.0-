@@ -6,6 +6,13 @@
 \usepackage{geometry}
 \geometry{margin=1in}
 
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+
 \title{Irreversible Transitions Under Constraint Violation\\
 \large A Structural Theory of Non-Invertible Reorganization, Regime Transition, and Identity Loss}
 
