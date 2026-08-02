@@ -1,4 +1,5 @@
 """CLI, packaging, and archival import smoke tests."""
+
 from __future__ import annotations
 
 import os
@@ -55,7 +56,9 @@ _SOURCE_SMOKE_INVOCATIONS = _source_smoke_invocations()
 def _source_env() -> dict[str, str]:
     env = os.environ.copy()
     existing = env.get("PYTHONPATH")
-    env["PYTHONPATH"] = str(_SRC) if not existing else os.pathsep.join((str(_SRC), existing))
+    env["PYTHONPATH"] = (
+        str(_SRC) if not existing else os.pathsep.join((str(_SRC), existing))
+    )
     return env
 
 
@@ -166,7 +169,9 @@ def test_specification_stub_criterion_id() -> None:
     ("entry_point", "module_path"),
     sorted(_ENTRY_POINT_MODULES.items()),
 )
-def test_declared_entry_point_modules_importable(entry_point: str, module_path: str) -> None:
+def test_declared_entry_point_modules_importable(
+    entry_point: str, module_path: str
+) -> None:
     """Every module referenced by a [project.scripts] entry must be importable."""
     result = _run(
         [sys.executable, "-c", f"import {module_path}; print('ok')"],
@@ -254,7 +259,15 @@ def test_clean_wheel_install_smoke(tmp_path: Path) -> None:
     workspace.mkdir()
 
     build_result = _run(
-        [sys.executable, "-m", "build", "--wheel", "--sdist", "--outdir", str(dist_dir)],
+        [
+            sys.executable,
+            "-m",
+            "build",
+            "--wheel",
+            "--sdist",
+            "--outdir",
+            str(dist_dir),
+        ],
         cwd=_PACKAGE_ROOT,
         env=_source_env(),
         timeout=180,
@@ -284,7 +297,9 @@ def test_clean_wheel_install_smoke(tmp_path: Path) -> None:
         env=_clean_env(),
         timeout=180,
     )
-    _assert_success(install_result, "install built wheel into clean virtual environment")
+    _assert_success(
+        install_result, "install built wheel into clean virtual environment"
+    )
 
     pip_check_result = _run(
         [str(venv_python), "-m", "pip", "check"],

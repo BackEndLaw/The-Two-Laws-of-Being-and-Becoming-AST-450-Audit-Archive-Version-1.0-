@@ -11,6 +11,7 @@ PHASE4B_STATUS.md). This stub exists only to allow ``phase4b.py`` to be
 imported without a ``ModuleNotFoundError``. Do not add new semantics here
 beyond what is needed for the import to succeed.
 """
+
 from __future__ import annotations
 
 from enum import Enum

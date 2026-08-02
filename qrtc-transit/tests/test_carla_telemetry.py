@@ -1,7 +1,7 @@
 """Unit tests for qrtc.carla_telemetry — QRTC projection and submission."""
+
 from __future__ import annotations
 
-import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -13,7 +13,6 @@ from qrtc.carla_telemetry import (
     QrtcProjection,
     QrtcSubmissionResult,
     _config_digest,
-    _evidence_digest,
     _truncate_samples,
     build_qrtc_projection,
     submit_to_qrtc_pipeline,
@@ -24,6 +23,7 @@ from qrtc.limits import canonical_json
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _minimal_run_report(
     ticks: int = 10,
@@ -76,6 +76,7 @@ def _minimal_run_report(
 # build_qrtc_projection
 # ---------------------------------------------------------------------------
 
+
 def test_projection_inherits_run_id() -> None:
     report = _minimal_run_report()
     proj = build_qrtc_projection(report)
@@ -87,16 +88,30 @@ def test_projection_interface_has_required_fields() -> None:
     proj = build_qrtc_projection(report)
     iface = proj.interface_projection
     for field in (
-        "run_id", "principal", "destination", "run_timestamp_utc",
-        "map_name", "client_version", "server_version",
-        "blueprint", "spawn_point_index", "fixed_delta",
-        "ticks_requested", "ticks_completed",
-        "collision_count", "displacement_m",
-        "mean_speed_mps", "max_speed_mps",
-        "lidar_enabled", "lidar_frames_received",
-        "lidar_frames_dropped", "lidar_callback_errors",
-        "lidar_nearest_obstacle_m", "lidar_nearest_front_m",
-        "missing_data_count", "status",
+        "run_id",
+        "principal",
+        "destination",
+        "run_timestamp_utc",
+        "map_name",
+        "client_version",
+        "server_version",
+        "blueprint",
+        "spawn_point_index",
+        "fixed_delta",
+        "ticks_requested",
+        "ticks_completed",
+        "collision_count",
+        "displacement_m",
+        "mean_speed_mps",
+        "max_speed_mps",
+        "lidar_enabled",
+        "lidar_frames_received",
+        "lidar_frames_dropped",
+        "lidar_callback_errors",
+        "lidar_nearest_obstacle_m",
+        "lidar_nearest_front_m",
+        "missing_data_count",
+        "status",
     ):
         assert field in iface, f"missing field: {field}"
 
@@ -184,8 +199,12 @@ def test_projection_as_input_dict_structure() -> None:
     proj = build_qrtc_projection(report)
     d = proj.as_input_dict()
     for key in (
-        "transit_id", "principal", "destination",
-        "expiration", "interface_projection", "context",
+        "transit_id",
+        "principal",
+        "destination",
+        "expiration",
+        "interface_projection",
+        "context",
     ):
         assert key in d, f"missing key: {key}"
 
@@ -201,6 +220,7 @@ def test_projection_as_dict_includes_digests() -> None:
 # ---------------------------------------------------------------------------
 # Deterministic / canonical serialization
 # ---------------------------------------------------------------------------
+
 
 def test_config_digest_is_deterministic() -> None:
     cfg = CarlaConfig().as_dict()
@@ -231,6 +251,7 @@ def test_canonical_json_is_stable() -> None:
 # _truncate_samples
 # ---------------------------------------------------------------------------
 
+
 def test_truncate_samples_empty() -> None:
     assert _truncate_samples([], max_count=5) == []
 
@@ -258,6 +279,7 @@ def test_truncate_samples_preserves_first_and_last_approximately() -> None:
 # QRTC submission — rejection/failure scenarios (no real CARLA needed)
 # ---------------------------------------------------------------------------
 
+
 def test_submit_no_policy_path_fails_gracefully(tmp_path: Path) -> None:
     report = _minimal_run_report()
     proj = build_qrtc_projection(report)
@@ -283,8 +305,13 @@ def test_submission_result_as_dict_complete() -> None:
     )
     d = result.as_dict()
     for key in (
-        "submitted", "transit_id", "status",
-        "failure_stage", "failure_reason", "db_path", "evidence_preserved",
+        "submitted",
+        "transit_id",
+        "status",
+        "failure_stage",
+        "failure_reason",
+        "db_path",
+        "evidence_preserved",
     ):
         assert key in d, f"missing key: {key}"
 

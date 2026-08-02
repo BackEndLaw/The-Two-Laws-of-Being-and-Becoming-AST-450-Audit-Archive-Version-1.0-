@@ -5,9 +5,9 @@ different PYTHONHASHSEED values and assert that all output is byte-identical.
 This directly validates that the _stable_hash refactoring has eliminated all
 PYTHONHASHSEED-sensitive code paths.
 """
+
 from __future__ import annotations
 
-import hashlib
 import json
 import subprocess
 import sys
@@ -15,7 +15,6 @@ from pathlib import Path
 
 import pytest
 
-from qrtc_benchmark.phase5 import Phase5Config, run_phase5_benchmark
 
 # A very small config that still exercises every family and every policy.
 _DETERMINISM_CFG_ARGS = (
@@ -96,15 +95,19 @@ def _run_worker(seed: int) -> dict:
 def _get_base_env() -> dict:
     """Return a clean environment suitable for subprocess workers."""
     import os
+
     return {k: v for k, v in os.environ.items() if k != "PYTHONHASHSEED"}
 
 
-@pytest.mark.parametrize("seeds", [
-    (0, 1),
-    (0, 42),
-    (0, 12345),
-    (1, 99),
-])
+@pytest.mark.parametrize(
+    "seeds",
+    [
+        (0, 1),
+        (0, 42),
+        (0, 12345),
+        (1, 99),
+    ],
+)
 def test_phase5b_cross_process_determinism(seeds: tuple[int, int]) -> None:
     """Phase V-B generation must produce identical output for any PYTHONHASHSEED pair."""
     seed_a, seed_b = seeds
@@ -120,26 +123,29 @@ def test_phase5b_cross_process_determinism(seeds: tuple[int, int]) -> None:
         f"PYTHONHASHSEED={seed_b}.  "
         "This means a hash()-based selection path was not replaced."
     )
-    assert result_a["manifest_sha256"] == result_b["manifest_sha256"], (
-        "Manifests differ across PYTHONHASHSEED values."
-    )
+    assert (
+        result_a["manifest_sha256"] == result_b["manifest_sha256"]
+    ), "Manifests differ across PYTHONHASHSEED values."
     assert result_a["checksums_sha256"] == result_b["checksums_sha256"], (
         "Checksum files differ across PYTHONHASHSEED values.  "
         "Check that checksums use relative paths."
     )
-    assert result_a["decision_sha256"] == result_b["decision_sha256"], (
-        "Decision files differ across PYTHONHASHSEED values."
-    )
+    assert (
+        result_a["decision_sha256"] == result_b["decision_sha256"]
+    ), "Decision files differ across PYTHONHASHSEED values."
 
 
 def test_phase5b_no_hash_dependency_in_source() -> None:
     """Confirm that no experiment-affecting built-in hash() remains in phase5.py."""
     import ast
+
     # __file__ is tests/qrtc_benchmark/test_phase5b_determinism.py
     # parents[0] = tests/qrtc_benchmark/
     # parents[1] = tests/
     # parents[2] = qrtc-transit/
-    source_path = Path(__file__).resolve().parents[2] / "src" / "qrtc_benchmark" / "phase5.py"
+    source_path = (
+        Path(__file__).resolve().parents[2] / "src" / "qrtc_benchmark" / "phase5.py"
+    )
     source = source_path.read_text(encoding="utf-8")
     tree = ast.parse(source)
 

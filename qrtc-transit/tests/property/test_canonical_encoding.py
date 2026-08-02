@@ -5,10 +5,10 @@ import json
 import pytest
 
 hypothesis = pytest.importorskip("hypothesis")
-from hypothesis import given
-from hypothesis import strategies as st
+from hypothesis import given  # noqa: E402
+from hypothesis import strategies as st  # noqa: E402
 
-from qrtc.boat import canonicalize_interface
+from qrtc.boat import canonicalize_interface  # noqa: E402
 
 json_scalars = st.one_of(st.integers(), st.text(max_size=20), st.booleans(), st.none())
 flat_mapping = st.dictionaries(

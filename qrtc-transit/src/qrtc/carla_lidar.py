@@ -7,6 +7,7 @@ point-clouds. Derives compact evidence safe for long-running drives.
 Thread-safety: LidarCollector.on_data is called from the CARLA sensor
 callback thread; all shared state is protected by a threading.Lock.
 """
+
 from __future__ import annotations
 
 import math
@@ -23,6 +24,7 @@ from typing import Any, Callable, Optional, Sequence
 
 # CARLA lidar point x=forward, y=left, z=up (right-hand, z-up).
 # We split the horizontal plane into four quadrants.
+
 
 def _azimuth_sector(x: float, y: float) -> str:
     """Return cardinal sector for a lidar point (x=forward, y=left)."""
@@ -41,6 +43,7 @@ def _azimuth_sector(x: float, y: float) -> str:
 # ---------------------------------------------------------------------------
 # Compact lidar evidence per frame
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class LidarFrameEvidence:
@@ -101,7 +104,7 @@ def _percentile(sorted_values: list[float], pct: float) -> float | None:
 
 def compute_speed_mps(velocity_x: float, velocity_y: float, velocity_z: float) -> float:
     """Return 3-D speed in m/s from velocity components."""
-    return math.sqrt(velocity_x ** 2 + velocity_y ** 2 + velocity_z ** 2)
+    return math.sqrt(velocity_x**2 + velocity_y**2 + velocity_z**2)
 
 
 def process_lidar_points(
@@ -169,6 +172,7 @@ def process_lidar_points(
 # Named immutable snapshot from LidarCollector
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class LidarCollectorSnapshot:
     """
@@ -191,6 +195,7 @@ class LidarCollectorSnapshot:
     ``triggered_sensor_frame`` is the CARLA sensor frame number at injection
     (``None`` when not triggered).
     """
+
     callbacks_received: int
     accepted_frames: tuple[LidarFrameEvidence, ...]
     natural_drops: int
@@ -206,6 +211,7 @@ class LidarCollectorSnapshot:
 # ---------------------------------------------------------------------------
 # Collector — integrates with CARLA sensor callback
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class LidarCollector:
@@ -232,6 +238,7 @@ class LidarCollector:
     internal accounting is updated and outside the collector lock to avoid
     deadlocks.  Useful for connecting to a runtime protection supervisor.
     """
+
     retain_raw: bool = False
     max_raw_frames: int = 10
     # TEST-ONLY fault injection.  -1 = disabled.
@@ -240,9 +247,13 @@ class LidarCollector:
     fault_notify: Optional[Callable[[Optional[int], Optional[int]], None]] = field(
         default=None, compare=False, repr=False
     )
-    _lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
+    _lock: threading.Lock = field(
+        default_factory=threading.Lock, init=False, repr=False
+    )
     _condition: threading.Condition = field(init=False, repr=False)
-    _frames: list[LidarFrameEvidence] = field(default_factory=list, init=False, repr=False)
+    _frames: list[LidarFrameEvidence] = field(
+        default_factory=list, init=False, repr=False
+    )
     _raw_buffer: deque[list[tuple[float, float, float]]] = field(
         default_factory=lambda: deque(maxlen=10), init=False, repr=False
     )
@@ -251,7 +262,9 @@ class LidarCollector:
     _callback_errors: int = field(default=0, init=False, repr=False)
     _callback_counter: int = field(default=0, init=False, repr=False)
     _fault_injection_triggered: bool = field(default=False, init=False, repr=False)
-    _triggered_callback_index: Optional[int] = field(default=None, init=False, repr=False)
+    _triggered_callback_index: Optional[int] = field(
+        default=None, init=False, repr=False
+    )
     _triggered_sensor_frame: Optional[int] = field(default=None, init=False, repr=False)
     _frame_states: dict[int, str] = field(default_factory=dict, init=False, repr=False)
 
@@ -385,6 +398,7 @@ class LidarCollector:
 # ---------------------------------------------------------------------------
 # Aggregate lidar health summary
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class LidarSummary:
