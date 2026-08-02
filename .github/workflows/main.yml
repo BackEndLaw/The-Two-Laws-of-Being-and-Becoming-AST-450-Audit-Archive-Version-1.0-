@@ -19,8 +19,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y texlive-full
 
-      - name: Compile main.tex
+      - name: Compile main.tex.txt
         run: |
+          cp main.tex.txt main.tex
           latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
 
       - name: Upload PDF artifact
