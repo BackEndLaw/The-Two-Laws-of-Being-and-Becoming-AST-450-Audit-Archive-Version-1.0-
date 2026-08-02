@@ -44,6 +44,7 @@ tests/test_carla_registry.py
 tests/test_carla_telemetry.py
 tests/test_cli.py
 tests/test_evidence_store.py
+tests/test_fault_injection_accounting.py
 tests/test_kernel.py
 tests/test_pipeline.py
 tests/test_policy.py

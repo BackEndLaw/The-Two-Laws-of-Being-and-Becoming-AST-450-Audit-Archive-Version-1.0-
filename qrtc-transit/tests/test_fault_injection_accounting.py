@@ -674,7 +674,9 @@ def test_harness_classifies_untriggered_injection_as_invalid(tmp_path: Path) -> 
 # Scenario 7: Valid 299/300 injection → QRTC rejected → post_run_rejection_test_passed
 # ---------------------------------------------------------------------------
 
-def test_run_drive_persists_controlled_injection_rejection_pass_report(tmp_path: Path) -> None:
+def test_run_drive_persists_controlled_injection_rejection_pass_report(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """
     run_drive() must persist a passing post-run rejection report when a
     configured zero-based callback drop cleanly triggers once over 300 ticks.
@@ -683,12 +685,18 @@ def test_run_drive_persists_controlled_injection_rejection_pass_report(tmp_path:
     ego = _make_ego_vehicle(tick_count)
     fake_carla = _make_carla_module_with_lidar_callbacks(ego, tick_count=tick_count)
 
+    monkeypatch.setenv(
+        "CARLA_PRINCIPAL",
+        "conflicting-environment-principal",
+    )
+
     output = str(tmp_path / "controlled-dropout-report.json")
     cfg = CarlaConfig(
         ticks=tick_count,
         output=output,
         submit_to_qrtc=True,
         qrtc_db=str(tmp_path / "evidence.sqlite3"),
+        principal="carla-operator",
         lidar=LidarConfig(enabled=True, drop_frame_index=150),
     )
 
