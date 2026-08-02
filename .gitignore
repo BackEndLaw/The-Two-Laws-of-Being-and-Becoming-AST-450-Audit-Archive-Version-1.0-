@@ -1,3 +1,8 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/SOURCES.txt
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
