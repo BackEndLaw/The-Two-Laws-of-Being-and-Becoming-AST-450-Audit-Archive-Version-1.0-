@@ -5,6 +5,7 @@ All CARLA imports are lazy so ordinary installs and CI remain unaffected.
 """
 from __future__ import annotations
 
+import math
 import os
 from dataclasses import dataclass, field
 from typing import Any
@@ -111,6 +112,8 @@ class CarlaConfig:
     runtime_stop_speed_mps: float = 0.10
     runtime_required_stopped_ticks: int = 5
     runtime_maximum_braking_ticks: int = 100
+    runtime_full_brake: float = 1.0
+    runtime_lidar_callback_timeout_seconds: float = 0.25
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -132,6 +135,10 @@ class CarlaConfig:
             "runtime_stop_speed_mps": self.runtime_stop_speed_mps,
             "runtime_required_stopped_ticks": self.runtime_required_stopped_ticks,
             "runtime_maximum_braking_ticks": self.runtime_maximum_braking_ticks,
+            "runtime_full_brake": self.runtime_full_brake,
+            "runtime_lidar_callback_timeout_seconds": (
+                self.runtime_lidar_callback_timeout_seconds
+            ),
         }
 
 
@@ -176,6 +183,10 @@ def carla_config_from_env() -> CarlaConfig:
         runtime_stop_speed_mps=_env_float("CARLA_RUNTIME_STOP_SPEED_MPS", 0.10),
         runtime_required_stopped_ticks=_env_int("CARLA_RUNTIME_STOPPED_TICKS", 5),
         runtime_maximum_braking_ticks=_env_int("CARLA_RUNTIME_MAX_BRAKING_TICKS", 100),
+        runtime_full_brake=_env_float("CARLA_RUNTIME_FULL_BRAKE", 1.0),
+        runtime_lidar_callback_timeout_seconds=_env_float(
+            "CARLA_RUNTIME_LIDAR_CALLBACK_TIMEOUT_SECONDS", 0.25
+        ),
     )
 
 
@@ -218,7 +229,12 @@ def validate_carla_config(cfg: CarlaConfig) -> list[str]:
             f"lidar drop_frame_index must be -1 (disabled) or nonnegative, "
             f"got {lidar.drop_frame_index}"
         )
-    if cfg.runtime_stop_speed_mps < 0.0:
+    if not math.isfinite(cfg.runtime_stop_speed_mps):
+        errors.append(
+            "runtime_stop_speed_mps must be finite, "
+            f"got {cfg.runtime_stop_speed_mps}"
+        )
+    elif cfg.runtime_stop_speed_mps < 0.0:
         errors.append(
             f"runtime_stop_speed_mps must be >= 0, got {cfg.runtime_stop_speed_mps}"
         )
@@ -231,5 +247,21 @@ def validate_carla_config(cfg: CarlaConfig) -> list[str]:
         errors.append(
             f"runtime_maximum_braking_ticks must be >= 1, "
             f"got {cfg.runtime_maximum_braking_ticks}"
+        )
+    if not math.isfinite(cfg.runtime_full_brake):
+        errors.append(f"runtime_full_brake must be finite, got {cfg.runtime_full_brake}")
+    elif not (0.0 < cfg.runtime_full_brake <= 1.0):
+        errors.append(
+            f"runtime_full_brake must be in (0, 1], got {cfg.runtime_full_brake}"
+        )
+    if not math.isfinite(cfg.runtime_lidar_callback_timeout_seconds):
+        errors.append(
+            "runtime_lidar_callback_timeout_seconds must be finite, "
+            f"got {cfg.runtime_lidar_callback_timeout_seconds}"
+        )
+    elif cfg.runtime_lidar_callback_timeout_seconds < 0.0:
+        errors.append(
+            "runtime_lidar_callback_timeout_seconds must be >= 0, "
+            f"got {cfg.runtime_lidar_callback_timeout_seconds}"
         )
     return errors

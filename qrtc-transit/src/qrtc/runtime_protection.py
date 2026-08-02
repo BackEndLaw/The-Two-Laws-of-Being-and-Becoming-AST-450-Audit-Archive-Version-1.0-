@@ -35,6 +35,7 @@ class RuntimeProtectionState(str, Enum):
     BRAKING = "braking"
     STOPPED = "stopped"
     STOP_TIMEOUT = "stop_timeout"
+    CONTROL_ERROR = "control_error"
 
 
 # ---------------------------------------------------------------------------
@@ -60,6 +61,10 @@ class RuntimeProtectionConfig:
             raise ValueError(
                 f"stop_speed_mps must be >= 0, got {self.stop_speed_mps}"
             )
+        if not math.isfinite(self.stop_speed_mps):
+            raise ValueError(
+                f"stop_speed_mps must be finite, got {self.stop_speed_mps}"
+            )
         if self.required_stopped_ticks < 1:
             raise ValueError(
                 f"required_stopped_ticks must be >= 1, "
@@ -70,6 +75,8 @@ class RuntimeProtectionConfig:
                 f"maximum_braking_ticks must be >= 1, "
                 f"got {self.maximum_braking_ticks}"
             )
+        if not math.isfinite(self.full_brake):
+            raise ValueError(f"full_brake must be finite, got {self.full_brake}")
         if not (0.0 < self.full_brake <= 1.0):
             raise ValueError(
                 f"full_brake must be in (0, 1], got {self.full_brake}"
@@ -91,13 +98,27 @@ class RuntimeProtectionConfig:
 
 @dataclass(frozen=True)
 class FaultMetadata:
-    callback_index: int
+    callback_index: Optional[int]
     sensor_frame: Optional[int]
 
     def as_dict(self) -> dict[str, Any]:
         return {
             "callback_index": self.callback_index,
             "sensor_frame": self.sensor_frame,
+        }
+
+
+@dataclass(frozen=True)
+class ControlActionError:
+    action: str
+    message: str
+    tick_index: int
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "action": self.action,
+            "message": self.message,
+            "tick_index": self.tick_index,
         }
 
 
@@ -115,7 +136,10 @@ class RuntimeProtectionSnapshot:
     stop_timeout: bool
     first_enforcement_tick: Optional[int]
     fault_metadata: Optional[FaultMetadata]
+    fault_reason: Optional[str]
     termination_reason: Optional[str]
+    control_action_failed: bool
+    control_action_error: Optional[ControlActionError]
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -134,7 +158,14 @@ class RuntimeProtectionSnapshot:
                 if self.fault_metadata is None
                 else self.fault_metadata.as_dict()
             ),
+            "fault_reason": self.fault_reason,
             "termination_reason": self.termination_reason,
+            "control_action_failed": self.control_action_failed,
+            "control_action_error": (
+                None
+                if self.control_action_error is None
+                else self.control_action_error.as_dict()
+            ),
         }
 
 
@@ -160,6 +191,7 @@ class RuntimeProtection:
         self._lock = threading.Lock()
         self._state = RuntimeProtectionState.ARMED
         self._fault_metadata: Optional[FaultMetadata] = None
+        self._fault_reason: Optional[str] = None
         self._autopilot_disabled = False
         self._braking_ticks = 0
         self._stopped_ticks = 0
@@ -169,6 +201,7 @@ class RuntimeProtection:
         self._safe_stop = False
         self._stop_timeout = False
         self._termination_reason: Optional[str] = None
+        self._control_action_error: Optional[ControlActionError] = None
 
     # ------------------------------------------------------------------
     # Sensor-thread API (no vehicle control)
@@ -176,8 +209,10 @@ class RuntimeProtection:
 
     def latch_fault(
         self,
-        callback_index: int,
+        callback_index: Optional[int],
         sensor_frame: Optional[int] = None,
+        *,
+        reason: str = "fault_injection",
     ) -> None:
         """
         Latch the first fault from the sensor callback thread.
@@ -192,6 +227,7 @@ class RuntimeProtection:
                 callback_index=callback_index,
                 sensor_frame=sensor_frame,
             )
+            self._fault_reason = reason
             self._state = RuntimeProtectionState.FAULT_LATCHED
 
     # ------------------------------------------------------------------
@@ -211,6 +247,7 @@ class RuntimeProtection:
             return self._state in (
                 RuntimeProtectionState.STOPPED,
                 RuntimeProtectionState.STOP_TIMEOUT,
+                RuntimeProtectionState.CONTROL_ERROR,
             )
 
     @property
@@ -230,8 +267,30 @@ class RuntimeProtection:
             vy = float(velocity.y)
             vz = float(velocity.z)
         except (AttributeError, TypeError, ValueError):
-            return 0.0
-        return math.sqrt(vx * vx + vy * vy + vz * vz)
+            return math.inf
+        if not all(math.isfinite(component) for component in (vx, vy, vz)):
+            return math.inf
+        speed = math.sqrt(vx * vx + vy * vy + vz * vz)
+        return speed if math.isfinite(speed) else math.inf
+
+    def _record_control_action_error(
+        self,
+        *,
+        action: str,
+        tick_index: int,
+        error: Exception,
+    ) -> RuntimeProtectionState:
+        with self._lock:
+            self._safe_stop = False
+            self._stop_timeout = False
+            self._termination_reason = "control_action_error"
+            self._control_action_error = ControlActionError(
+                action=action,
+                message=str(error),
+                tick_index=tick_index,
+            )
+            self._state = RuntimeProtectionState.CONTROL_ERROR
+            return self._state
 
     # ------------------------------------------------------------------
     # Main-thread enforcement
@@ -279,38 +338,55 @@ class RuntimeProtection:
         if state in (
             RuntimeProtectionState.STOPPED,
             RuntimeProtectionState.STOP_TIMEOUT,
+            RuntimeProtectionState.CONTROL_ERROR,
         ):
             return state
 
         # Transition FAULT_LATCHED → BRAKING: disable autopilot exactly once.
         if state == RuntimeProtectionState.FAULT_LATCHED:
             with self._lock:
-                if not self._autopilot_disabled:
+                should_disable = not self._autopilot_disabled
+            if should_disable:
+                try:
                     disable_autopilot(vehicle)
+                except Exception as exc:  # noqa: BLE001
+                    return self._record_control_action_error(
+                        action="set_autopilot(False)",
+                        tick_index=tick_index,
+                        error=exc,
+                    )
+                try:
+                    detection_speed = self.compute_speed_mps(vehicle.get_velocity())
+                except Exception:  # noqa: BLE001
+                    detection_speed = math.inf
+                with self._lock:
                     self._autopilot_disabled = True
                     self._first_enforcement_tick = tick_index
-                    try:
-                        velocity = vehicle.get_velocity()
-                        self._speed_at_detection = self.compute_speed_mps(velocity)
-                    except Exception:  # noqa: BLE001
-                        self._speed_at_detection = None
+                    self._speed_at_detection = detection_speed
                     self._state = RuntimeProtectionState.BRAKING
 
         # Apply braking-only control every enforcement tick.
-        apply_control(vehicle, 0.0, self._cfg.full_brake, 0.0)
+        try:
+            apply_control(vehicle, 0.0, self._cfg.full_brake, 0.0)
+        except Exception as exc:  # noqa: BLE001
+            return self._record_control_action_error(
+                action="apply_control(brake)",
+                tick_index=tick_index,
+                error=exc,
+            )
 
         # Measure current speed.
         try:
             velocity = vehicle.get_velocity()
             speed = self.compute_speed_mps(velocity)
         except Exception:  # noqa: BLE001
-            speed = 0.0
+            speed = math.inf
 
         with self._lock:
             self._braking_ticks += 1
             current_braking_ticks = self._braking_ticks
 
-            if speed <= self._cfg.stop_speed_mps:
+            if math.isfinite(speed) and speed <= self._cfg.stop_speed_mps:
                 self._stopped_ticks += 1
             else:
                 # Speed rose above threshold — reset consecutive stopped count.
@@ -356,5 +432,8 @@ class RuntimeProtection:
                 stop_timeout=self._stop_timeout,
                 first_enforcement_tick=self._first_enforcement_tick,
                 fault_metadata=self._fault_metadata,
+                fault_reason=self._fault_reason,
                 termination_reason=self._termination_reason,
+                control_action_failed=self._control_action_error is not None,
+                control_action_error=self._control_action_error,
             )

@@ -268,6 +268,14 @@ def _classify_runtime_protection(
     autopilot_disabled = bool(rp_snap.get("autopilot_disabled"))
     safe_stop = bool(rp_snap.get("safe_stop"))
     stop_timeout = bool(rp_snap.get("stop_timeout"))
+    control_action_failed = bool(rp_snap.get("control_action_failed"))
+    rp_state = rp_snap.get("state")
+
+    if control_action_failed or rp_state == RuntimeProtectionState.CONTROL_ERROR.value:
+        return RuntimeProtectionClassification(
+            test_outcome="runtime_protection_control_error",
+            runtime_protection_test_passed=False,
+        )
 
     if stop_timeout:
         return RuntimeProtectionClassification(
@@ -483,28 +491,23 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
             stop_speed_mps=cfg.runtime_stop_speed_mps,
             required_stopped_ticks=cfg.runtime_required_stopped_ticks,
             maximum_braking_ticks=cfg.runtime_maximum_braking_ticks,
+            full_brake=cfg.runtime_full_brake,
         )
         rp_supervisor = RuntimeProtection(rp_cfg)
         if cfg.runtime_protection_enabled and lidar_collector is not None:
             lidar_collector.fault_notify = rp_supervisor.latch_fault
 
         def _disable_autopilot(vehicle: Any) -> None:
-            try:
-                vehicle.set_autopilot(False)
-            except Exception:  # noqa: BLE001
-                pass
+            vehicle.set_autopilot(False)
 
         def _apply_braking_control(
             vehicle: Any, throttle: float, brake: float, steer: float
         ) -> None:
-            try:
-                ctrl = carla.VehicleControl()
-                ctrl.throttle = throttle
-                ctrl.brake = brake
-                ctrl.steer = steer
-                vehicle.apply_control(ctrl)
-            except Exception:  # noqa: BLE001
-                pass
+            ctrl = carla.VehicleControl()
+            ctrl.throttle = throttle
+            ctrl.brake = brake
+            ctrl.steer = steer
+            vehicle.apply_control(ctrl)
 
         # --- Tick loop ------------------------------------------------------
         initial_transform = ego_vehicle.get_transform()
@@ -520,6 +523,24 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
             for tick_idx in range(cfg.ticks):
                 frame = world.tick()
                 ticks_completed += 1
+
+                if cfg.runtime_protection_enabled and lidar_collector is not None:
+                    frame_state = lidar_collector.wait_for_frame(
+                        frame,
+                        cfg.runtime_lidar_callback_timeout_seconds,
+                    )
+                    if frame_state == "missing":
+                        rp_supervisor.latch_fault(
+                            callback_index=None,
+                            sensor_frame=frame,
+                            reason="lidar_callback_timeout",
+                        )
+                    elif frame_state == "callback_error":
+                        rp_supervisor.latch_fault(
+                            callback_index=None,
+                            sensor_frame=frame,
+                            reason="lidar_callback_error",
+                        )
 
                 transform = ego_vehicle.get_transform()
                 velocity = ego_vehicle.get_velocity()
@@ -627,10 +648,15 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
             lidar_frames_natural_dropped = lidar_snap.natural_drops
             lidar_frames_injected_dropped = lidar_snap.injected_drops
 
+        rp_snapshot = rp_supervisor.snapshot()
+        status = "completed" if ticks_completed == cfg.ticks else "partial"
+        if rp_snapshot.state == RuntimeProtectionState.CONTROL_ERROR:
+            status = "aborted"
+
         run_report: dict[str, Any] = {
             "run_id": run_id,
             "run_timestamp_utc": run_ts,
-            "status": "completed",
+            "status": status,
             "client_version": client_version,
             "server_version": server_version,
             "map_name": map_name,
@@ -660,7 +686,7 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
             "lidar_frames_accepted": lidar_frames_accepted,
             "lidar_frames_natural_dropped": lidar_frames_natural_dropped,
             "lidar_frames_injected_dropped": lidar_frames_injected_dropped,
-            "runtime_protection": rp_supervisor.snapshot().as_dict(),
+            "runtime_protection": rp_snapshot.as_dict(),
         }
 
         # Emit config and evidence digests
@@ -700,7 +726,6 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
                 run_report,
                 run_report["qrtc_submission"],
             )
-            run_report["test_outcome"] = classification.test_outcome
             run_report["post_run_rejection_test_passed"] = (
                 classification.post_run_rejection_test_passed
             )
@@ -717,6 +742,11 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
                 run_report,
                 run_report["qrtc_submission"],
             )
+            run_report["test_outcome"] = (
+                rp_classification.test_outcome
+                if cfg.runtime_protection_enabled
+                else classification.test_outcome
+            )
             run_report["runtime_protection_test_passed"] = (
                 rp_classification.runtime_protection_test_passed
             )
@@ -729,7 +759,6 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
         else:
             # No QRTC submission — post_run_rejection_test_passed must remain False.
             classification = _classify_post_run_rejection(cfg, run_report)
-            run_report["test_outcome"] = classification.test_outcome
             run_report["post_run_rejection_test_passed"] = (
                 classification.post_run_rejection_test_passed
             )
@@ -739,6 +768,11 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
 
             # Runtime protection classification without QRTC
             rp_classification = _classify_runtime_protection(cfg, run_report)
+            run_report["test_outcome"] = (
+                rp_classification.test_outcome
+                if cfg.runtime_protection_enabled
+                else classification.test_outcome
+            )
             run_report["runtime_protection_test_passed"] = (
                 rp_classification.runtime_protection_test_passed
             )

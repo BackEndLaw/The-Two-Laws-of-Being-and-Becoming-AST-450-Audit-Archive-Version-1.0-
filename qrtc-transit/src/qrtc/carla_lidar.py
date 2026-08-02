@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import math
 import threading
+import time
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional, Sequence
@@ -236,10 +237,11 @@ class LidarCollector:
     # TEST-ONLY fault injection.  -1 = disabled.
     drop_frame_index: int = -1
     # Optional notification callback for runtime protection integration.
-    fault_notify: Optional[Callable[[int, Optional[int]], None]] = field(
+    fault_notify: Optional[Callable[[Optional[int], Optional[int]], None]] = field(
         default=None, compare=False, repr=False
     )
     _lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
+    _condition: threading.Condition = field(init=False, repr=False)
     _frames: list[LidarFrameEvidence] = field(default_factory=list, init=False, repr=False)
     _raw_buffer: deque[list[tuple[float, float, float]]] = field(
         default_factory=lambda: deque(maxlen=10), init=False, repr=False
@@ -251,20 +253,24 @@ class LidarCollector:
     _fault_injection_triggered: bool = field(default=False, init=False, repr=False)
     _triggered_callback_index: Optional[int] = field(default=None, init=False, repr=False)
     _triggered_sensor_frame: Optional[int] = field(default=None, init=False, repr=False)
+    _frame_states: dict[int, str] = field(default_factory=dict, init=False, repr=False)
 
     def __post_init__(self) -> None:
         # Enforce max_raw_frames on the deque
         self._raw_buffer = deque(maxlen=self.max_raw_frames)
+        self._condition = threading.Condition(self._lock)
 
     def on_data(self, measurement: Any) -> None:  # noqa: ANN401
         """CARLA sensor callback — called from sensor thread."""
         # Atomically claim a zero-based callback index.  Also apply fault
         # injection when the index matches the configured drop target.
         fault_injected = False
-        notify_fn: Optional[Callable[[int, Optional[int]], None]] = None
-        notify_args: tuple[int, Optional[int]] | None = None
+        notify_fn: Optional[Callable[[Optional[int], Optional[int]], None]] = None
+        notify_args: tuple[Optional[int], Optional[int]] | None = None
+        frame: int | None = getattr(measurement, "frame", None)
+        timestamp: float | None = getattr(measurement, "timestamp", None)
 
-        with self._lock:
+        with self._condition:
             callback_idx = self._callback_counter
             self._callback_counter += 1
             if self.drop_frame_index >= 0 and callback_idx == self.drop_frame_index:
@@ -272,13 +278,16 @@ class LidarCollector:
                 self._fault_injection_triggered = True
                 self._triggered_callback_index = callback_idx
                 # Capture the sensor frame number before discarding.
-                sensor_frame: Optional[int] = getattr(measurement, "frame", None)
+                sensor_frame: Optional[int] = frame
                 self._triggered_sensor_frame = sensor_frame
+                if sensor_frame is not None:
+                    self._frame_states[sensor_frame] = "injected"
                 fault_injected = True
                 # Capture notify callback to call outside the lock.
                 if self.fault_notify is not None:
                     notify_fn = self.fault_notify
                     notify_args = (callback_idx, sensor_frame)
+                self._condition.notify_all()
 
         if fault_injected:
             # Call the fault notification outside the lock so the callback
@@ -293,8 +302,6 @@ class LidarCollector:
 
         try:
             # Lazily import carla so ordinary tests never require the package.
-            frame: int | None = getattr(measurement, "frame", None)
-            timestamp: float | None = getattr(measurement, "timestamp", None)
             # Extract points: CARLA LidarMeasurement is iterable over
             # carla.LidarDetection with attributes x, y, z.
             raw: list[tuple[float, float, float]] = [
@@ -302,15 +309,24 @@ class LidarCollector:
                 for p in measurement
             ]
         except Exception:  # noqa: BLE001
-            with self._lock:
+            with self._condition:
                 self._callback_errors += 1
+                if frame is not None and self._frame_states.get(frame) != "missing":
+                    self._frame_states[frame] = "callback_error"
+                self._condition.notify_all()
             return
 
         evidence = process_lidar_points(raw, frame=frame, timestamp=timestamp)
-        with self._lock:
+        with self._condition:
+            if frame is not None and self._frame_states.get(frame) == "missing":
+                self._condition.notify_all()
+                return
             self._frames.append(evidence)
             if self.retain_raw:
                 self._raw_buffer.append(raw)
+            if frame is not None:
+                self._frame_states[frame] = "accepted"
+            self._condition.notify_all()
 
     def snapshot(self) -> LidarCollectorSnapshot:
         """Return an immutable snapshot of all collector state under lock."""
@@ -330,10 +346,40 @@ class LidarCollector:
                 triggered_sensor_frame=self._triggered_sensor_frame,
             )
 
-    def record_drop(self) -> None:
+    def record_drop(self, frame: int | None = None) -> None:
         """Increment the natural-drop counter (external/observed drops only)."""
-        with self._lock:
+        with self._condition:
             self._natural_drops += 1
+            if frame is not None and frame not in self._frame_states:
+                self._frame_states[frame] = "missing"
+            self._condition.notify_all()
+
+    def wait_for_frame(self, frame: int, timeout_seconds: float) -> str:
+        """
+        Wait for a specific sensor frame to be observed or intentionally omitted.
+
+        Returns one of ``accepted``, ``injected``, ``callback_error``, or
+        ``missing``. A missing frame is accounted exactly once as a natural drop.
+        Late callbacks for a frame already marked ``missing`` are ignored.
+        """
+        if not math.isfinite(timeout_seconds) or timeout_seconds < 0.0:
+            raise ValueError(
+                f"timeout_seconds must be finite and >= 0, got {timeout_seconds}"
+            )
+
+        deadline = time.monotonic() + timeout_seconds
+        with self._condition:
+            while True:
+                state = self._frame_states.get(frame)
+                if state is not None:
+                    return state
+                remaining = deadline - time.monotonic()
+                if remaining <= 0.0:
+                    self._natural_drops += 1
+                    self._frame_states[frame] = "missing"
+                    self._condition.notify_all()
+                    return "missing"
+                self._condition.wait(timeout=remaining)
 
 
 # ---------------------------------------------------------------------------

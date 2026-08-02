@@ -382,6 +382,86 @@ def test_collector_fault_injection_beyond_range_does_not_drop() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Deterministic frame waiting / natural timeout accounting
+# ---------------------------------------------------------------------------
+
+def test_wait_for_frame_returns_when_expected_frame_arrives() -> None:
+    collector = LidarCollector()
+
+    def emit_frame() -> None:
+        time.sleep(0.01)
+        collector.on_data(_make_fake_measurement([(1.0, 0.0, 0.0)], frame=7))
+
+    worker = threading.Thread(target=emit_frame)
+    worker.start()
+    try:
+        assert collector.wait_for_frame(7, 0.2) == "accepted"
+    finally:
+        worker.join()
+
+    snap = collector.snapshot()
+    assert snap.natural_drops == 0
+    assert len(snap.accepted_frames) == 1
+
+
+def test_wait_for_frame_timeout_counts_one_natural_drop() -> None:
+    collector = LidarCollector()
+    assert collector.wait_for_frame(9, 0.0) == "missing"
+    snap = collector.snapshot()
+    assert snap.natural_drops == 1
+    assert snap.injected_drops == 0
+
+
+def test_wait_for_frame_treats_controlled_injection_as_injected_only() -> None:
+    collector = LidarCollector(drop_frame_index=0)
+    collector.on_data(_make_fake_measurement([(1.0, 0.0, 0.0)], frame=11))
+
+    assert collector.wait_for_frame(11, 0.0) == "injected"
+    snap = collector.snapshot()
+    assert snap.injected_drops == 1
+    assert snap.natural_drops == 0
+    assert len(snap.accepted_frames) == 0
+
+
+def test_late_and_out_of_order_frames_do_not_corrupt_accounting() -> None:
+    collector = LidarCollector()
+    collector.on_data(_make_fake_measurement([(1.0, 0.0, 0.0)], frame=21))
+
+    assert collector.wait_for_frame(20, 0.0) == "missing"
+    collector.on_data(_make_fake_measurement([(1.0, 0.0, 0.0)], frame=20))
+
+    assert collector.wait_for_frame(20, 0.0) == "missing"
+    assert collector.wait_for_frame(21, 0.0) == "accepted"
+
+    snap = collector.snapshot()
+    assert snap.natural_drops == 1
+    assert len(snap.accepted_frames) == 1
+    assert snap.accepted_frames[0].frame == 21
+
+
+def test_wait_for_same_missing_frame_does_not_double_count() -> None:
+    collector = LidarCollector()
+    assert collector.wait_for_frame(30, 0.0) == "missing"
+    assert collector.wait_for_frame(30, 0.0) == "missing"
+    snap = collector.snapshot()
+    assert snap.natural_drops == 1
+
+
+def test_wait_for_frame_returns_callback_error_deterministically() -> None:
+    collector = LidarCollector()
+    bad = MagicMock()
+    bad.frame = 44
+    bad.timestamp = 0.1
+    bad.__iter__ = MagicMock(side_effect=RuntimeError("sensor exploded"))
+    collector.on_data(bad)
+
+    assert collector.wait_for_frame(44, 0.0) == "callback_error"
+    snap = collector.snapshot()
+    assert snap.callback_errors == 1
+    assert snap.natural_drops == 0
+
+
+# ---------------------------------------------------------------------------
 # Build lidar summary
 # ---------------------------------------------------------------------------
 

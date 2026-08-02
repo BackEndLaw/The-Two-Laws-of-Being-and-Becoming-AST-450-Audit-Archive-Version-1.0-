@@ -549,6 +549,41 @@ def test_carla_submission_rejected_zero_lidar_frames_when_enabled(
     assert result.evidence_preserved is True
 
 
+def test_runtime_protection_partial_run_qualifies_schema_and_fails_health(
+    tmp_path: Path,
+) -> None:
+    report = _completed_report(
+        principal="BackEndLaw",
+        ticks=300,
+        ticks_completed=151,
+        status="partial",
+        lidar_frames=150,
+    )
+    report["lidar_summary"].update({
+        "frames_dropped": 1,
+        "natural_drops": 0,
+        "injected_drops": 1,
+        "callback_errors": 0,
+    })
+    proj = _projection_for(report, principal="BackEndLaw")
+    result = submit_to_qrtc_pipeline(
+        proj,
+        db_path=str(tmp_path / "evidence.sqlite3"),
+        policy_path=_CARLA_POLICY_PATH,
+        carla_principal="BackEndLaw",
+    )
+    assert result.status == "rejected"
+    assert result.evidence_preserved is True
+    assert any(
+        reason["guard_id"] == "carla-schema-v1" and reason["qualified"] is True
+        for reason in result.guard_reasons
+    )
+    assert any(
+        reason["guard_id"] == "carla-health-v1" and reason["qualified"] is False
+        for reason in result.guard_reasons
+    )
+
+
 # ---------------------------------------------------------------------------
 # End-to-end submission: rejection — NaN/infinite/negative telemetry
 # ---------------------------------------------------------------------------
