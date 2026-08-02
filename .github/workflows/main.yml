@@ -19,8 +19,32 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y texlive-full
 
-      - name: Compile main.tex
+      - name: Compile main.tex.txt
         run: |
+          cp main.tex.txt main.tex
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('main.tex')
+          data = path.read_bytes()
+          newline = b'\r\n' if b'\r\n' in data else b'\n'
+          anchor = b'\\geometry{margin=1in}' + newline
+          declarations = newline.join([
+              b'\\geometry{margin=1in}',
+              b'',
+              b'\\theoremstyle{definition}',
+              b'\\newtheorem{definition}{Definition}',
+              b'',
+              b'\\theoremstyle{plain}',
+              b'\\newtheorem{theorem}{Theorem}',
+              b'\\newtheorem{proposition}{Proposition}',
+          ]) + newline
+
+          if data.count(anchor) != 1:
+              raise SystemExit('Expected exactly one geometry declaration')
+
+          path.write_bytes(data.replace(anchor, declarations, 1))
+          PY
           latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
 
       - name: Upload PDF artifact
