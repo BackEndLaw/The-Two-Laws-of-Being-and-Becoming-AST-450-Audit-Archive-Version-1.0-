@@ -1,0 +1,29 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20260801225100
+Username: RESCUESOS\apima
+RunAs User: RESCUESOS\apima
+Configuration Name: 
+Machine: RESCUESOS (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+Process ID: 14776
+PSVersion: 5.1.26100.8875
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.8875
+BuildVersion: 10.0.26100.8875
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is C:\Users\apima\OneDrive\Desktop\QRTC-CARLA\vehicle_pilot\post-run-single-lidar-dropout-20260801-224932-9fe40456965f\terminal.log
+Commit: 9fe40456965f8f347e82272f8d7a35bcf0d2c581
+Output: C:\Users\apima\OneDrive\Desktop\QRTC-CARLA\vehicle_pilot\post-run-single-lidar-dropout-20260801-224932-9fe40456965f\carla-result.json
+Database: C:\Users\apima\OneDrive\Desktop\QRTC-CARLA\vehicle_pilot\post-run-single-lidar-dropout-20260801-224932-9fe40456965f\qrtc-evidence.sqlite3
+Drop index: 150
+
+run_exit_code=0
+**********************
+Windows PowerShell transcript end
+End time: 20260801225112
+**********************
