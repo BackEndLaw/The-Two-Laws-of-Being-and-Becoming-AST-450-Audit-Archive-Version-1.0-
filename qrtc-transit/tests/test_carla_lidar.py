@@ -279,6 +279,87 @@ def test_collector_record_drop() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Fault injection — drop_frame_index
+# ---------------------------------------------------------------------------
+
+def test_collector_fault_injection_disabled_retains_all_callbacks() -> None:
+    """When drop_frame_index=-1 (default) all callbacks are retained."""
+    collector = LidarCollector(drop_frame_index=-1)
+    for i in range(5):
+        m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
+        collector.on_data(m)
+    frames, dropped, errors = collector.snapshot()
+    assert len(frames) == 5
+    assert dropped == 0
+    assert errors == 0
+
+
+def test_collector_fault_injection_drops_exactly_one_callback() -> None:
+    """Exactly the callback at drop_frame_index is discarded; others are retained."""
+    drop_idx = 2
+    collector = LidarCollector(drop_frame_index=drop_idx)
+    total = 5
+    for i in range(total):
+        m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
+        collector.on_data(m)
+    frames, dropped, errors = collector.snapshot()
+    # One callback was dropped; 4 frames should be retained
+    assert len(frames) == total - 1
+    assert dropped == 1
+    assert errors == 0
+    # Verify the dropped frame (frame index 2) is not in retained evidence
+    retained_frame_ids = {f.frame for f in frames}
+    assert drop_idx not in retained_frame_ids
+
+
+def test_collector_fault_injection_drops_only_once() -> None:
+    """The dropped counter is incremented exactly once even across many callbacks."""
+    collector = LidarCollector(drop_frame_index=0)
+    for i in range(10):
+        m = _make_fake_measurement([(1.0, 0.0, 0.0)], frame=i)
+        collector.on_data(m)
+    _, dropped, _ = collector.snapshot()
+    assert dropped == 1
+
+
+def test_collector_fault_injection_first_callback() -> None:
+    """Drop index 0 drops only the very first callback."""
+    collector = LidarCollector(drop_frame_index=0)
+    for i in range(3):
+        m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
+        collector.on_data(m)
+    frames, dropped, errors = collector.snapshot()
+    assert len(frames) == 2
+    assert dropped == 1
+    # frame 0 should not be present
+    assert all(f.frame != 0 for f in frames)
+
+
+def test_collector_fault_injection_last_callback() -> None:
+    """Drop index at the very last callback."""
+    n = 5
+    collector = LidarCollector(drop_frame_index=n - 1)
+    for i in range(n):
+        m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
+        collector.on_data(m)
+    frames, dropped, _ = collector.snapshot()
+    assert len(frames) == n - 1
+    assert dropped == 1
+    assert all(f.frame != n - 1 for f in frames)
+
+
+def test_collector_fault_injection_beyond_range_does_not_drop() -> None:
+    """If drop_frame_index exceeds callback count, nothing is dropped."""
+    collector = LidarCollector(drop_frame_index=100)
+    for i in range(5):
+        m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
+        collector.on_data(m)
+    frames, dropped, _ = collector.snapshot()
+    assert len(frames) == 5
+    assert dropped == 0
+
+
+# ---------------------------------------------------------------------------
 # Build lidar summary
 # ---------------------------------------------------------------------------
 

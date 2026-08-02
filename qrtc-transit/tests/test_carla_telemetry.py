@@ -94,6 +94,7 @@ def test_projection_interface_has_required_fields() -> None:
         "collision_count", "displacement_m",
         "mean_speed_mps", "max_speed_mps",
         "lidar_enabled", "lidar_frames_received",
+        "lidar_frames_dropped", "lidar_callback_errors",
         "lidar_nearest_obstacle_m", "lidar_nearest_front_m",
         "missing_data_count", "status",
     ):
@@ -105,8 +106,21 @@ def test_projection_lidar_fields_populated() -> None:
     proj = build_qrtc_projection(report)
     iface = proj.interface_projection
     assert iface["lidar_frames_received"] == 5
+    assert iface["lidar_frames_dropped"] == 0
+    assert iface["lidar_callback_errors"] == 0
     assert iface["lidar_nearest_obstacle_m"] == pytest.approx(3.5)
     assert iface["lidar_nearest_front_m"] == pytest.approx(4.0)
+
+
+def test_projection_lidar_dropped_and_errors_sourced_from_summary() -> None:
+    """lidar_frames_dropped and lidar_callback_errors come from lidar_summary."""
+    report = _minimal_run_report()
+    report["lidar_summary"]["frames_dropped"] = 1
+    report["lidar_summary"]["callback_errors"] = 2
+    proj = build_qrtc_projection(report)
+    iface = proj.interface_projection
+    assert iface["lidar_frames_dropped"] == 1
+    assert iface["lidar_callback_errors"] == 2
 
 
 def test_projection_collision_count() -> None:

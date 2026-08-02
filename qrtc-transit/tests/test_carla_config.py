@@ -194,6 +194,56 @@ def test_lidar_as_dict_is_complete() -> None:
     for key in (
         "enabled", "channels", "range_m", "points_per_second",
         "rotation_frequency", "upper_fov", "lower_fov",
-        "retain_raw", "max_raw_frames",
+        "retain_raw", "max_raw_frames", "drop_frame_index",
     ):
         assert key in d, f"missing key: {key}"
+
+
+# ---------------------------------------------------------------------------
+# drop_frame_index — default, env parsing, and validation
+# ---------------------------------------------------------------------------
+
+def test_default_lidar_drop_frame_index_is_disabled() -> None:
+    lidar = LidarConfig()
+    assert lidar.drop_frame_index == -1
+
+
+def test_lidar_drop_frame_index_in_as_dict() -> None:
+    lidar = LidarConfig(drop_frame_index=150)
+    assert lidar.as_dict()["drop_frame_index"] == 150
+
+
+def test_lidar_drop_frame_index_env_zero(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CARLA_LIDAR_DROP_FRAME_INDEX", "0")
+    lidar = lidar_config_from_env()
+    assert lidar.drop_frame_index == 0
+
+
+def test_lidar_drop_frame_index_env_positive(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CARLA_LIDAR_DROP_FRAME_INDEX", "150")
+    lidar = lidar_config_from_env()
+    assert lidar.drop_frame_index == 150
+
+
+def test_lidar_drop_frame_index_env_minus_one(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CARLA_LIDAR_DROP_FRAME_INDEX", "-1")
+    lidar = lidar_config_from_env()
+    assert lidar.drop_frame_index == -1
+
+
+def test_lidar_drop_frame_index_below_minus_one_fails_validation() -> None:
+    lidar = LidarConfig(drop_frame_index=-2)
+    errors = validate_carla_config(CarlaConfig(lidar=lidar))
+    assert any("drop_frame_index" in e for e in errors)
+
+
+def test_lidar_drop_frame_index_nonneg_passes_validation() -> None:
+    lidar = LidarConfig(drop_frame_index=0)
+    errors = validate_carla_config(CarlaConfig(lidar=lidar))
+    assert not any("drop_frame_index" in e for e in errors)
+
+
+def test_lidar_drop_frame_index_disabled_passes_validation() -> None:
+    lidar = LidarConfig(drop_frame_index=-1)
+    errors = validate_carla_config(CarlaConfig(lidar=lidar))
+    assert not any("drop_frame_index" in e for e in errors)
