@@ -179,9 +179,17 @@ class LidarCollector:
 
     Only compact evidence is retained; raw point clouds are discarded unless
     ``retain_raw=True`` and bounded by ``max_raw_frames``.
+
+    ``drop_frame_index`` is a TEST-ONLY fault-injection parameter.  When set
+    to a nonnegative integer, the callback at that zero-based index is
+    intentionally discarded (``_dropped`` is incremented once) without
+    processing or retaining the measurement.  The default of ``-1`` disables
+    fault injection entirely.
     """
     retain_raw: bool = False
     max_raw_frames: int = 10
+    # TEST-ONLY fault injection.  -1 = disabled.
+    drop_frame_index: int = -1
     _lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
     _frames: list[LidarFrameEvidence] = field(default_factory=list, init=False, repr=False)
     _raw_buffer: deque[list[tuple[float, float, float]]] = field(
@@ -189,6 +197,7 @@ class LidarCollector:
     )
     _dropped: int = field(default=0, init=False, repr=False)
     _callback_errors: int = field(default=0, init=False, repr=False)
+    _callback_counter: int = field(default=0, init=False, repr=False)
 
     def __post_init__(self) -> None:
         # Enforce max_raw_frames on the deque
@@ -200,6 +209,15 @@ class LidarCollector:
 
     def on_data(self, measurement: Any) -> None:  # noqa: ANN401
         """CARLA sensor callback — called from sensor thread."""
+        # Atomically claim a zero-based callback index.  Also apply fault
+        # injection when the index matches the configured drop target.
+        with self._lock:
+            callback_idx = self._callback_counter
+            self._callback_counter += 1
+            if self.drop_frame_index >= 0 and callback_idx == self.drop_frame_index:
+                self._dropped += 1
+                return
+
         try:
             # Lazily import carla so ordinary tests never require the package.
             frame: int | None = getattr(measurement, "frame", None)

@@ -48,6 +48,8 @@ _QRTC_INTERFACE_FIELDS = frozenset({
     "max_speed_mps",
     "lidar_enabled",
     "lidar_frames_received",
+    "lidar_frames_dropped",
+    "lidar_callback_errors",
     "lidar_nearest_obstacle_m",
     "lidar_nearest_front_m",
     "missing_data_count",
@@ -143,6 +145,8 @@ def build_qrtc_projection(
 
     lidar_enabled = bool(lidar.get("frames_received", 0)) or cfg.get("lidar", {}).get("enabled", False)
     lidar_frames = int(lidar.get("frames_received", 0))
+    lidar_dropped = int(lidar.get("frames_dropped", 0))
+    lidar_cb_errors = int(lidar.get("callback_errors", 0))
     lidar_nearest = lidar.get("nearest_obstacle_overall")
     lidar_nearest_front = lidar.get("nearest_obstacle_front")
 
@@ -165,6 +169,8 @@ def build_qrtc_projection(
         "max_speed_mps": max_speed_mps,
         "lidar_enabled": lidar_enabled,
         "lidar_frames_received": lidar_frames,
+        "lidar_frames_dropped": lidar_dropped,
+        "lidar_callback_errors": lidar_cb_errors,
         "lidar_nearest_obstacle_m": lidar_nearest,
         "lidar_nearest_front_m": lidar_nearest_front,
         "missing_data_count": missing_data_count,

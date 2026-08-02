@@ -275,6 +275,7 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
                 lidar_collector = LidarCollector(
                     retain_raw=cfg.lidar.retain_raw,
                     max_raw_frames=cfg.lidar.max_raw_frames,
+                    drop_frame_index=cfg.lidar.drop_frame_index,
                 )
                 lidar_sensor.listen(lidar_collector.on_data)
 

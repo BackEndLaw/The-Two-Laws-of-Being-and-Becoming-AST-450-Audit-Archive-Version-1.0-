@@ -237,8 +237,13 @@ def _carla_health_guard(envelope: TransitEnvelope) -> bool:
     Accept a CARLA interface projection when:
     - ``displacement_m`` is a finite, nonnegative number
     - ``mean_speed_mps`` and ``max_speed_mps`` are finite, nonnegative or None
-    - If lidar is enabled: ``lidar_frames_received`` > 0, no negative counters,
-      and any reported nearest ranges are finite and nonnegative
+    - If lidar is enabled:
+      - ``lidar_frames_received`` is a positive integer
+      - ``ticks_completed`` is a positive integer
+      - ``lidar_frames_received`` equals ``ticks_completed``
+      - ``lidar_frames_dropped`` is integer zero
+      - ``lidar_callback_errors`` is integer zero
+      - any reported nearest ranges are finite and nonnegative
     - No NaN or infinite values for the numeric fields
     """
     iface = envelope.interface
@@ -263,6 +268,22 @@ def _carla_health_guard(envelope: TransitEnvelope) -> bool:
         lidar_frames = iface.get("lidar_frames_received")
         if not isinstance(lidar_frames, int) or lidar_frames <= 0:
             return False
+
+        ticks_completed = iface.get("ticks_completed")
+        if not isinstance(ticks_completed, int) or ticks_completed <= 0:
+            return False
+
+        if lidar_frames != ticks_completed:
+            return False
+
+        lidar_dropped = iface.get("lidar_frames_dropped")
+        if lidar_dropped != 0:
+            return False
+
+        lidar_cb_errors = iface.get("lidar_callback_errors")
+        if lidar_cb_errors != 0:
+            return False
+
         if not _finite_nonneg_or_none(iface.get("lidar_nearest_obstacle_m")):
             return False
         if not _finite_nonneg_or_none(iface.get("lidar_nearest_front_m")):
@@ -447,8 +468,9 @@ def build_default_registry(*, carla_principal: str | None = None) -> FrozenCompo
             predicate=_carla_health_guard,
             pass_reason="CARLA health accepted",
             fail_reason=(
-                "CARLA health rejected: non-finite/negative displacement, speed, "
-                "or lidar health failure when lidar is enabled"
+                "CARLA health rejected: non-finite/negative displacement or speed, "
+                "or lidar health failure (frame count mismatch, dropped frames, "
+                "callback errors, or invalid range) when lidar is enabled"
             ),
         ),
         version="1.0.0",

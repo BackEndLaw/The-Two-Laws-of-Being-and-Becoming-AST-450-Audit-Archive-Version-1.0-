@@ -303,6 +303,9 @@ def _valid_health_iface() -> dict[str, Any]:
         "max_speed_mps": 8.0,
         "lidar_enabled": True,
         "lidar_frames_received": 300,
+        "lidar_frames_dropped": 0,
+        "lidar_callback_errors": 0,
+        "ticks_completed": 300,
         "lidar_nearest_obstacle_m": 2.55,
         "lidar_nearest_front_m": 4.37,
     }

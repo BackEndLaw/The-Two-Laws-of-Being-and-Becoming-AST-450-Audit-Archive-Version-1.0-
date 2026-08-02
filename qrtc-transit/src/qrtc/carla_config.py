@@ -68,6 +68,11 @@ class LidarConfig:
     # Raw point-cloud retention: disabled by default, bounded when enabled.
     retain_raw: bool = False
     max_raw_frames: int = 10
+    # TEST-ONLY fault injection: zero-based callback index to intentionally
+    # drop.  -1 (default) disables fault injection entirely.  Set via
+    # CARLA_LIDAR_DROP_FRAME_INDEX to test fail-safe behaviour without
+    # altering any preserved baseline evidence.
+    drop_frame_index: int = -1
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -80,6 +85,7 @@ class LidarConfig:
             "lower_fov": self.lower_fov,
             "retain_raw": self.retain_raw,
             "max_raw_frames": self.max_raw_frames,
+            "drop_frame_index": self.drop_frame_index,
         }
 
 
@@ -135,6 +141,7 @@ def lidar_config_from_env() -> LidarConfig:
         lower_fov=_env_float("CARLA_LIDAR_LOWER_FOV", -30.0),
         retain_raw=_env_bool("CARLA_LIDAR_RETAIN_RAW", False),
         max_raw_frames=_env_int("CARLA_LIDAR_MAX_RAW_FRAMES", 10),
+        drop_frame_index=_env_int("CARLA_LIDAR_DROP_FRAME_INDEX", -1),
     )
 
 
@@ -190,5 +197,10 @@ def validate_carla_config(cfg: CarlaConfig) -> list[str]:
     if lidar.upper_fov <= lidar.lower_fov:
         errors.append(
             f"lidar upper_fov ({lidar.upper_fov}) must be > lower_fov ({lidar.lower_fov})"
+        )
+    if lidar.drop_frame_index < -1:
+        errors.append(
+            f"lidar drop_frame_index must be -1 (disabled) or nonnegative, "
+            f"got {lidar.drop_frame_index}"
         )
     return errors

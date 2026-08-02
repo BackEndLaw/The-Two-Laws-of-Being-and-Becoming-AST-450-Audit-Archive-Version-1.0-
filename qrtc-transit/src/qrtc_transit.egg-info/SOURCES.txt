@@ -39,6 +39,7 @@ tests/test_boat.py
 tests/test_carla_config.py
 tests/test_carla_harness.py
 tests/test_carla_lidar.py
+tests/test_carla_policy.py
 tests/test_carla_telemetry.py
 tests/test_cli.py
 tests/test_evidence_store.py
