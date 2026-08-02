@@ -21,6 +21,7 @@ dev = [
 [project.scripts]
 qrtc = "qrtc.cli:main"
 qrtc-demo = "qrtc.telemetry_demo:main"
+carla-live-drive = "qrtc.carla_harness:main"
 qrtc-benchmark-phase1 = "qrtc_benchmark.run_phase1:main"
 qrtc-benchmark-phase2 = "qrtc_benchmark.run_phase2:main"
 qrtc-benchmark-phase2-sweep = "qrtc_benchmark.run_phase2_sweep:main"
@@ -31,6 +32,9 @@ qrtc-benchmark-phase5 = "qrtc_benchmark.run_phase5:main"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = [
+    "live: mark test as requiring a live CARLA simulator (excluded by default; pass --live to run)",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

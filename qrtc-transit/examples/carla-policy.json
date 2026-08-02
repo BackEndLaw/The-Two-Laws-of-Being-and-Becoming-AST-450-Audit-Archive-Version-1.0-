@@ -1,0 +1,22 @@
+{
+  "policy_id": "carla-drive-transit",
+  "policy_version": "1.0.0",
+  "predecessor_class": "carla-telemetry",
+  "future_family": "carla-drive-evidence",
+  "key_policy": "carla-key-v1",
+  "gate": "carla-gate-v1",
+  "guards": [
+    "carla-schema-v1",
+    "carla-health-v1"
+  ],
+  "boat": {
+    "schema": "carla-interface-v1",
+    "encoding": "carla-json-v1"
+  },
+  "river": {
+    "route": "carla-drive-route-v1"
+  },
+  "realizer": "carla-drive-record-v1",
+  "stabilizer": "carla-persistence-v1",
+  "witness_policy": "carla-witness-v1"
+}
