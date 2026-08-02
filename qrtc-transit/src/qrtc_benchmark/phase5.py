@@ -1645,7 +1645,7 @@ def run_phase5_benchmark(
     authorize_phase5_split(split_name, unlock_test)
 
     rows = build_phase5_trials(split_name=split_name, config=resolved_config)
-    artifacts = write_phase5_artifacts(
+    artifacts: dict[str, Any] = write_phase5_artifacts(
         rows=rows,
         output_dir=output_dir,
         split_name=split_name,
