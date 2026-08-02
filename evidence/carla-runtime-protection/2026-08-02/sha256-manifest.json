@@ -1,0 +1,66 @@
+﻿[
+    {
+        "run":  "runtime-protection-20260802-115027-a80fe7d18d1b",
+        "source_file":  "carla-result.json",
+        "archived_file":  "carla-result.json",
+        "algorithm":  "SHA256",
+        "hash":  "50AA4B8B43866850F73CE3FB352EAFE9F8A9B20C45226DC2C4279F0EDFDEDE7E",
+        "size_bytes":  361786
+    },
+    {
+        "run":  "runtime-protection-20260802-115027-a80fe7d18d1b",
+        "source_file":  "qrtc-evidence.sqlite3",
+        "archived_file":  "qrtc-evidence.sqlite3",
+        "algorithm":  "SHA256",
+        "hash":  "C5676E6D8EB8EF874E0CE829788E5936949E18D302E5A9A331BC7D8B790F4F41",
+        "size_bytes":  61440
+    },
+    {
+        "run":  "runtime-protection-20260802-115027-a80fe7d18d1b",
+        "source_file":  "result-summary.json",
+        "archived_file":  "result-summary.json",
+        "algorithm":  "SHA256",
+        "hash":  "EB0B48051AEC3DC42D28351A348FE7D06FC0B8CEAAD3AFD50844D6F1A6A80924",
+        "size_bytes":  764
+    },
+    {
+        "run":  "runtime-protection-20260802-115027-a80fe7d18d1b",
+        "source_file":  "terminal.log",
+        "archived_file":  "terminal-output.txt",
+        "algorithm":  "SHA256",
+        "hash":  "8D8289F665DF43D71A10E1B8DE71A8ABECC736F86983AD6CBA39E249C77F50B3",
+        "size_bytes":  2490
+    },
+    {
+        "run":  "runtime-protection-20260802-115622-a80fe7d18d1b",
+        "source_file":  "carla-result.json",
+        "archived_file":  "carla-result.json",
+        "algorithm":  "SHA256",
+        "hash":  "42DB94170695509B60706EDDAF062EA6BBC049E3A3B7EDD7494A7FDA51E717F1",
+        "size_bytes":  199509
+    },
+    {
+        "run":  "runtime-protection-20260802-115622-a80fe7d18d1b",
+        "source_file":  "qrtc-evidence.sqlite3",
+        "archived_file":  "qrtc-evidence.sqlite3",
+        "algorithm":  "SHA256",
+        "hash":  "3A8609F79BB06C8FDCD53B18ED4B2C0C24343FBF9751B5079C658A1AA2377E44",
+        "size_bytes":  61440
+    },
+    {
+        "run":  "runtime-protection-20260802-115622-a80fe7d18d1b",
+        "source_file":  "result-summary.json",
+        "archived_file":  "result-summary.json",
+        "algorithm":  "SHA256",
+        "hash":  "B6175138AD469DCA1BD2BE92E44F557C4C2D7F369E06F52C705D8CA59BA0026F",
+        "size_bytes":  709
+    },
+    {
+        "run":  "runtime-protection-20260802-115622-a80fe7d18d1b",
+        "source_file":  "terminal.log",
+        "archived_file":  "terminal-output.txt",
+        "algorithm":  "SHA256",
+        "hash":  "90F5D97073235552B64988D247682883C7AD7CBE3C74BF2C667CC9CE86120F53",
+        "size_bytes":  2414
+    }
+]
