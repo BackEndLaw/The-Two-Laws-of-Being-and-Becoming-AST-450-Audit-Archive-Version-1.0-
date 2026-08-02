@@ -534,7 +534,9 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
         if cfg.submit_to_qrtc:
             projection = build_qrtc_projection(run_report)
             qrtc_result = submit_to_qrtc_pipeline(
-                projection, db_path=cfg.qrtc_db
+                projection,
+                db_path=cfg.qrtc_db,
+                carla_principal=cfg.principal,
             )
             run_report["qrtc_submission"] = qrtc_result.as_dict()
             print(
