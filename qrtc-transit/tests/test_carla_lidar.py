@@ -227,6 +227,15 @@ def test_collector_on_data_accumulates_evidence() -> None:
     assert snap.callback_errors == 0
 
 
+def test_collector_snapshot_accepted_frames_are_immutable() -> None:
+    collector = LidarCollector()
+    collector.on_data(_make_fake_measurement([(1.0, 0.0, 0.0)], frame=1))
+    snap = collector.snapshot()
+    assert isinstance(snap.accepted_frames, tuple)
+    with pytest.raises(AttributeError):
+        snap.accepted_frames.append(snap.accepted_frames[0])  # type: ignore[attr-defined]
+
+
 def test_collector_handles_callback_error_gracefully() -> None:
     collector = LidarCollector()
     bad = MagicMock()

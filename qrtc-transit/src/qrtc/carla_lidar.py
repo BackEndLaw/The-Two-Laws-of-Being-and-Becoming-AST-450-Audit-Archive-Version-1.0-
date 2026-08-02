@@ -13,7 +13,7 @@ import math
 import threading
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Optional, Sequence
 
 
 # ---------------------------------------------------------------------------
@@ -191,7 +191,7 @@ class LidarCollectorSnapshot:
     (``None`` when not triggered).
     """
     callbacks_received: int
-    accepted_frames: list[LidarFrameEvidence]
+    accepted_frames: tuple[LidarFrameEvidence, ...]
     natural_drops: int
     injected_drops: int
     callback_errors: int
@@ -220,9 +220,10 @@ class LidarCollector:
 
     ``drop_frame_index`` is a TEST-ONLY fault-injection parameter.  When set
     to a nonnegative integer, the callback at that zero-based index is
-    intentionally discarded (``_dropped`` is incremented once) without
-    processing or retaining the measurement.  The default of ``-1`` disables
-    fault injection entirely.
+    intentionally discarded (``_injected_drops`` is incremented once) without
+    processing or retaining the measurement.  Natural drops recorded via
+    :meth:`record_drop` are tracked separately in ``_natural_drops``.  The
+    default of ``-1`` disables fault injection entirely.
     """
     retain_raw: bool = False
     max_raw_frames: int = 10
@@ -286,7 +287,7 @@ class LidarCollector:
         with self._lock:
             return LidarCollectorSnapshot(
                 callbacks_received=self._callback_counter,
-                accepted_frames=list(self._frames),
+                accepted_frames=tuple(self._frames),
                 natural_drops=self._natural_drops,
                 injected_drops=self._injected_drops,
                 callback_errors=self._callback_errors,
@@ -338,7 +339,7 @@ class LidarSummary:
 
 
 def build_lidar_summary(
-    frames: list[LidarFrameEvidence],
+    frames: Sequence[LidarFrameEvidence],
     natural_drops: int,
     injected_drops: int,
     callback_errors: int,

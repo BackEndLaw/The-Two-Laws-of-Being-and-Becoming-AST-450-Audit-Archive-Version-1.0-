@@ -30,8 +30,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from qrtc.carla_config import CarlaConfig, LidarConfig
+from qrtc.carla_harness import _classify_post_run_rejection
 from qrtc.carla_lidar import LidarCollector, LidarCollectorSnapshot, build_lidar_summary
-from qrtc.carla_telemetry import build_qrtc_projection, submit_to_qrtc_pipeline
+from qrtc.carla_telemetry import (
+    QrtcSubmissionResult,
+    build_qrtc_projection,
+    submit_to_qrtc_pipeline,
+)
 from qrtc.guards import GuardRule
 from qrtc.registry import build_default_registry
 from qrtc.transit import TransitEnvelope
@@ -149,6 +154,112 @@ def _make_carla_module(ego: MagicMock, tick_count: int = 5) -> MagicMock:
     return carla
 
 
+def _make_carla_module_with_lidar_callbacks(
+    ego: MagicMock,
+    tick_count: int = 300,
+    *,
+    lidar_blueprint_available: bool = True,
+    callback_plan: Any = None,
+    tick_failure_after: int | None = None,
+) -> MagicMock:
+    """Fake CARLA module that can emit deterministic LiDAR callbacks during ticks."""
+    carla = MagicMock()
+    carla.Transform.return_value = MagicMock()
+    carla.Location.return_value = MagicMock()
+
+    blueprint = MagicMock()
+    blueprint.id = "vehicle.tesla.model3"
+    collision_bp = MagicMock()
+    lidar_bp = MagicMock()
+    lidar_bp.set_attribute = MagicMock()
+    lib = MagicMock()
+
+    def find_blueprint(name: str) -> Any:
+        if "tesla" in name:
+            return blueprint
+        if "collision" in name:
+            return collision_bp
+        if "lidar" in name:
+            return lidar_bp if lidar_blueprint_available else None
+        return None
+
+    lib.find.side_effect = find_blueprint
+    lib.filter.return_value = [blueprint]
+
+    collision_sensor = MagicMock()
+    collision_sensor.stop = MagicMock()
+    collision_sensor.destroy = MagicMock()
+    collision_sensor.listen = MagicMock()
+
+    lidar_sensor = MagicMock()
+    lidar_sensor.stop = MagicMock()
+    lidar_sensor.destroy = MagicMock()
+    lidar_listener: dict[str, Any] = {"fn": None}
+
+    def listen(fn: Any) -> None:
+        lidar_listener["fn"] = fn
+
+    lidar_sensor.listen = listen
+
+    world_map = MagicMock()
+    world_map.name = "Town01_Fake"
+    world_map.get_spawn_points.return_value = [_make_spawn_point() for _ in range(5)]
+
+    settings = MagicMock()
+    settings.synchronous_mode = False
+    settings.fixed_delta_seconds = 0.05
+
+    world = MagicMock()
+    world.get_map.return_value = world_map
+    world.get_settings.return_value = settings
+    world.apply_settings = MagicMock()
+    world.get_blueprint_library.return_value = lib
+    world.try_spawn_actor.return_value = ego
+
+    def spawn_actor(bp: Any, transform: Any, attach_to: Any = None) -> MagicMock:
+        if bp is collision_bp:
+            return collision_sensor
+        return lidar_sensor
+
+    world.spawn_actor.side_effect = spawn_actor
+
+    tick_index = {"value": 0}
+
+    def default_callback_plan(current_tick: int) -> list[Any]:
+        return [
+            _make_fake_measurement(
+                [(float(current_tick), 0.0, 0.0)],
+                frame=current_tick,
+                timestamp=float(current_tick) * 0.05,
+            )
+        ]
+
+    def tick() -> int:
+        current_tick = tick_index["value"]
+        if tick_failure_after is not None and current_tick >= tick_failure_after:
+            raise RuntimeError("tick failed")
+        tick_index["value"] += 1
+        listener = lidar_listener["fn"]
+        if listener is not None and lidar_blueprint_available:
+            plan = callback_plan or default_callback_plan
+            for measurement in plan(current_tick):
+                listener(measurement)
+        return tick_index["value"]
+
+    world.tick.side_effect = tick
+
+    tm = MagicMock()
+
+    client = MagicMock()
+    client.get_client_version.return_value = "0.9.16"
+    client.get_server_version.return_value = "0.9.16"
+    client.get_world.return_value = world
+    client.get_trafficmanager.return_value = tm
+
+    carla.Client.return_value = client
+    return carla
+
+
 def _make_envelope(interface: dict[str, Any]) -> TransitEnvelope:
     from qrtc.transit import AuthorizationDecision
     auth = AuthorizationDecision(
@@ -248,6 +359,88 @@ def _minimal_run_report_for_carla_policy(
         },
         "lidar_frame_evidence": [],
     }
+
+
+def _fault_injection_section(
+    *,
+    requested_callback_index: int = 150,
+    triggered: bool = True,
+    triggered_callback_index: int | None = 150,
+    triggered_sensor_frame: int | None = 150,
+) -> dict[str, Any]:
+    return {
+        "enabled": requested_callback_index >= 0,
+        "type": "lidar-frame-drop" if requested_callback_index >= 0 else None,
+        "requested_callback_index": (
+            requested_callback_index if requested_callback_index >= 0 else None
+        ),
+        "triggered": triggered,
+        "triggered_callback_index": triggered_callback_index,
+        "triggered_sensor_frame": triggered_sensor_frame,
+    }
+
+
+def _controlled_injection_run_report(
+    *,
+    ticks: int = 300,
+    callbacks_received: int = 300,
+    frames_accepted: int = 299,
+    natural_dropped: int = 0,
+    injected_dropped: int = 1,
+    callback_errors: int = 0,
+    ticks_completed: int | None = None,
+    requested_callback_index: int = 150,
+    triggered_callback_index: int | None = 150,
+    triggered: bool = True,
+) -> dict[str, Any]:
+    if ticks_completed is None:
+        ticks_completed = ticks
+    report = _minimal_run_report_for_carla_policy(
+        ticks=ticks,
+        frames_received=frames_accepted,
+        frames_dropped=natural_dropped + injected_dropped,
+        natural_drops=natural_dropped,
+        injected_drops=injected_dropped,
+        callback_errors=callback_errors,
+    )
+    report["ticks_completed"] = ticks_completed
+    report["fault_injection"] = _fault_injection_section(
+        requested_callback_index=requested_callback_index,
+        triggered=triggered,
+        triggered_callback_index=triggered_callback_index,
+        triggered_sensor_frame=triggered_callback_index,
+    )
+    report["lidar_callbacks_received"] = callbacks_received
+    report["lidar_frames_accepted"] = frames_accepted
+    report["lidar_frames_natural_dropped"] = natural_dropped
+    report["lidar_frames_injected_dropped"] = injected_dropped
+    return report
+
+
+def _rejected_health_guard_submission(
+    tmp_path: Path,
+    *,
+    evidence_preserved: bool = True,
+    guard_reasons: tuple[dict[str, Any], ...] | None = None,
+) -> dict[str, Any]:
+    if guard_reasons is None:
+        guard_reasons = (
+            {
+                "guard_id": "carla-health-v1",
+                "qualified": False,
+                "reason": "lidar health rejected",
+            },
+        )
+    return QrtcSubmissionResult(
+        submitted=True,
+        transit_id="test-transit",
+        status="rejected",
+        failure_stage="guards",
+        failure_reason="rejected",
+        db_path=str(tmp_path / "evidence.sqlite3"),
+        evidence_preserved=evidence_preserved,
+        guard_reasons=guard_reasons,
+    ).as_dict()
 
 
 # ---------------------------------------------------------------------------
@@ -481,36 +674,59 @@ def test_harness_classifies_untriggered_injection_as_invalid(tmp_path: Path) -> 
 # Scenario 7: Valid 299/300 injection → QRTC rejected → post_run_rejection_test_passed
 # ---------------------------------------------------------------------------
 
+def test_run_drive_persists_controlled_injection_rejection_pass_report(tmp_path: Path) -> None:
+    """
+    run_drive() must persist a passing post-run rejection report when a
+    configured zero-based callback drop cleanly triggers once over 300 ticks.
+    """
+    tick_count = 300
+    ego = _make_ego_vehicle(tick_count)
+    fake_carla = _make_carla_module_with_lidar_callbacks(ego, tick_count=tick_count)
+
+    output = str(tmp_path / "controlled-dropout-report.json")
+    cfg = CarlaConfig(
+        ticks=tick_count,
+        output=output,
+        submit_to_qrtc=True,
+        qrtc_db=str(tmp_path / "evidence.sqlite3"),
+        lidar=LidarConfig(enabled=True, drop_frame_index=150),
+    )
+
+    with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
+        from qrtc.carla_harness import run_drive
+        report = run_drive(cfg)
+
+    written = json.loads(Path(output).read_text(encoding="utf-8"))
+    for persisted in (report, written):
+        fi = persisted["fault_injection"]
+        assert persisted["lidar_callbacks_received"] == 300
+        assert persisted["lidar_frames_accepted"] == 299
+        assert persisted["lidar_frames_natural_dropped"] == 0
+        assert persisted["lidar_frames_injected_dropped"] == 1
+        assert persisted["lidar_summary"]["callback_errors"] == 0
+        assert fi["enabled"] is True
+        assert fi["requested_callback_index"] == 150
+        assert fi["triggered"] is True
+        assert fi["triggered_callback_index"] == 150
+        assert persisted["fault_requested"] is True
+        assert persisted["fault_observed"] is True
+        assert persisted["qrtc_submission"]["status"] == "rejected"
+        assert persisted["qrtc_submission"]["evidence_preserved"] is True
+        assert any(
+            reason.get("guard_id") == "carla-health-v1"
+            and reason.get("qualified") is False
+            for reason in persisted["qrtc_submission"]["guard_reasons"]
+        )
+        assert persisted["test_outcome"] == "post_run_rejection_pass"
+        assert persisted["post_run_rejection_test_passed"] is True
+
+
 def test_valid_controlled_injection_pipeline_rejection_can_pass(tmp_path: Path) -> None:
-    """
-    A 299/300 run with exactly one injected drop is rejected by QRTC
-    (carla-health-v1 fails) and post_run_rejection_test_passed=True.
-    """
+    """Helper classification matches the actual QRTC rejection criteria."""
     examples = Path(__file__).resolve().parents[1] / "examples"
     policy_path = str(examples / "carla-policy.json")
 
-    report = _minimal_run_report_for_carla_policy(
-        ticks=300,
-        frames_received=299,
-        frames_dropped=1,
-        natural_drops=0,
-        injected_drops=1,
-        callback_errors=0,
-    )
-    # Add fault injection metadata directly in the report
-    report["fault_injection"] = {
-        "enabled": True,
-        "type": "lidar-frame-drop",
-        "requested_callback_index": 150,
-        "triggered": True,
-        "triggered_callback_index": 150,
-        "triggered_sensor_frame": 979042,
-    }
-    report["lidar_callbacks_received"] = 300
-    report["lidar_frames_accepted"] = 299
-    report["lidar_frames_natural_dropped"] = 0
-    report["lidar_frames_injected_dropped"] = 1
-
+    report = _controlled_injection_run_report()
     proj = build_qrtc_projection(report)
     qrtc_result = submit_to_qrtc_pipeline(
         proj,
@@ -519,92 +735,44 @@ def test_valid_controlled_injection_pipeline_rejection_can_pass(tmp_path: Path) 
         carla_principal="carla-operator",
     )
 
-    # The run must be rejected by the health guard
-    assert qrtc_result.status == "rejected"
-    assert qrtc_result.evidence_preserved is True
-
-    # Verify carla-health-v1 failed
-    health_guard_failed = False
-    for guard in qrtc_result.guard_reasons:
-        if guard.get("guard_id") == "carla-health-v1":
-            health_guard_failed = not guard.get("qualified", True)
-            break
-    assert health_guard_failed, "carla-health-v1 must have failed"
-
-    # Post-run pass conditions
-    fi = report["fault_injection"]
-    injected_drops = report["lidar_frames_injected_dropped"]
-    accepted_frames = report["lidar_frames_accepted"]
-    expected_frames = report["ticks_requested"]
-
-    post_run_pass = (
-        fi["triggered"]
-        and injected_drops == 1
-        and accepted_frames == expected_frames - 1
-        and qrtc_result.status == "rejected"
-        and health_guard_failed
-        and qrtc_result.evidence_preserved
+    classification = _classify_post_run_rejection(
+        CarlaConfig(ticks=300, lidar=LidarConfig(enabled=True, drop_frame_index=150)),
+        report,
+        qrtc_result.as_dict(),
     )
-    assert post_run_pass is True
+    assert classification.test_outcome == "post_run_rejection_pass"
+    assert classification.post_run_rejection_test_passed is True
 
 
 def test_post_run_pass_requires_health_guard_to_fail(tmp_path: Path) -> None:
     """post_run_rejection_test_passed cannot be True if health guard passed."""
-    # Build a projection that would be accepted (all 300 frames received)
-    examples = Path(__file__).resolve().parents[1] / "examples"
-    policy_path = str(examples / "carla-policy.json")
-
-    report = _minimal_run_report_for_carla_policy(
-        ticks=300, frames_received=300, frames_dropped=0,
-        natural_drops=0, injected_drops=0,
+    report = _controlled_injection_run_report(
+        triggered=False,
+        triggered_callback_index=None,
+        injected_dropped=0,
+        frames_accepted=300,
+        callbacks_received=300,
     )
-    report["fault_injection"] = {
-        "enabled": True,
-        "type": "lidar-frame-drop",
-        "requested_callback_index": 150,
-        "triggered": False,  # injection never triggered
-        "triggered_callback_index": None,
-        "triggered_sensor_frame": None,
-    }
-    proj = build_qrtc_projection(report)
-    qrtc_result = submit_to_qrtc_pipeline(
-        proj,
-        db_path=str(tmp_path / "evidence.sqlite3"),
-        policy_path=policy_path,
-        carla_principal="carla-operator",
+    classification = _classify_post_run_rejection(
+        CarlaConfig(ticks=300, lidar=LidarConfig(enabled=True, drop_frame_index=150)),
+        report,
+        _rejected_health_guard_submission(tmp_path),
     )
-    # Run would be accepted since frames==ticks and no drops
-    # post_run_pass requires injection triggered — this can't be True
-    assert not (report["fault_injection"]["triggered"] and qrtc_result.status == "rejected")
+    assert classification.test_outcome == "invalid_fault_injection"
+    assert classification.post_run_rejection_test_passed is False
 
 
 def test_post_run_pass_requires_evidence_preserved(tmp_path: Path) -> None:
     """
     post_run_rejection_test_passed must be False if evidence was not preserved.
     """
-    # Simulate a rejection but evidence_preserved=False
-    from qrtc.carla_telemetry import QrtcSubmissionResult
-
-    mock_result = QrtcSubmissionResult(
-        submitted=True,
-        transit_id="test",
-        status="rejected",
-        failure_stage="guards",
-        failure_reason="lidar health",
-        db_path=str(tmp_path / "db.sqlite3"),
-        evidence_preserved=False,  # NOT preserved
-        guard_reasons=({"guard_id": "carla-health-v1", "qualified": False, "reason": "x"},),
+    classification = _classify_post_run_rejection(
+        CarlaConfig(ticks=300, lidar=LidarConfig(enabled=True, drop_frame_index=150)),
+        _controlled_injection_run_report(),
+        _rejected_health_guard_submission(tmp_path, evidence_preserved=False),
     )
-
-    post_run_pass = (
-        True  # triggered
-        and 1 == 1  # injected_drops == 1
-        and 299 == 300 - 1  # accepted == expected - 1
-        and mock_result.status == "rejected"
-        and not mock_result.guard_reasons[0]["qualified"]
-        and mock_result.evidence_preserved  # <-- False → overall False
-    )
-    assert post_run_pass is False
+    assert classification.test_outcome == "post_run_rejection_fail"
+    assert classification.post_run_rejection_test_passed is False
 
 
 # ---------------------------------------------------------------------------
@@ -892,11 +1060,19 @@ def test_fault_injection_no_qrtc_classification_via_collector() -> None:
     assert snap.fault_injection_triggered is True
     assert snap.injected_drops == 1
 
-    # Simulate what the harness does without QRTC submission:
-    # post_run_rejection_test_passed must remain False
-    # because no QRTC evaluation was performed
-    fault_injection_no_qrtc_post_run_pass = False
-    assert fault_injection_no_qrtc_post_run_pass is False
+    report = _controlled_injection_run_report(
+        ticks=n,
+        callbacks_received=n,
+        frames_accepted=n - 1,
+        requested_callback_index=2,
+        triggered_callback_index=2,
+    )
+    classification = _classify_post_run_rejection(
+        CarlaConfig(ticks=n, lidar=LidarConfig(enabled=True, drop_frame_index=2)),
+        report,
+    )
+    assert classification.test_outcome == "post_run_rejection_fail"
+    assert classification.post_run_rejection_test_passed is False
 
 
 # ---------------------------------------------------------------------------
@@ -944,3 +1120,117 @@ def test_projection_includes_natural_and_injected_drop_fields() -> None:
     assert iface["lidar_frames_natural_dropped"] == 0
     assert iface["lidar_frames_injected_dropped"] == 1
     assert iface["lidar_frames_dropped"] == 1  # aggregate preserved
+
+
+def test_harness_preserves_requested_fault_when_lidar_blueprint_missing(tmp_path: Path) -> None:
+    """Configured injection remains visible even when no LiDAR collector exists."""
+    tick_count = 5
+    ego = _make_ego_vehicle(tick_count)
+    fake_carla = _make_carla_module_with_lidar_callbacks(
+        ego,
+        tick_count=tick_count,
+        lidar_blueprint_available=False,
+    )
+
+    output = str(tmp_path / "missing-lidar-report.json")
+    cfg = CarlaConfig(
+        ticks=tick_count,
+        output=output,
+        submit_to_qrtc=True,
+        qrtc_db=str(tmp_path / "missing-lidar.sqlite3"),
+        lidar=LidarConfig(enabled=True, drop_frame_index=2),
+    )
+
+    with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
+        from qrtc.carla_harness import run_drive
+        report = run_drive(cfg)
+
+    written = json.loads(Path(output).read_text(encoding="utf-8"))
+    for persisted in (report, written):
+        assert persisted["fault_injection"]["enabled"] is True
+        assert persisted["fault_injection"]["requested_callback_index"] == 2
+        assert persisted["fault_injection"]["triggered"] is False
+        assert persisted["fault_requested"] is True
+        assert persisted["fault_observed"] is False
+        assert persisted["test_outcome"] == "invalid_fault_injection"
+        assert persisted["post_run_rejection_test_passed"] is False
+
+
+@pytest.mark.parametrize(
+    ("label", "report", "qrtc_submission"),
+    [
+        (
+            "missing callbacks",
+            _controlled_injection_run_report(callbacks_received=299),
+            None,
+        ),
+        (
+            "extra callbacks",
+            _controlled_injection_run_report(callbacks_received=301),
+            None,
+        ),
+        (
+            "incomplete ticks",
+            _controlled_injection_run_report(ticks_completed=299),
+            None,
+        ),
+        (
+            "nonzero natural drops",
+            _controlled_injection_run_report(natural_dropped=1),
+            None,
+        ),
+        (
+            "callback errors",
+            _controlled_injection_run_report(
+                callbacks_received=301,
+                callback_errors=1,
+            ),
+            None,
+        ),
+        (
+            "requested triggered mismatch",
+            _controlled_injection_run_report(triggered_callback_index=151),
+            None,
+        ),
+    ],
+)
+def test_helper_denies_post_run_pass_for_bad_accounting(
+    label: str,
+    report: dict[str, Any],
+    qrtc_submission: dict[str, Any] | None,
+    tmp_path: Path,
+) -> None:
+    del label
+    classification = _classify_post_run_rejection(
+        CarlaConfig(ticks=300, lidar=LidarConfig(enabled=True, drop_frame_index=150)),
+        report,
+        qrtc_submission or _rejected_health_guard_submission(tmp_path),
+    )
+    assert classification.test_outcome == "post_run_rejection_fail"
+    assert classification.post_run_rejection_test_passed is False
+
+
+def test_helper_denies_post_run_pass_for_wrong_rejection_reason(tmp_path: Path) -> None:
+    classification = _classify_post_run_rejection(
+        CarlaConfig(ticks=300, lidar=LidarConfig(enabled=True, drop_frame_index=150)),
+        _controlled_injection_run_report(),
+        _rejected_health_guard_submission(
+            tmp_path,
+            guard_reasons=(
+                {"guard_id": "carla-health-v1", "qualified": True, "reason": "ok"},
+                {"guard_id": "other-guard", "qualified": False, "reason": "different"},
+            ),
+        ),
+    )
+    assert classification.test_outcome == "post_run_rejection_fail"
+    assert classification.post_run_rejection_test_passed is False
+
+
+def test_helper_denies_post_run_pass_when_evidence_not_preserved(tmp_path: Path) -> None:
+    classification = _classify_post_run_rejection(
+        CarlaConfig(ticks=300, lidar=LidarConfig(enabled=True, drop_frame_index=150)),
+        _controlled_injection_run_report(),
+        _rejected_health_guard_submission(tmp_path, evidence_preserved=False),
+    )
+    assert classification.test_outcome == "post_run_rejection_fail"
+    assert classification.post_run_rejection_test_passed is False
