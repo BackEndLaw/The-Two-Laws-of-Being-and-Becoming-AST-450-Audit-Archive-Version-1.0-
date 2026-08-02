@@ -1,0 +1,12 @@
+﻿[
+    {
+        "guard_id":  "carla-schema-v1",
+        "qualified":  true,
+        "reason":  "CARLA schema accepted"
+    },
+    {
+        "guard_id":  "carla-health-v1",
+        "qualified":  false,
+        "reason":  "CARLA health rejected: non-finite/negative displacement or speed, or lidar health failure (frame count mismatch, dropped frames, callback errors, or invalid range) when lidar is enabled"
+    }
+]

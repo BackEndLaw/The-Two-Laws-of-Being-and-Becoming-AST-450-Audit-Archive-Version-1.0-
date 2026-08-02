@@ -1,0 +1,20 @@
+﻿{
+    "assessment":  "PASS",
+    "test_scope":  "post-run validation only",
+    "runtime_protection_test":  false,
+    "tested_commit":  "9fe40456965f8f347e82272f8d7a35bcf0d2c581",
+    "run_id":  "0e06ba0f-4922-4ec2-89f4-3f6ff3c12fed",
+    "ticks_completed":  300,
+    "callbacks_received":  300,
+    "frames_accepted":  299,
+    "natural_drops":  0,
+    "injected_drops":  1,
+    "callback_errors":  0,
+    "requested_callback_index":  150,
+    "triggered_callback_index":  150,
+    "qrtc_status":  "rejected",
+    "qrtc_failure_stage":  "rejected_by_guard",
+    "evidence_preserved":  true,
+    "test_outcome":  "post_run_rejection_pass",
+    "post_run_rejection_test_passed":  true
+}
