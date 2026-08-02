@@ -20,6 +20,7 @@ installation guidance.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import sys
@@ -201,6 +202,7 @@ def _classify_post_run_rejection(
     post_run_passed = (
         qrtc_submission is not None
         and fault_injection.get("triggered_callback_index") == cfg.lidar.drop_frame_index
+        and isinstance(ticks_requested, int)
         and ticks_completed == ticks_requested
         and lidar_callbacks_received == ticks_requested
         and lidar_frames_accepted == ticks_requested - 1
@@ -823,8 +825,19 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
 # Console entry point
 # ---------------------------------------------------------------------------
 
-def main(argv: list[str] | None = None) -> int:  # noqa: ARG001
+def _build_parser() -> argparse.ArgumentParser:
+    return argparse.ArgumentParser(
+        prog="carla-live-drive",
+        description=(
+            "Run the optional CARLA live-drive harness. Configuration is provided "
+            "through CARLA_* environment variables."
+        ),
+    )
+
+
+def main(argv: list[str] | None = None) -> int:
     """Entry point for the ``carla-live-drive`` console script."""
+    _build_parser().parse_args(argv)
     cfg = carla_config_from_env()
     errors = validate_carla_config(cfg)
     if errors:

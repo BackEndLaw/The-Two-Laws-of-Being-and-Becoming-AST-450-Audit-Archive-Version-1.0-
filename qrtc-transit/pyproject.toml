@@ -25,7 +25,8 @@ carla-live-drive = "qrtc.carla_harness:main"
 qrtc-benchmark-phase5 = "qrtc_benchmark.run_phase5:main"
 # NOTE: phase1–4 runner modules are absent from the current codebase.
 # They have been removed from declared entry points to prevent broken console
-# script stubs.  Phase IV-B is historical/non-runnable; see PHASE4B_STATUS.md.
+# script stubs. Phase IV-B remains historical/unsupported but importable for
+# archival verification; see PHASE4B_STATUS.md.
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
