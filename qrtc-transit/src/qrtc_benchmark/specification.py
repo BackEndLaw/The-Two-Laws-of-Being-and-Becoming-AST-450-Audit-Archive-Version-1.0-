@@ -5,9 +5,10 @@ This module re-establishes the ``CriterionId`` enumeration needed by
 ``phase4b.py`` itself: the three values PI1, PI2, PI3 appear as explicit
 ``CriterionId.PI*`` references in ``DEFAULT_PHASE4B_PAIRS``.
 
-Phase IV-B is historical/non-runnable in the current package (see
-PHASE4B_STATUS.md).  This stub exists only to allow ``phase4b.py`` to be
-imported without a ``ModuleNotFoundError``.  Do not add new semantics here
+Phase IV-B is historical/unsupported in the current package, but its preserved
+module and tests remain importable for archival verification (see
+PHASE4B_STATUS.md). This stub exists only to allow ``phase4b.py`` to be
+imported without a ``ModuleNotFoundError``. Do not add new semantics here
 beyond what is needed for the import to succeed.
 """
 from __future__ import annotations

@@ -12,6 +12,9 @@ All three pools must have:
 """
 from __future__ import annotations
 
+import ast
+from pathlib import Path
+
 import pytest
 
 from qrtc_benchmark.phase5 import (
@@ -27,6 +30,7 @@ from qrtc_benchmark.phase5 import (
     _VALIDATION_MECHANISMS,
     _VALIDATION_PAIRS,
     _VALIDATION_TRIPLES,
+    authorize_phase5_split,
     build_phase5_trials,
 )
 
@@ -143,9 +147,12 @@ def test_seed_families_disjoint_across_pools() -> None:
 
 def test_generated_mechanism_ids_disjoint_dev_vs_test() -> None:
     dev_rows = build_phase5_trials("development", SMALL_CFG)
-    test_rows = build_phase5_trials("test", SMALL_CFG)
     dev_mechs = {r.mechanism_id for r in dev_rows if r.policy == "qrtc"}
-    test_mechs = {r.mechanism_id for r in test_rows if r.policy == "qrtc"}
+    test_mechs = {
+        mechanism_id
+        for mechanisms in _FINAL_MECHANISMS.values()
+        for mechanism_id in mechanisms
+    }
     assert dev_mechs.isdisjoint(test_mechs), (
         f"Generated mechanism IDs overlap between development and final-validation: "
         f"{dev_mechs & test_mechs}"
@@ -165,9 +172,12 @@ def test_generated_mechanism_ids_disjoint_dev_vs_validation() -> None:
 
 def test_generated_mechanism_ids_disjoint_validation_vs_test() -> None:
     val_rows = build_phase5_trials("validation", SMALL_CFG)
-    test_rows = build_phase5_trials("test", SMALL_CFG)
     val_mechs = {r.mechanism_id for r in val_rows if r.policy == "qrtc"}
-    test_mechs = {r.mechanism_id for r in test_rows if r.policy == "qrtc"}
+    test_mechs = {
+        mechanism_id
+        for mechanisms in _FINAL_MECHANISMS.values()
+        for mechanism_id in mechanisms
+    }
     assert val_mechs.isdisjoint(test_mechs), (
         f"Generated mechanism IDs overlap between selection-validation and final-validation: "
         f"{val_mechs & test_mechs}"
@@ -177,19 +187,18 @@ def test_generated_mechanism_ids_disjoint_validation_vs_test() -> None:
 def test_generated_pair_ids_disjoint_all_three_pools() -> None:
     dev_rows = build_phase5_trials("development", SMALL_CFG)
     val_rows = build_phase5_trials("validation", SMALL_CFG)
-    test_rows = build_phase5_trials("test", SMALL_CFG)
 
     # Only check V2 (unseen pair) family where composition_id is the pair.
-    def pair_ids(rows, split):
+    def pair_ids(rows):
         return {
             r.composition_id
             for r in rows
             if r.policy == "qrtc" and r.family == "V2"
         }
 
-    dev_pairs = pair_ids(dev_rows, "development")
-    val_pairs = pair_ids(val_rows, "validation")
-    test_pairs = pair_ids(test_rows, "test")
+    dev_pairs = pair_ids(dev_rows)
+    val_pairs = pair_ids(val_rows)
+    test_pairs = set(_FINAL_PAIRS)
 
     assert dev_pairs.isdisjoint(val_pairs), (
         f"V2 pair IDs overlap between development and selection-validation: {dev_pairs & val_pairs}"
@@ -205,7 +214,6 @@ def test_generated_pair_ids_disjoint_all_three_pools() -> None:
 def test_generated_triple_ids_disjoint_all_three_pools() -> None:
     dev_rows = build_phase5_trials("development", SMALL_CFG)
     val_rows = build_phase5_trials("validation", SMALL_CFG)
-    test_rows = build_phase5_trials("test", SMALL_CFG)
 
     def triple_ids(rows):
         return {
@@ -216,7 +224,7 @@ def test_generated_triple_ids_disjoint_all_three_pools() -> None:
 
     dev_triples = triple_ids(dev_rows)
     val_triples = triple_ids(val_rows)
-    test_triples = triple_ids(test_rows)
+    test_triples = set(_FINAL_TRIPLES)
 
     assert dev_triples.isdisjoint(val_triples), (
         f"Triple IDs overlap between development and selection-validation: {dev_triples & val_triples}"
@@ -236,9 +244,32 @@ def test_final_validation_locked_without_unlock_flag(tmp_path) -> None:
         run_phase5_benchmark("test", tmp_path, unlock_test=False, config=SMALL_CFG)
 
 
-def test_final_validation_gate_requires_explicit_unlock(tmp_path) -> None:
-    """Passing unlock_test=True is the ONLY way to run final validation."""
-    from qrtc_benchmark.phase5 import run_phase5_benchmark
-    # This should NOT raise — the explicit flag was passed.
-    bundle = run_phase5_benchmark("test", tmp_path, unlock_test=True, config=SMALL_CFG)
-    assert bundle["runs_csv"].exists()
+def test_final_validation_gate_requires_explicit_unlock_without_generating_rows() -> None:
+    """The authorization boundary must accept an explicit unlock intent."""
+    authorize_phase5_split("test", unlock_test=True)
+
+
+def test_test_suite_does_not_construct_final_validation_rows() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    forbidden_calls: list[str] = []
+    for path in sorted((repo_root / "tests").rglob("test_*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            func_name = (
+                func.id if isinstance(func, ast.Name)
+                else func.attr if isinstance(func, ast.Attribute)
+                else None
+            )
+            if func_name == "build_phase5_trials":
+                if node.args and isinstance(node.args[0], ast.Constant) and node.args[0].value == "test":
+                    forbidden_calls.append(f"{path}: build_phase5_trials('test', ...)")
+            if func_name == "run_phase5_benchmark":
+                if not node.args or not isinstance(node.args[0], ast.Constant) or node.args[0].value != "test":
+                    continue
+                for keyword in node.keywords:
+                    if keyword.arg == "unlock_test" and isinstance(keyword.value, ast.Constant) and keyword.value.value is True:
+                        forbidden_calls.append(f"{path}: run_phase5_benchmark('test', ..., unlock_test=True)")
+    assert not forbidden_calls, "\n".join(forbidden_calls)

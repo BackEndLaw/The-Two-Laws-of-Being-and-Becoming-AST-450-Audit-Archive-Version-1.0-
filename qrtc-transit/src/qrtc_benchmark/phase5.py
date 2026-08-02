@@ -370,6 +370,7 @@ def _phase4b_baseline_files() -> tuple[Path, ...]:
 def _ensure_phase4b_closed() -> None:
     closed_path = _phase4b_root() / "CLOSED"
     if not closed_path.exists():
+        closed_path.parent.mkdir(parents=True, exist_ok=True)
         closed_path.write_text("Phase IV-B frozen and read-only for Phase V progression.\n", encoding="utf-8")
 
 
@@ -1588,8 +1589,7 @@ def write_phase5_artifacts(
         encoding="utf-8",
     )
 
-    if split_name == "test" and not unlock_test:
-        raise PermissionError("test split is locked; pass --unlock-test to run")
+    authorize_phase5_split(split_name, unlock_test)
 
     checksums_path = output_root / "checksums.sha256"
     tracked = [frozen_config_path, prereg_path, manifest_path, runs_csv]
@@ -1630,6 +1630,11 @@ def write_phase5_artifacts(
     }
 
 
+def authorize_phase5_split(split_name: str, unlock_test: bool = False) -> None:
+    if split_name == "test" and not unlock_test:
+        raise PermissionError("test split is locked; pass --unlock-test to run")
+
+
 def run_phase5_benchmark(
     split_name: str,
     output_dir: str | Path,
@@ -1637,8 +1642,7 @@ def run_phase5_benchmark(
     config: Phase5Config | None = None,
 ) -> dict[str, Any]:
     resolved_config = config if config is not None else Phase5Config()
-    if split_name == "test" and not unlock_test:
-        raise PermissionError("test split is locked; pass --unlock-test to run")
+    authorize_phase5_split(split_name, unlock_test)
 
     rows = build_phase5_trials(split_name=split_name, config=resolved_config)
     artifacts = write_phase5_artifacts(
