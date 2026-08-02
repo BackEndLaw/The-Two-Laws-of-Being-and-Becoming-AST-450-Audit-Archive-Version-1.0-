@@ -9,6 +9,7 @@ import pytest
 from qrtc_benchmark.phase5 import (
     PHASE5_POLICIES,
     Phase5Config,
+    _VALIDATION_PAIRS,
     build_phase5_trials,
     run_phase5_benchmark,
 )
@@ -84,13 +85,17 @@ def test_locked_pairs_absent_from_development() -> None:
 def test_strong_holdout_excludes_constituent_pairs() -> None:
     rows = build_phase5_trials("test", SMALL_CFG)
     triple_rows = [row for row in rows if row.policy == "qrtc" and row.family == "V3"]
-    locked_pair_candidates = {"FG+FD", "FG+FR", "FB+FJ", "FR+FW", "FD+FJ", "FB+FW"}
+    # In the phase5b 3-pool design the holdout constraint is that final-validation
+    # triples must not use selection-validation pairs as constituent pairs.  This
+    # preserves the strong holdout: any pair seen during selection-validation is
+    # excluded from the final evaluation triples.
+    selection_validation_pairs = set(_VALIDATION_PAIRS)
     for row in triple_rows:
         parts = row.composition_id.split("+")
         if len(parts) != 3:
             continue
         pair_projections = {f"{parts[0]}+{parts[1]}", f"{parts[0]}+{parts[2]}", f"{parts[1]}+{parts[2]}"}
-        assert pair_projections.isdisjoint(locked_pair_candidates)
+        assert pair_projections.isdisjoint(selection_validation_pairs)
 
 
 def test_unknown_fault_not_forced_into_known_label() -> None:
