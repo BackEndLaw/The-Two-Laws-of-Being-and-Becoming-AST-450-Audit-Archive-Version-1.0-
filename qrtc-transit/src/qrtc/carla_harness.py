@@ -20,6 +20,7 @@ installation guidance.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import sys
@@ -823,8 +824,19 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
 # Console entry point
 # ---------------------------------------------------------------------------
 
-def main(argv: list[str] | None = None) -> int:  # noqa: ARG001
+def _build_parser() -> argparse.ArgumentParser:
+    return argparse.ArgumentParser(
+        prog="carla-live-drive",
+        description=(
+            "Run the optional CARLA live-drive harness. Configuration is provided "
+            "through CARLA_* environment variables."
+        ),
+    )
+
+
+def main(argv: list[str] | None = None) -> int:
     """Entry point for the ``carla-live-drive`` console script."""
+    _build_parser().parse_args(argv)
     cfg = carla_config_from_env()
     errors = validate_carla_config(cfg)
     if errors:
