@@ -674,11 +674,19 @@ def test_harness_classifies_untriggered_injection_as_invalid(tmp_path: Path) -> 
 # Scenario 7: Valid 299/300 injection → QRTC rejected → post_run_rejection_test_passed
 # ---------------------------------------------------------------------------
 
-def test_run_drive_persists_controlled_injection_rejection_pass_report(tmp_path: Path) -> None:
+def test_run_drive_persists_controlled_injection_rejection_pass_report(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     """
     run_drive() must persist a passing post-run rejection report when a
     configured zero-based callback drop cleanly triggers once over 300 ticks.
+
+    A conflicting ambient CARLA_PRINCIPAL is deliberately set to prove that
+    run_drive() uses cfg.principal as the single source of truth and is
+    isolated from ambient environment mismatch.
     """
+    monkeypatch.setenv("CARLA_PRINCIPAL", "conflicting-environment-principal")
+
     tick_count = 300
     ego = _make_ego_vehicle(tick_count)
     fake_carla = _make_carla_module_with_lidar_callbacks(ego, tick_count=tick_count)
@@ -686,6 +694,7 @@ def test_run_drive_persists_controlled_injection_rejection_pass_report(tmp_path:
     output = str(tmp_path / "controlled-dropout-report.json")
     cfg = CarlaConfig(
         ticks=tick_count,
+        principal="carla-operator",
         output=output,
         submit_to_qrtc=True,
         qrtc_db=str(tmp_path / "evidence.sqlite3"),
@@ -719,6 +728,49 @@ def test_run_drive_persists_controlled_injection_rejection_pass_report(tmp_path:
         )
         assert persisted["test_outcome"] == "post_run_rejection_pass"
         assert persisted["post_run_rejection_test_passed"] is True
+
+
+def test_run_drive_passes_cfg_principal_to_submit(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """
+    run_drive() must call submit_to_qrtc_pipeline with carla_principal=cfg.principal,
+    not the ambient CARLA_PRINCIPAL environment variable.
+    """
+    monkeypatch.setenv("CARLA_PRINCIPAL", "conflicting-environment-principal")
+
+    tick_count = 5
+    ego = _make_ego_vehicle(tick_count)
+    fake_carla = _make_carla_module_with_lidar_callbacks(ego, tick_count=tick_count)
+
+    output = str(tmp_path / "report.json")
+    cfg = CarlaConfig(
+        ticks=tick_count,
+        principal="carla-operator",
+        output=output,
+        submit_to_qrtc=True,
+        qrtc_db=str(tmp_path / "evidence.sqlite3"),
+        lidar=LidarConfig(enabled=True, drop_frame_index=2),
+    )
+
+    captured: dict[str, Any] = {}
+
+    import qrtc.carla_harness as _harness_mod
+    original_submit = _harness_mod.submit_to_qrtc_pipeline
+
+    def _capturing_submit(projection: Any, **kwargs: Any) -> Any:
+        captured.update(kwargs)
+        return original_submit(projection, **kwargs)
+
+    with patch("qrtc.carla_harness._require_carla", return_value=fake_carla), \
+         patch("qrtc.carla_harness.submit_to_qrtc_pipeline", side_effect=_capturing_submit):
+        from qrtc.carla_harness import run_drive
+        run_drive(cfg)
+
+    assert captured.get("carla_principal") == "carla-operator", (
+        "submit_to_qrtc_pipeline must receive carla_principal=cfg.principal, "
+        f"not the ambient env value; got carla_principal={captured.get('carla_principal')!r}"
+    )
 
 
 def test_valid_controlled_injection_pipeline_rejection_can_pass(tmp_path: Path) -> None:
