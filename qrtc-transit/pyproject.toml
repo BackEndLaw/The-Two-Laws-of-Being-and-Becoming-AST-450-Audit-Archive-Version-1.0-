@@ -22,12 +22,11 @@ dev = [
 qrtc = "qrtc.cli:main"
 qrtc-demo = "qrtc.telemetry_demo:main"
 carla-live-drive = "qrtc.carla_harness:main"
-qrtc-benchmark-phase1 = "qrtc_benchmark.run_phase1:main"
-qrtc-benchmark-phase2 = "qrtc_benchmark.run_phase2:main"
-qrtc-benchmark-phase2-sweep = "qrtc_benchmark.run_phase2_sweep:main"
-qrtc-benchmark-phase3 = "qrtc_benchmark.run_phase3:main"
-qrtc-benchmark-phase4 = "qrtc_benchmark.run_phase4:main"
 qrtc-benchmark-phase5 = "qrtc_benchmark.run_phase5:main"
+# NOTE: phase1–4 runner modules are absent from the current codebase.
+# They have been removed from declared entry points to prevent broken console
+# script stubs. Phase IV-B remains historical/unsupported but importable for
+# archival verification; see PHASE4B_STATUS.md.
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

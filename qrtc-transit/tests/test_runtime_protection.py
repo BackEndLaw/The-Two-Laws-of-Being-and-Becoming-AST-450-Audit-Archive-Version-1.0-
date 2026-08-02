@@ -21,10 +21,10 @@ Coverage map
 16. _classify_runtime_protection logic.
 17. Full run_drive() integration with fake CARLA and RP enabled.
 """
+
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
@@ -39,14 +39,12 @@ from qrtc.carla_config import (
 )
 from qrtc.carla_harness import (
     _classify_runtime_protection,
-    RuntimeProtectionClassification,
 )
 from qrtc.carla_lidar import LidarCollector
 from qrtc.runtime_protection import (
     FaultMetadata,
     RuntimeProtection,
     RuntimeProtectionConfig,
-    RuntimeProtectionSnapshot,
     RuntimeProtectionState,
 )
 
@@ -54,6 +52,7 @@ from qrtc.runtime_protection import (
 # ---------------------------------------------------------------------------
 # Helpers — fake vehicle
 # ---------------------------------------------------------------------------
+
 
 def _make_velocity(x: float = 5.0, y: float = 0.0, z: float = 0.0) -> MagicMock:
     v = MagicMock()
@@ -126,6 +125,7 @@ def _default_rp_cfg(
 # 1. Disabled / no-fault: supervisor stays ARMED
 # ---------------------------------------------------------------------------
 
+
 def test_disabled_supervisor_stays_armed_with_no_fault() -> None:
     rp = RuntimeProtection(_default_rp_cfg(enabled=False))
     assert rp.state == RuntimeProtectionState.ARMED
@@ -156,6 +156,7 @@ def test_enabled_supervisor_stays_armed_without_fault() -> None:
 # ---------------------------------------------------------------------------
 # 2. First fault latches; subsequent faults are ignored
 # ---------------------------------------------------------------------------
+
 
 def test_first_fault_latches() -> None:
     rp = RuntimeProtection(_default_rp_cfg())
@@ -194,6 +195,7 @@ def test_fault_latch_with_none_sensor_frame() -> None:
 # 3. Autopilot disabled exactly once
 # ---------------------------------------------------------------------------
 
+
 def test_autopilot_disabled_exactly_once() -> None:
     rp = RuntimeProtection(_default_rp_cfg(required_stopped_ticks=100))
     vehicle = _make_vehicle(speed=10.0)
@@ -222,7 +224,9 @@ def test_autopilot_disabled_on_first_enforcement_after_latch() -> None:
 
     rp.latch_fault(callback_index=0)
 
-    rp.enforce(vehicle, 7, disable_autopilot=cap.disable_autopilot, apply_control=cap.apply)
+    rp.enforce(
+        vehicle, 7, disable_autopilot=cap.disable_autopilot, apply_control=cap.apply
+    )
     assert vehicle.set_autopilot.call_count == 1
 
     snap = rp.snapshot()
@@ -262,6 +266,7 @@ def test_autopilot_disable_failure_produces_control_error() -> None:
 # 4. Throttle is always zero after detection
 # ---------------------------------------------------------------------------
 
+
 def test_throttle_always_zero_after_detection() -> None:
     rp = RuntimeProtection(_default_rp_cfg(required_stopped_ticks=100))
     vehicle = _make_vehicle(speed=8.0)
@@ -285,6 +290,7 @@ def test_throttle_always_zero_after_detection() -> None:
 # ---------------------------------------------------------------------------
 # 5. Brake always equals configured full_brake value
 # ---------------------------------------------------------------------------
+
 
 def test_brake_always_equals_configured_full_brake() -> None:
     full_brake = 0.85
@@ -342,6 +348,7 @@ def test_braking_control_failure_produces_control_error() -> None:
 # 6. Stopping requires configured consecutive low-speed ticks
 # ---------------------------------------------------------------------------
 
+
 def test_stopped_requires_configured_consecutive_ticks() -> None:
     required = 4
     rp = RuntimeProtection(
@@ -368,9 +375,9 @@ def test_stopped_requires_configured_consecutive_ticks() -> None:
 
     # Must be BRAKING until exactly `required` consecutive low-speed ticks
     for i in range(required - 1):
-        assert states[i] == RuntimeProtectionState.BRAKING, (
-            f"expected BRAKING at tick {i}, got {states[i]}"
-        )
+        assert (
+            states[i] == RuntimeProtectionState.BRAKING
+        ), f"expected BRAKING at tick {i}, got {states[i]}"
     # Exactly at tick required-1 (0-based), STOPPED
     assert states[required - 1] == RuntimeProtectionState.STOPPED
 
@@ -405,6 +412,7 @@ def test_not_stopped_before_required_ticks() -> None:
 # ---------------------------------------------------------------------------
 # 7. Speed increase resets consecutive stopped-tick counter
 # ---------------------------------------------------------------------------
+
 
 def test_speed_increase_resets_consecutive_stopped_count() -> None:
     required = 4
@@ -452,6 +460,7 @@ def test_speed_increase_resets_consecutive_stopped_count() -> None:
 # ---------------------------------------------------------------------------
 # 8. Early termination only after stop confirmation or timeout
 # ---------------------------------------------------------------------------
+
 
 def test_terminal_only_after_stop() -> None:
     required = 3
@@ -518,6 +527,7 @@ def test_terminal_after_timeout() -> None:
 # ---------------------------------------------------------------------------
 # 9. Stop timeout can never produce test_passed=True
 # ---------------------------------------------------------------------------
+
 
 def test_stop_timeout_cannot_pass() -> None:
     """A stop_timeout outcome must always produce runtime_protection_test_passed=False."""
@@ -598,6 +608,7 @@ def test_control_action_failure_cannot_pass() -> None:
 # 10. Injected and natural drop accounting stays separate
 # ---------------------------------------------------------------------------
 
+
 def test_injected_and_natural_drops_separate_with_fault_notify() -> None:
     """fault_notify is called for injected drop; record_drop increments natural only."""
     notified: list[tuple[int, Any]] = []
@@ -674,6 +685,7 @@ def test_fault_notify_none_does_not_break_collector() -> None:
 # 11. Controlled injection reaches the runtime protection path
 # ---------------------------------------------------------------------------
 
+
 def test_controlled_injection_reaches_runtime_protection() -> None:
     """End-to-end: LidarCollector fault_notify connects to RuntimeProtection.latch_fault."""
     rp_cfg = _default_rp_cfg(required_stopped_ticks=100, maximum_braking_ticks=50)
@@ -712,6 +724,7 @@ def test_controlled_injection_reaches_runtime_protection() -> None:
 # ---------------------------------------------------------------------------
 # 12. QRTC rejection is checked through carla-health-v1 specifically
 # ---------------------------------------------------------------------------
+
 
 def test_classification_requires_carla_health_guard_rejection() -> None:
     """runtime_protection_test_passed requires carla-health-v1 qualified==False."""
@@ -754,7 +767,11 @@ def test_classification_requires_carla_health_guard_rejection() -> None:
         "evidence_preserved": True,
         "guard_reasons": [
             {"guard_id": "carla-schema-v1", "qualified": True, "reason": "ok"},
-            {"guard_id": "carla-health-v1", "qualified": False, "reason": "health failed"},
+            {
+                "guard_id": "carla-health-v1",
+                "qualified": False,
+                "reason": "health failed",
+            },
         ],
     }
     result2 = _classify_runtime_protection(cfg, base_report, qrtc_with_health)
@@ -796,9 +813,9 @@ def test_classification_requires_qrtc_rejected_not_accepted() -> None:
 # 13. Evidence is preserved in the snapshot
 # ---------------------------------------------------------------------------
 
+
 def test_snapshot_contains_complete_evidence() -> None:
     rp = RuntimeProtection(_default_rp_cfg(required_stopped_ticks=3))
-    vehicle = _make_vehicle(speed=10.0)
     cap = _ControlCapture()
 
     rp.latch_fault(callback_index=5, sensor_frame=55)
@@ -864,6 +881,7 @@ def test_snapshot_after_timeout_contains_evidence() -> None:
 # 14. Existing post-run and baseline behaviour unchanged when RP disabled
 # ---------------------------------------------------------------------------
 
+
 def test_classify_runtime_protection_disabled_returns_disabled_outcome() -> None:
     cfg = CarlaConfig(runtime_protection_enabled=False)
     run_report: dict[str, Any] = {
@@ -916,6 +934,7 @@ def test_rp_disabled_supervisor_never_calls_vehicle_control() -> None:
 # 15. Configuration environment parsing and validation
 # ---------------------------------------------------------------------------
 
+
 def test_carla_config_runtime_protection_defaults() -> None:
     cfg = CarlaConfig()
     assert cfg.runtime_protection_enabled is False
@@ -944,7 +963,9 @@ def test_carla_config_runtime_protection_in_as_dict() -> None:
     assert d["runtime_lidar_callback_timeout_seconds"] == pytest.approx(0.5)
 
 
-def test_carla_config_from_env_runtime_protection(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_carla_config_from_env_runtime_protection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setenv("CARLA_RUNTIME_PROTECTION_ENABLED", "true")
     monkeypatch.setenv("CARLA_RUNTIME_STOP_SPEED_MPS", "0.05")
     monkeypatch.setenv("CARLA_RUNTIME_STOPPED_TICKS", "3")
@@ -1057,6 +1078,7 @@ def test_runtime_protection_config_as_dict() -> None:
 # 16. _classify_runtime_protection logic
 # ---------------------------------------------------------------------------
 
+
 def _base_rp_pass_report() -> dict[str, Any]:
     """Minimal run report that should produce runtime_protection_test_passed=True
     when paired with the right QRTC submission."""
@@ -1084,7 +1106,11 @@ def _health_rejected_qrtc() -> dict[str, Any]:
         "status": "rejected",
         "evidence_preserved": True,
         "guard_reasons": [
-            {"guard_id": "carla-health-v1", "qualified": False, "reason": "health failed"},
+            {
+                "guard_id": "carla-health-v1",
+                "qualified": False,
+                "reason": "health failed",
+            },
         ],
     }
 
@@ -1169,6 +1195,7 @@ def test_classify_fails_when_evidence_not_preserved() -> None:
 # 17. Full run_drive() integration with fake CARLA and RP enabled
 # ---------------------------------------------------------------------------
 
+
 def _make_fake_measurement(
     points: list[tuple[float, float, float]],
     frame: int = 1,
@@ -1221,6 +1248,7 @@ def _make_carla_with_rp(
         ctrl.brake = 0.0
         ctrl.steer = 0.0
         return ctrl
+
     carla.VehicleControl.side_effect = make_control
 
     blueprint = MagicMock()
@@ -1336,7 +1364,9 @@ def _make_carla_with_rp(
     return carla, ego
 
 
-def test_run_drive_with_rp_disabled_completes_all_ticks(tmp_path: pytest.TempPathFactory) -> None:
+def test_run_drive_with_rp_disabled_completes_all_ticks(
+    tmp_path: pytest.TempPathFactory,
+) -> None:
     """With RP disabled, run_drive completes normally without early termination."""
     carla_fake, ego = _make_carla_with_rp(tick_count=10, drop_at=2)
 
@@ -1357,10 +1387,14 @@ def test_run_drive_with_rp_disabled_completes_all_ticks(tmp_path: pytest.TempPat
     assert report["runtime_protection_test_passed"] is False
 
 
-def test_run_drive_with_rp_enabled_terminates_early(tmp_path: pytest.TempPathFactory) -> None:
+def test_run_drive_with_rp_enabled_terminates_early(
+    tmp_path: pytest.TempPathFactory,
+) -> None:
     """With RP enabled and fault injected, run_drive terminates early."""
     # Vehicle stops immediately after fault (speed=0)
-    carla_fake, ego = _make_carla_with_rp(tick_count=100, drop_at=3, speed_after_fault=0.0)
+    carla_fake, ego = _make_carla_with_rp(
+        tick_count=100, drop_at=3, speed_after_fault=0.0
+    )
 
     cfg = CarlaConfig(
         ticks=100,
@@ -1388,10 +1422,6 @@ def test_run_drive_with_rp_enabled_terminates_early(tmp_path: pytest.TempPathFac
     assert rp["state"] == "stopped"
     assert rp["fault_reason"] == "fault_injection"
 
-    # Autopilot was disabled exactly once
-    disabled_calls = [
-        c for c in ego.set_autopilot.call_args_list if c.args == (False,) or c.args == ()
-    ]
     # At least one False call from runtime protection
     false_calls = [c for c in ego.set_autopilot.call_args_list if False in c.args]
     assert len(false_calls) >= 1
@@ -1400,7 +1430,9 @@ def test_run_drive_with_rp_enabled_terminates_early(tmp_path: pytest.TempPathFac
 def test_run_drive_with_rp_enabled_timeout(tmp_path: pytest.TempPathFactory) -> None:
     """With RP enabled but vehicle doesn't stop, STOP_TIMEOUT is reached."""
     # Vehicle never stops (speed=5.0 always)
-    carla_fake, ego = _make_carla_with_rp(tick_count=200, drop_at=3, speed_after_fault=5.0)
+    carla_fake, ego = _make_carla_with_rp(
+        tick_count=200, drop_at=3, speed_after_fault=5.0
+    )
 
     cfg = CarlaConfig(
         ticks=200,
@@ -1469,7 +1501,9 @@ def test_run_drive_persists_runtime_test_outcome_when_enabled(tmp_path: Path) ->
         )
 
 
-def test_run_drive_preserves_post_run_test_outcome_when_rp_disabled(tmp_path: Path) -> None:
+def test_run_drive_preserves_post_run_test_outcome_when_rp_disabled(
+    tmp_path: Path,
+) -> None:
     carla_fake, _ = _make_carla_with_rp(
         tick_count=25,
         drop_at=3,
@@ -1531,13 +1565,11 @@ def test_run_drive_natural_callback_timeout_rejected_by_health(tmp_path: Path) -
     assert report["qrtc_submission"]["status"] == "rejected"
     assert report["qrtc_submission"]["evidence_preserved"] is True
     assert any(
-        reason.get("guard_id") == "carla-schema-v1"
-        and reason.get("qualified") is True
+        reason.get("guard_id") == "carla-schema-v1" and reason.get("qualified") is True
         for reason in report["qrtc_submission"]["guard_reasons"]
     )
     assert any(
-        reason.get("guard_id") == "carla-health-v1"
-        and reason.get("qualified") is False
+        reason.get("guard_id") == "carla-health-v1" and reason.get("qualified") is False
         for reason in report["qrtc_submission"]["guard_reasons"]
     )
     assert report["runtime_protection_test_passed"] is False
@@ -1549,7 +1581,11 @@ def test_run_drive_autopilot_disable_failure_aborts(tmp_path: Path) -> None:
         drop_at=2,
         speed_after_fault=0.0,
     )
-    ego.set_autopilot.side_effect = [None, RuntimeError("cannot disable autopilot"), None]
+    ego.set_autopilot.side_effect = [
+        None,
+        RuntimeError("cannot disable autopilot"),
+        None,
+    ]
     cfg = CarlaConfig(
         ticks=20,
         output=str(tmp_path / "autopilot-failure.json"),
@@ -1602,6 +1638,7 @@ def test_run_drive_braking_control_failure_aborts(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 # Speed helper
 # ---------------------------------------------------------------------------
+
 
 def test_compute_speed_mps_basic() -> None:
     rp = RuntimeProtection(_default_rp_cfg())
@@ -1686,7 +1723,9 @@ def test_invalid_speed_measurements_cannot_confirm_safe_stop(
     assert snap.state == RuntimeProtectionState.STOP_TIMEOUT
 
     result = _classify_runtime_protection(
-        CarlaConfig(runtime_protection_enabled=True, lidar=LidarConfig(drop_frame_index=0)),
+        CarlaConfig(
+            runtime_protection_enabled=True, lidar=LidarConfig(drop_frame_index=0)
+        ),
         {
             "ticks_requested": 10,
             "ticks_completed": 2,
@@ -1730,6 +1769,7 @@ def test_get_velocity_exception_cannot_confirm_safe_stop() -> None:
 # ---------------------------------------------------------------------------
 # FaultMetadata as_dict
 # ---------------------------------------------------------------------------
+
 
 def test_fault_metadata_as_dict() -> None:
     fm = FaultMetadata(callback_index=7, sensor_frame=1234)

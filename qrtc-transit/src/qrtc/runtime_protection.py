@@ -16,6 +16,7 @@ acceptance must still verify: configured stop threshold, braking deadline,
 road conditions, timeout bounds, early termination, QRTC rejection, and
 evidence preservation before drawing any safety conclusion.
 """
+
 from __future__ import annotations
 
 import math
@@ -28,6 +29,7 @@ from typing import Any, Callable, Optional
 # ---------------------------------------------------------------------------
 # State
 # ---------------------------------------------------------------------------
+
 
 class RuntimeProtectionState(str, Enum):
     ARMED = "armed"
@@ -42,6 +44,7 @@ class RuntimeProtectionState(str, Enum):
 # Configuration
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class RuntimeProtectionConfig:
     """
@@ -50,6 +53,7 @@ class RuntimeProtectionConfig:
     Disabled by default so that all existing baseline and post-run behaviour
     is completely unchanged when ``enabled=False``.
     """
+
     enabled: bool = False
     stop_speed_mps: float = 0.10
     required_stopped_ticks: int = 5
@@ -58,9 +62,7 @@ class RuntimeProtectionConfig:
 
     def __post_init__(self) -> None:
         if self.stop_speed_mps < 0.0:
-            raise ValueError(
-                f"stop_speed_mps must be >= 0, got {self.stop_speed_mps}"
-            )
+            raise ValueError(f"stop_speed_mps must be >= 0, got {self.stop_speed_mps}")
         if not math.isfinite(self.stop_speed_mps):
             raise ValueError(
                 f"stop_speed_mps must be finite, got {self.stop_speed_mps}"
@@ -78,9 +80,7 @@ class RuntimeProtectionConfig:
         if not math.isfinite(self.full_brake):
             raise ValueError(f"full_brake must be finite, got {self.full_brake}")
         if not (0.0 < self.full_brake <= 1.0):
-            raise ValueError(
-                f"full_brake must be in (0, 1], got {self.full_brake}"
-            )
+            raise ValueError(f"full_brake must be in (0, 1], got {self.full_brake}")
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -95,6 +95,7 @@ class RuntimeProtectionConfig:
 # ---------------------------------------------------------------------------
 # Evidence
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class FaultMetadata:
@@ -125,6 +126,7 @@ class ControlActionError:
 @dataclass(frozen=True)
 class RuntimeProtectionSnapshot:
     """Immutable evidence snapshot from the runtime protection supervisor."""
+
     state: RuntimeProtectionState
     fault_triggered: bool
     autopilot_disabled: bool
@@ -154,9 +156,7 @@ class RuntimeProtectionSnapshot:
             "stop_timeout": self.stop_timeout,
             "first_enforcement_tick": self.first_enforcement_tick,
             "fault_metadata": (
-                None
-                if self.fault_metadata is None
-                else self.fault_metadata.as_dict()
+                None if self.fault_metadata is None else self.fault_metadata.as_dict()
             ),
             "fault_reason": self.fault_reason,
             "termination_reason": self.termination_reason,
@@ -172,6 +172,7 @@ class RuntimeProtectionSnapshot:
 # ---------------------------------------------------------------------------
 # Supervisor
 # ---------------------------------------------------------------------------
+
 
 class RuntimeProtection:
     """

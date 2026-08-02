@@ -9,6 +9,11 @@ import pytest
 from qrtc_benchmark.phase5 import (
     PHASE5_POLICIES,
     Phase5Config,
+    _FINAL_MECHANISMS,
+    _FINAL_PAIRS,
+    _FINAL_TRIPLES,
+    _VALIDATION_PAIRS,
+    authorize_phase5_split,
     build_phase5_trials,
     run_phase5_benchmark,
 )
@@ -59,38 +64,42 @@ def test_phase5_seeds_are_new() -> None:
 
 def test_locked_mechanisms_absent_from_development() -> None:
     dev_rows = build_phase5_trials("development", SMALL_CFG)
-    test_rows = build_phase5_trials("test", SMALL_CFG)
     dev_mechanisms = {row.mechanism_id for row in dev_rows if row.policy == "qrtc"}
-    test_mechanisms = {row.mechanism_id for row in test_rows if row.policy == "qrtc"}
+    test_mechanisms = {
+        mechanism_id
+        for mechanisms in _FINAL_MECHANISMS.values()
+        for mechanism_id in mechanisms
+    }
     assert dev_mechanisms.isdisjoint(test_mechanisms)
 
 
 def test_locked_pairs_absent_from_development() -> None:
     dev_rows = build_phase5_trials("development", SMALL_CFG)
-    test_rows = build_phase5_trials("test", SMALL_CFG)
     dev_pairs = {
         row.composition_id
         for row in dev_rows
         if row.policy == "qrtc" and row.family in {"V1", "V2"}
     }
-    test_pairs = {
-        row.composition_id
-        for row in test_rows
-        if row.policy == "qrtc" and row.family in {"V1", "V2"}
-    }
+    test_pairs = set(_FINAL_PAIRS)
     assert dev_pairs.isdisjoint(test_pairs)
 
 
 def test_strong_holdout_excludes_constituent_pairs() -> None:
-    rows = build_phase5_trials("test", SMALL_CFG)
-    triple_rows = [row for row in rows if row.policy == "qrtc" and row.family == "V3"]
-    locked_pair_candidates = {"FG+FD", "FG+FR", "FB+FJ", "FR+FW", "FD+FJ", "FB+FW"}
-    for row in triple_rows:
-        parts = row.composition_id.split("+")
+    # In the phase5b 3-pool design the holdout constraint is that final-validation
+    # triples must not use selection-validation pairs as constituent pairs.  This
+    # preserves the strong holdout: any pair seen during selection-validation is
+    # excluded from the final evaluation triples.
+    selection_validation_pairs = set(_VALIDATION_PAIRS)
+    for triple_id in _FINAL_TRIPLES:
+        parts = triple_id.split("+")
         if len(parts) != 3:
             continue
-        pair_projections = {f"{parts[0]}+{parts[1]}", f"{parts[0]}+{parts[2]}", f"{parts[1]}+{parts[2]}"}
-        assert pair_projections.isdisjoint(locked_pair_candidates)
+        pair_projections = {
+            f"{parts[0]}+{parts[1]}",
+            f"{parts[0]}+{parts[2]}",
+            f"{parts[1]}+{parts[2]}",
+        }
+        assert pair_projections.isdisjoint(selection_validation_pairs)
 
 
 def test_unknown_fault_not_forced_into_known_label() -> None:
@@ -104,9 +113,7 @@ def test_unknown_fault_not_forced_into_known_label() -> None:
 def test_evidence_request_does_not_repair_system() -> None:
     rows = build_phase5_trials("development", SMALL_CFG)
     request_only = [
-        row
-        for row in rows
-        if row.policy == "qrtc" and row.action_sequence == "r0"
+        row for row in rows if row.policy == "qrtc" and row.action_sequence == "r0"
     ]
     assert request_only
     assert all(row.recovery_score in {0.0, 1.0} for row in request_only)
@@ -143,22 +150,43 @@ def test_failed_intervention_still_increments_cost() -> None:
 
 def test_three_fault_chain_respects_dependency() -> None:
     rows = build_phase5_trials("development", SMALL_CFG)
-    qrtc_rows = [row for row in rows if row.policy == "qrtc" and row.family == "V3" and row.composition_id == "FG+FW+FJ"]
+    qrtc_rows = [
+        row
+        for row in rows
+        if row.policy == "qrtc"
+        and row.family == "V3"
+        and row.composition_id == "FG+FW+FJ"
+    ]
     assert qrtc_rows
     assert all(row.action_sequence.startswith("rG") for row in qrtc_rows)
 
 
 def test_three_fault_fork_accepts_multiple_valid_orders() -> None:
     rows = build_phase5_trials("development", SMALL_CFG)
-    qrtc_rows = [row for row in rows if row.policy == "qrtc" and row.family == "V3" and row.composition_id == "FB+FR+FJ"]
+    qrtc_rows = [
+        row
+        for row in rows
+        if row.policy == "qrtc"
+        and row.family == "V3"
+        and row.composition_id == "FB+FR+FJ"
+    ]
     assert qrtc_rows
     valid_prefixes = {"rB,rR", "rB,rJ"}
-    assert any(",".join(row.action_sequence.split(",")[:2]) in valid_prefixes for row in qrtc_rows)
+    assert any(
+        ",".join(row.action_sequence.split(",")[:2]) in valid_prefixes
+        for row in qrtc_rows
+    )
 
 
 def test_partial_sufficiency_stops_after_recovery() -> None:
     rows = build_phase5_trials("development", SMALL_CFG)
-    qrtc_rows = [row for row in rows if row.policy == "qrtc" and row.family == "V3" and row.composition_id == "FG+FD+FW"]
+    qrtc_rows = [
+        row
+        for row in rows
+        if row.policy == "qrtc"
+        and row.family == "V3"
+        and row.composition_id == "FG+FD+FW"
+    ]
     assert qrtc_rows
     assert all(len(row.action_sequence.split(",")) <= 3 for row in qrtc_rows)
 
@@ -219,6 +247,17 @@ def test_cluster_bootstrap_preserves_matched_trials(tmp_path: Path) -> None:
 def test_locked_manifest_unavailable_before_unlock(tmp_path: Path) -> None:
     with pytest.raises(PermissionError):
         run_phase5_benchmark("test", tmp_path, unlock_test=False, config=SMALL_CFG)
+
+
+def test_authorize_phase5_split_requires_explicit_unlock_for_final_validation() -> None:
+    with pytest.raises(PermissionError):
+        authorize_phase5_split("test", unlock_test=False)
+
+
+def test_authorize_phase5_split_allows_explicit_unlock_without_generating_rows() -> (
+    None
+):
+    authorize_phase5_split("test", unlock_test=True)
 
 
 def test_required_artifacts_exist_for_development(tmp_path: Path) -> None:

@@ -20,6 +20,7 @@ Scenario map
 9. The healthy baseline accounting remains accepted and unchanged.
 10. Runs without QRTC submission cannot claim ``post_run_rejection_test_passed=True``.
 """
+
 from __future__ import annotations
 
 import json
@@ -31,7 +32,7 @@ import pytest
 
 from qrtc.carla_config import CarlaConfig, LidarConfig
 from qrtc.carla_harness import _classify_post_run_rejection
-from qrtc.carla_lidar import LidarCollector, LidarCollectorSnapshot, build_lidar_summary
+from qrtc.carla_lidar import LidarCollector, build_lidar_summary
 from qrtc.carla_telemetry import (
     QrtcSubmissionResult,
     build_qrtc_projection,
@@ -45,6 +46,7 @@ from qrtc.transit import TransitEnvelope
 # ---------------------------------------------------------------------------
 # Fake CARLA helpers (shared with test_carla_harness)
 # ---------------------------------------------------------------------------
+
 
 def _make_fake_measurement(
     points: list[tuple[float, float, float]],
@@ -108,9 +110,12 @@ def _make_carla_module(ego: MagicMock, tick_count: int = 5) -> MagicMock:
     lidar_bp.set_attribute = MagicMock()
     lib = MagicMock()
     lib.find.side_effect = lambda name: (
-        blueprint if "tesla" in name
-        else collision_bp if "collision" in name
-        else lidar_bp if "lidar" in name
+        blueprint
+        if "tesla" in name
+        else collision_bp
+        if "collision" in name
+        else lidar_bp
+        if "lidar" in name
         else None
     )
     lib.filter.return_value = [blueprint]
@@ -262,6 +267,7 @@ def _make_carla_module_with_lidar_callbacks(
 
 def _make_envelope(interface: dict[str, Any]) -> TransitEnvelope:
     from qrtc.transit import AuthorizationDecision
+
     auth = AuthorizationDecision(
         qualified=True,
         key_id="carla-key-v1",
@@ -447,6 +453,7 @@ def _rejected_health_guard_submission(
 # Scenario 1: Injection triggers at the requested zero-based callback.
 # ---------------------------------------------------------------------------
 
+
 def test_injection_triggers_at_requested_zero_based_callback() -> None:
     """The callback at the configured index (zero-based) is injected and dropped."""
     requested = 3
@@ -487,6 +494,7 @@ def test_injection_triggers_at_callback_zero() -> None:
 # Scenario 2: Requested index beyond range → fault_injection_triggered=False
 # ---------------------------------------------------------------------------
 
+
 def test_injection_beyond_range_leaves_untriggered() -> None:
     """If drop_frame_index >= total callbacks, the injection is never triggered."""
     collector = LidarCollector(drop_frame_index=999)
@@ -506,7 +514,9 @@ def test_injection_beyond_range_leaves_untriggered() -> None:
 def test_injection_exactly_at_boundary_does_not_trigger() -> None:
     """drop_frame_index == total_callbacks is beyond range (zero-based)."""
     n = 5
-    collector = LidarCollector(drop_frame_index=n)  # index n is out of range for n callbacks
+    collector = LidarCollector(
+        drop_frame_index=n
+    )  # index n is out of range for n callbacks
     for i in range(n):
         m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
         collector.on_data(m)
@@ -518,6 +528,7 @@ def test_injection_exactly_at_boundary_does_not_trigger() -> None:
 # ---------------------------------------------------------------------------
 # Scenario 3: No injection requested → disabled/untriggered state
 # ---------------------------------------------------------------------------
+
 
 def test_no_injection_reports_disabled_state() -> None:
     """Default drop_frame_index=-1 produces a disabled, untriggered snapshot."""
@@ -538,6 +549,7 @@ def test_no_injection_reports_disabled_state() -> None:
 # ---------------------------------------------------------------------------
 # Scenario 4: Natural and injected drops remain separate
 # ---------------------------------------------------------------------------
+
 
 def test_natural_and_injected_drops_remain_separate() -> None:
     """record_drop() increments natural_drops only; on_data injection increments injected_drops only."""
@@ -588,6 +600,7 @@ def test_fault_injection_does_not_increment_natural_drops() -> None:
 # Scenario 5: Exactly one injected callback → exactly one injected drop
 # ---------------------------------------------------------------------------
 
+
 def test_exactly_one_injected_callback_produces_one_injected_drop() -> None:
     """Only one injected drop is produced even over many callbacks."""
     n = 20
@@ -618,6 +631,7 @@ def test_callbacks_received_counts_all_including_injected() -> None:
 # Scenario 6: Requested-but-untriggered → invalid_fault_injection
 # ---------------------------------------------------------------------------
 
+
 def test_harness_classifies_untriggered_injection_as_invalid(tmp_path: Path) -> None:
     """
     A run with fault injection requested but never triggered (e.g., fewer
@@ -638,8 +652,10 @@ def test_harness_classifies_untriggered_injection_as_invalid(tmp_path: Path) -> 
         sensor = MagicMock()
         sensor.stop = MagicMock()
         sensor.destroy = MagicMock()
+
         def capture_listen(fn: Any) -> None:
             captured_listener.append(fn)
+
         sensor.listen = capture_listen
         lidar_sensor_ref.append(sensor)
         return sensor
@@ -657,6 +673,7 @@ def test_harness_classifies_untriggered_injection_as_invalid(tmp_path: Path) -> 
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         report = run_drive(cfg)
 
     # No QRTC submission → test_outcome reflects untriggered injection
@@ -673,6 +690,7 @@ def test_harness_classifies_untriggered_injection_as_invalid(tmp_path: Path) -> 
 # ---------------------------------------------------------------------------
 # Scenario 7: Valid 299/300 injection → QRTC rejected → post_run_rejection_test_passed
 # ---------------------------------------------------------------------------
+
 
 def test_run_drive_persists_controlled_injection_rejection_pass_report(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -702,6 +720,7 @@ def test_run_drive_persists_controlled_injection_rejection_pass_report(
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         report = run_drive(cfg)
 
     written = json.loads(Path(output).read_text(encoding="utf-8"))
@@ -787,18 +806,22 @@ def test_post_run_pass_requires_evidence_preserved(tmp_path: Path) -> None:
 # Scenario 8: Counter validation rejects invalid types
 # ---------------------------------------------------------------------------
 
+
 def _get_health_guard() -> GuardRule:
     return build_default_registry().resolve_guard("carla-health-v1")
 
 
-@pytest.mark.parametrize("bad_value", [
-    False,        # bool (subclass of int — must be rejected)
-    True,         # bool
-    0.0,          # float
-    "0",          # string
-    -1,           # negative integer
-    None,         # None
-])
+@pytest.mark.parametrize(
+    "bad_value",
+    [
+        False,  # bool (subclass of int — must be rejected)
+        True,  # bool
+        0.0,  # float
+        "0",  # string
+        -1,  # negative integer
+        None,  # None
+    ],
+)
 def test_health_guard_rejects_bad_lidar_frames_received(bad_value: Any) -> None:
     guard = _get_health_guard()
     iface = _healthy_lidar_iface(ticks=300)
@@ -806,14 +829,17 @@ def test_health_guard_rejects_bad_lidar_frames_received(bad_value: Any) -> None:
     assert guard.predicate(_make_envelope(iface)) is False
 
 
-@pytest.mark.parametrize("bad_value", [
-    False,
-    True,
-    1.0,
-    "1",
-    -1,
-    None,
-])
+@pytest.mark.parametrize(
+    "bad_value",
+    [
+        False,
+        True,
+        1.0,
+        "1",
+        -1,
+        None,
+    ],
+)
 def test_health_guard_rejects_bad_lidar_frames_dropped(bad_value: Any) -> None:
     """Any non-int-0 value for lidar_frames_dropped must be rejected."""
     guard = _get_health_guard()
@@ -822,14 +848,17 @@ def test_health_guard_rejects_bad_lidar_frames_dropped(bad_value: Any) -> None:
     assert guard.predicate(_make_envelope(iface)) is False
 
 
-@pytest.mark.parametrize("bad_value", [
-    False,
-    True,
-    0.0,
-    "0",
-    -1,
-    None,
-])
+@pytest.mark.parametrize(
+    "bad_value",
+    [
+        False,
+        True,
+        0.0,
+        "0",
+        -1,
+        None,
+    ],
+)
 def test_health_guard_rejects_bad_ticks_completed(bad_value: Any) -> None:
     guard = _get_health_guard()
     iface = _healthy_lidar_iface(ticks=300)
@@ -837,14 +866,17 @@ def test_health_guard_rejects_bad_ticks_completed(bad_value: Any) -> None:
     assert guard.predicate(_make_envelope(iface)) is False
 
 
-@pytest.mark.parametrize("bad_value", [
-    False,
-    True,
-    1.0,
-    "0",
-    -1,
-    None,
-])
+@pytest.mark.parametrize(
+    "bad_value",
+    [
+        False,
+        True,
+        1.0,
+        "0",
+        -1,
+        None,
+    ],
+)
 def test_health_guard_rejects_bad_lidar_callback_errors(bad_value: Any) -> None:
     guard = _get_health_guard()
     iface = _healthy_lidar_iface(ticks=300)
@@ -852,13 +884,16 @@ def test_health_guard_rejects_bad_lidar_callback_errors(bad_value: Any) -> None:
     assert guard.predicate(_make_envelope(iface)) is False
 
 
-@pytest.mark.parametrize("bad_value", [
-    False,
-    True,
-    1.0,
-    "0",
-    -1,
-])
+@pytest.mark.parametrize(
+    "bad_value",
+    [
+        False,
+        True,
+        1.0,
+        "0",
+        -1,
+    ],
+)
 def test_health_guard_rejects_bad_natural_dropped_when_present(bad_value: Any) -> None:
     """lidar_frames_natural_dropped, if present, must be a non-negative int (not bool)."""
     guard = _get_health_guard()
@@ -867,13 +902,16 @@ def test_health_guard_rejects_bad_natural_dropped_when_present(bad_value: Any) -
     assert guard.predicate(_make_envelope(iface)) is False
 
 
-@pytest.mark.parametrize("bad_value", [
-    False,
-    True,
-    1.0,
-    "0",
-    -1,
-])
+@pytest.mark.parametrize(
+    "bad_value",
+    [
+        False,
+        True,
+        1.0,
+        "0",
+        -1,
+    ],
+)
 def test_health_guard_rejects_bad_injected_dropped_when_present(bad_value: Any) -> None:
     """lidar_frames_injected_dropped, if present, must be a non-negative int (not bool)."""
     guard = _get_health_guard()
@@ -898,7 +936,10 @@ def test_health_guard_rejects_nonzero_injected_dropped() -> None:
 # Scenario 9: Healthy baseline accounting remains accepted
 # ---------------------------------------------------------------------------
 
-def test_healthy_baseline_accepted_with_zero_natural_and_injected(tmp_path: Path) -> None:
+
+def test_healthy_baseline_accepted_with_zero_natural_and_injected(
+    tmp_path: Path,
+) -> None:
     """A healthy 300/300 run with zero natural/injected drops is accepted."""
     examples = Path(__file__).resolve().parents[1] / "examples"
     policy_path = str(examples / "carla-policy.json")
@@ -972,6 +1013,7 @@ def test_lidar_collector_snapshot_healthy_zero_counters() -> None:
 # Scenario 10: Runs without QRTC submission → post_run_rejection_test_passed=False
 # ---------------------------------------------------------------------------
 
+
 def test_no_qrtc_submission_post_run_pass_is_false(tmp_path: Path) -> None:
     """Without QRTC submission, post_run_rejection_test_passed must be False."""
     tick_count = 5
@@ -988,6 +1030,7 @@ def test_no_qrtc_submission_post_run_pass_is_false(tmp_path: Path) -> None:
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         report = run_drive(cfg)
 
     assert report["post_run_rejection_test_passed"] is False
@@ -1014,6 +1057,7 @@ def test_no_qrtc_submission_with_injection_still_false(tmp_path: Path) -> None:
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         report = run_drive(cfg)
 
     # Without QRTC submission, post_run_rejection_test_passed must be False
@@ -1043,6 +1087,7 @@ def test_no_qrtc_submission_invalid_injection_outcome(tmp_path: Path) -> None:
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         report = run_drive(cfg)
 
     assert report["test_outcome"] == "invalid_fault_injection"
@@ -1087,7 +1132,10 @@ def test_fault_injection_no_qrtc_classification_via_collector() -> None:
 # Additional: fault_injection section structure in run report
 # ---------------------------------------------------------------------------
 
-def test_run_report_contains_fault_injection_section_no_injection(tmp_path: Path) -> None:
+
+def test_run_report_contains_fault_injection_section_no_injection(
+    tmp_path: Path,
+) -> None:
     """The run report always contains a fault_injection section."""
     tick_count = 3
     ego = _make_ego_vehicle(tick_count)
@@ -1103,6 +1151,7 @@ def test_run_report_contains_fault_injection_section_no_injection(tmp_path: Path
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         report = run_drive(cfg)
 
     assert "fault_injection" in report
@@ -1118,7 +1167,10 @@ def test_run_report_contains_fault_injection_section_no_injection(tmp_path: Path
 def test_projection_includes_natural_and_injected_drop_fields() -> None:
     """build_qrtc_projection always projects natural and injected drop counters."""
     report = _minimal_run_report_for_carla_policy(
-        ticks=300, natural_drops=0, injected_drops=1, frames_dropped=1,
+        ticks=300,
+        natural_drops=0,
+        injected_drops=1,
+        frames_dropped=1,
         frames_received=299,
     )
     proj = build_qrtc_projection(report)
@@ -1130,7 +1182,9 @@ def test_projection_includes_natural_and_injected_drop_fields() -> None:
     assert iface["lidar_frames_dropped"] == 1  # aggregate preserved
 
 
-def test_harness_preserves_requested_fault_when_lidar_blueprint_missing(tmp_path: Path) -> None:
+def test_harness_preserves_requested_fault_when_lidar_blueprint_missing(
+    tmp_path: Path,
+) -> None:
     """Configured injection remains visible even when no LiDAR collector exists."""
     tick_count = 5
     ego = _make_ego_vehicle(tick_count)
@@ -1151,6 +1205,7 @@ def test_harness_preserves_requested_fault_when_lidar_blueprint_missing(tmp_path
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         report = run_drive(cfg)
 
     written = json.loads(Path(output).read_text(encoding="utf-8"))
@@ -1234,7 +1289,9 @@ def test_helper_denies_post_run_pass_for_wrong_rejection_reason(tmp_path: Path) 
     assert classification.post_run_rejection_test_passed is False
 
 
-def test_helper_denies_post_run_pass_when_evidence_not_preserved(tmp_path: Path) -> None:
+def test_helper_denies_post_run_pass_when_evidence_not_preserved(
+    tmp_path: Path,
+) -> None:
     classification = _classify_post_run_rejection(
         CarlaConfig(ticks=300, lidar=LidarConfig(enabled=True, drop_frame_index=150)),
         _controlled_injection_run_report(),
