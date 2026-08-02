@@ -202,6 +202,7 @@ def _classify_post_run_rejection(
     post_run_passed = (
         qrtc_submission is not None
         and fault_injection.get("triggered_callback_index") == cfg.lidar.drop_frame_index
+        and isinstance(ticks_requested, int)
         and ticks_completed == ticks_requested
         and lidar_callbacks_received == ticks_requested
         and lidar_frames_accepted == ticks_requested - 1
