@@ -211,22 +211,22 @@ def _carla_schema_guard(envelope: TransitEnvelope) -> bool:
         return False
 
     ticks_requested = iface.get("ticks_requested")
-    if not isinstance(ticks_requested, int) or ticks_requested <= 0:
+    if not (type(ticks_requested) is int) or ticks_requested <= 0:
         return False
 
     ticks_completed = iface.get("ticks_completed")
-    if not isinstance(ticks_completed, int) or ticks_completed < 0:
+    if not (type(ticks_completed) is int) or ticks_completed < 0:
         return False
 
     if status == "completed" and ticks_completed != ticks_requested:
         return False
 
     collision_count = iface.get("collision_count")
-    if not isinstance(collision_count, int) or collision_count < 0:
+    if not (type(collision_count) is int) or collision_count < 0:
         return False
 
     missing_data_count = iface.get("missing_data_count")
-    if not isinstance(missing_data_count, int) or missing_data_count < 0:
+    if not (type(missing_data_count) is int) or missing_data_count < 0:
         return False
 
     return True
@@ -266,23 +266,34 @@ def _carla_health_guard(envelope: TransitEnvelope) -> bool:
     lidar_enabled = iface.get("lidar_enabled")
     if lidar_enabled:
         lidar_frames = iface.get("lidar_frames_received")
-        if not isinstance(lidar_frames, int) or lidar_frames <= 0:
+        if not (type(lidar_frames) is int) or lidar_frames <= 0:
             return False
 
         ticks_completed = iface.get("ticks_completed")
-        if not isinstance(ticks_completed, int) or ticks_completed <= 0:
+        if not (type(ticks_completed) is int) or ticks_completed <= 0:
             return False
 
         if lidar_frames != ticks_completed:
             return False
 
         lidar_dropped = iface.get("lidar_frames_dropped")
-        if lidar_dropped != 0:
+        if not (type(lidar_dropped) is int) or lidar_dropped != 0:
             return False
 
         lidar_cb_errors = iface.get("lidar_callback_errors")
-        if lidar_cb_errors != 0:
+        if not (type(lidar_cb_errors) is int) or lidar_cb_errors != 0:
             return False
+
+        # Validate optional natural/injected drop counters when present.
+        lidar_natural_dropped = iface.get("lidar_frames_natural_dropped")
+        if lidar_natural_dropped is not None:
+            if not (type(lidar_natural_dropped) is int) or lidar_natural_dropped != 0:
+                return False
+
+        lidar_injected_dropped = iface.get("lidar_frames_injected_dropped")
+        if lidar_injected_dropped is not None:
+            if not (type(lidar_injected_dropped) is int) or lidar_injected_dropped != 0:
+                return False
 
         if not _finite_nonneg_or_none(iface.get("lidar_nearest_obstacle_m")):
             return False

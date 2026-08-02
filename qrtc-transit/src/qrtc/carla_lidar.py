@@ -13,7 +13,7 @@ import math
 import threading
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
 
 # ---------------------------------------------------------------------------
@@ -165,6 +165,44 @@ def process_lidar_points(
 
 
 # ---------------------------------------------------------------------------
+# Named immutable snapshot from LidarCollector
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class LidarCollectorSnapshot:
+    """
+    Immutable, thread-safe snapshot of LidarCollector state.
+
+    All callback indices below are zero-based.
+
+    ``accepted_frames`` is a copy of retained compact evidence (injected-drop
+    callback excluded).
+    ``natural_drops`` counts drops recorded via :meth:`LidarCollector.record_drop`
+    (i.e. external/observed drops), not the injected one.
+    ``injected_drops`` is 1 when fault injection triggered, 0 otherwise.
+    ``fault_injection_enabled`` is ``True`` when ``drop_frame_index >= 0``.
+    ``fault_injection_triggered`` is ``True`` when the configured callback was
+    actually reached and discarded.
+    ``requested_callback_index`` is the zero-based index requested for injection
+    (``None`` when disabled).
+    ``triggered_callback_index`` is the zero-based index at which injection fired
+    (``None`` when not triggered).
+    ``triggered_sensor_frame`` is the CARLA sensor frame number at injection
+    (``None`` when not triggered).
+    """
+    callbacks_received: int
+    accepted_frames: list[LidarFrameEvidence]
+    natural_drops: int
+    injected_drops: int
+    callback_errors: int
+    fault_injection_enabled: bool
+    fault_injection_triggered: bool
+    requested_callback_index: Optional[int]
+    triggered_callback_index: Optional[int]
+    triggered_sensor_frame: Optional[int]
+
+
+# ---------------------------------------------------------------------------
 # Collector — integrates with CARLA sensor callback
 # ---------------------------------------------------------------------------
 
@@ -195,17 +233,17 @@ class LidarCollector:
     _raw_buffer: deque[list[tuple[float, float, float]]] = field(
         default_factory=lambda: deque(maxlen=10), init=False, repr=False
     )
-    _dropped: int = field(default=0, init=False, repr=False)
+    _natural_drops: int = field(default=0, init=False, repr=False)
+    _injected_drops: int = field(default=0, init=False, repr=False)
     _callback_errors: int = field(default=0, init=False, repr=False)
     _callback_counter: int = field(default=0, init=False, repr=False)
+    _fault_injection_triggered: bool = field(default=False, init=False, repr=False)
+    _triggered_callback_index: Optional[int] = field(default=None, init=False, repr=False)
+    _triggered_sensor_frame: Optional[int] = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         # Enforce max_raw_frames on the deque
-        object.__setattr__(  # dataclass frozen=False so direct assignment is fine
-            self,
-            "_raw_buffer",
-            deque(maxlen=self.max_raw_frames),
-        )
+        self._raw_buffer = deque(maxlen=self.max_raw_frames)
 
     def on_data(self, measurement: Any) -> None:  # noqa: ANN401
         """CARLA sensor callback — called from sensor thread."""
@@ -215,7 +253,11 @@ class LidarCollector:
             callback_idx = self._callback_counter
             self._callback_counter += 1
             if self.drop_frame_index >= 0 and callback_idx == self.drop_frame_index:
-                self._dropped += 1
+                self._injected_drops += 1
+                self._fault_injection_triggered = True
+                self._triggered_callback_index = callback_idx
+                # Capture the sensor frame number before discarding.
+                self._triggered_sensor_frame = getattr(measurement, "frame", None)
                 return
 
         try:
@@ -239,14 +281,28 @@ class LidarCollector:
             if self.retain_raw:
                 self._raw_buffer.append(raw)
 
-    def snapshot(self) -> tuple[list[LidarFrameEvidence], int, int]:
-        """Return (frames_copy, dropped_count, callback_error_count) under lock."""
+    def snapshot(self) -> LidarCollectorSnapshot:
+        """Return an immutable snapshot of all collector state under lock."""
         with self._lock:
-            return list(self._frames), self._dropped, self._callback_errors
+            return LidarCollectorSnapshot(
+                callbacks_received=self._callback_counter,
+                accepted_frames=list(self._frames),
+                natural_drops=self._natural_drops,
+                injected_drops=self._injected_drops,
+                callback_errors=self._callback_errors,
+                fault_injection_enabled=self.drop_frame_index >= 0,
+                fault_injection_triggered=self._fault_injection_triggered,
+                requested_callback_index=(
+                    self.drop_frame_index if self.drop_frame_index >= 0 else None
+                ),
+                triggered_callback_index=self._triggered_callback_index,
+                triggered_sensor_frame=self._triggered_sensor_frame,
+            )
 
     def record_drop(self) -> None:
+        """Increment the natural-drop counter (external/observed drops only)."""
         with self._lock:
-            self._dropped += 1
+            self._natural_drops += 1
 
 
 # ---------------------------------------------------------------------------
@@ -257,6 +313,8 @@ class LidarCollector:
 class LidarSummary:
     frames_received: int
     frames_dropped: int
+    natural_drops: int
+    injected_drops: int
     callback_errors: int
     total_points: int
     total_invalid: int
@@ -268,6 +326,8 @@ class LidarSummary:
         return {
             "frames_received": self.frames_received,
             "frames_dropped": self.frames_dropped,
+            "natural_drops": self.natural_drops,
+            "injected_drops": self.injected_drops,
             "callback_errors": self.callback_errors,
             "total_points": self.total_points,
             "total_invalid": self.total_invalid,
@@ -279,7 +339,8 @@ class LidarSummary:
 
 def build_lidar_summary(
     frames: list[LidarFrameEvidence],
-    dropped: int,
+    natural_drops: int,
+    injected_drops: int,
     callback_errors: int,
 ) -> LidarSummary:
     total_points = sum(f.point_count for f in frames)
@@ -306,7 +367,9 @@ def build_lidar_summary(
 
     return LidarSummary(
         frames_received=len(frames),
-        frames_dropped=dropped,
+        frames_dropped=natural_drops + injected_drops,
+        natural_drops=natural_drops,
+        injected_drops=injected_drops,
         callback_errors=callback_errors,
         total_points=total_points,
         total_invalid=total_invalid,

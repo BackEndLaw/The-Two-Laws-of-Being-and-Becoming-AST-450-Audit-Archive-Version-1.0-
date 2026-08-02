@@ -10,6 +10,7 @@ import pytest
 
 from qrtc.carla_lidar import (
     LidarCollector,
+    LidarCollectorSnapshot,
     LidarFrameEvidence,
     build_lidar_summary,
     compute_speed_mps,
@@ -216,12 +217,14 @@ def test_collector_on_data_accumulates_evidence() -> None:
     collector = LidarCollector()
     m = _make_fake_measurement([(5.0, 0.0, 0.0), (3.0, 0.0, 0.0)], frame=10)
     collector.on_data(m)
-    frames, dropped, errors = collector.snapshot()
-    assert len(frames) == 1
-    assert frames[0].point_count == 2
-    assert frames[0].frame == 10
-    assert dropped == 0
-    assert errors == 0
+    snap = collector.snapshot()
+    assert isinstance(snap, LidarCollectorSnapshot)
+    assert len(snap.accepted_frames) == 1
+    assert snap.accepted_frames[0].point_count == 2
+    assert snap.accepted_frames[0].frame == 10
+    assert snap.natural_drops == 0
+    assert snap.injected_drops == 0
+    assert snap.callback_errors == 0
 
 
 def test_collector_handles_callback_error_gracefully() -> None:
@@ -231,8 +234,8 @@ def test_collector_handles_callback_error_gracefully() -> None:
     bad.timestamp = 0.1
     bad.__iter__ = MagicMock(side_effect=RuntimeError("sensor exploded"))
     collector.on_data(bad)
-    _, _, errors = collector.snapshot()
-    assert errors == 1
+    snap = collector.snapshot()
+    assert snap.callback_errors == 1
 
 
 def test_collector_snapshot_is_thread_safe() -> None:
@@ -254,8 +257,8 @@ def test_collector_snapshot_is_thread_safe() -> None:
         t.join()
 
     assert not results
-    frames, _, _ = collector.snapshot()
-    assert len(frames) == 80  # 4 threads × 20 frames each
+    snap = collector.snapshot()
+    assert len(snap.accepted_frames) == 80  # 4 threads × 20 frames each
 
 
 def test_collector_retain_raw_bounded() -> None:
@@ -264,8 +267,8 @@ def test_collector_retain_raw_bounded() -> None:
         m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
         collector.on_data(m)
     # 10 compact frames stored
-    frames, _, _ = collector.snapshot()
-    assert len(frames) == 10
+    snap = collector.snapshot()
+    assert len(snap.accepted_frames) == 10
     # raw buffer is bounded to 3
     assert len(collector._raw_buffer) == 3
 
@@ -274,8 +277,9 @@ def test_collector_record_drop() -> None:
     collector = LidarCollector()
     collector.record_drop()
     collector.record_drop()
-    _, dropped, _ = collector.snapshot()
-    assert dropped == 2
+    snap = collector.snapshot()
+    assert snap.natural_drops == 2
+    assert snap.injected_drops == 0
 
 
 # ---------------------------------------------------------------------------
@@ -288,10 +292,13 @@ def test_collector_fault_injection_disabled_retains_all_callbacks() -> None:
     for i in range(5):
         m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
         collector.on_data(m)
-    frames, dropped, errors = collector.snapshot()
-    assert len(frames) == 5
-    assert dropped == 0
-    assert errors == 0
+    snap = collector.snapshot()
+    assert len(snap.accepted_frames) == 5
+    assert snap.natural_drops == 0
+    assert snap.injected_drops == 0
+    assert snap.callback_errors == 0
+    assert not snap.fault_injection_enabled
+    assert not snap.fault_injection_triggered
 
 
 def test_collector_fault_injection_drops_exactly_one_callback() -> None:
@@ -302,13 +309,16 @@ def test_collector_fault_injection_drops_exactly_one_callback() -> None:
     for i in range(total):
         m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
         collector.on_data(m)
-    frames, dropped, errors = collector.snapshot()
+    snap = collector.snapshot()
     # One callback was dropped; 4 frames should be retained
-    assert len(frames) == total - 1
-    assert dropped == 1
-    assert errors == 0
+    assert len(snap.accepted_frames) == total - 1
+    assert snap.injected_drops == 1
+    assert snap.natural_drops == 0
+    assert snap.callback_errors == 0
+    assert snap.fault_injection_triggered
+    assert snap.triggered_callback_index == drop_idx
     # Verify the dropped frame (frame index 2) is not in retained evidence
-    retained_frame_ids = {f.frame for f in frames}
+    retained_frame_ids = {f.frame for f in snap.accepted_frames}
     assert drop_idx not in retained_frame_ids
 
 
@@ -318,8 +328,9 @@ def test_collector_fault_injection_drops_only_once() -> None:
     for i in range(10):
         m = _make_fake_measurement([(1.0, 0.0, 0.0)], frame=i)
         collector.on_data(m)
-    _, dropped, _ = collector.snapshot()
-    assert dropped == 1
+    snap = collector.snapshot()
+    assert snap.injected_drops == 1
+    assert snap.natural_drops == 0
 
 
 def test_collector_fault_injection_first_callback() -> None:
@@ -328,11 +339,11 @@ def test_collector_fault_injection_first_callback() -> None:
     for i in range(3):
         m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
         collector.on_data(m)
-    frames, dropped, errors = collector.snapshot()
-    assert len(frames) == 2
-    assert dropped == 1
+    snap = collector.snapshot()
+    assert len(snap.accepted_frames) == 2
+    assert snap.injected_drops == 1
     # frame 0 should not be present
-    assert all(f.frame != 0 for f in frames)
+    assert all(f.frame != 0 for f in snap.accepted_frames)
 
 
 def test_collector_fault_injection_last_callback() -> None:
@@ -342,10 +353,10 @@ def test_collector_fault_injection_last_callback() -> None:
     for i in range(n):
         m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
         collector.on_data(m)
-    frames, dropped, _ = collector.snapshot()
-    assert len(frames) == n - 1
-    assert dropped == 1
-    assert all(f.frame != n - 1 for f in frames)
+    snap = collector.snapshot()
+    assert len(snap.accepted_frames) == n - 1
+    assert snap.injected_drops == 1
+    assert all(f.frame != n - 1 for f in snap.accepted_frames)
 
 
 def test_collector_fault_injection_beyond_range_does_not_drop() -> None:
@@ -354,9 +365,11 @@ def test_collector_fault_injection_beyond_range_does_not_drop() -> None:
     for i in range(5):
         m = _make_fake_measurement([(float(i), 0.0, 0.0)], frame=i)
         collector.on_data(m)
-    frames, dropped, _ = collector.snapshot()
-    assert len(frames) == 5
-    assert dropped == 0
+    snap = collector.snapshot()
+    assert len(snap.accepted_frames) == 5
+    assert snap.injected_drops == 0
+    assert snap.fault_injection_enabled
+    assert not snap.fault_injection_triggered
 
 
 # ---------------------------------------------------------------------------
@@ -364,7 +377,7 @@ def test_collector_fault_injection_beyond_range_does_not_drop() -> None:
 # ---------------------------------------------------------------------------
 
 def test_lidar_summary_empty() -> None:
-    summary = build_lidar_summary([], 0, 0)
+    summary = build_lidar_summary([], 0, 0, 0)
     assert summary.frames_received == 0
     assert summary.nearest_obstacle_overall is None
     assert summary.nearest_obstacle_front is None
@@ -374,25 +387,28 @@ def test_lidar_summary_empty() -> None:
 def test_lidar_summary_computes_nearest() -> None:
     f1 = process_lidar_points([(10.0, 0.0, 0.0)], frame=1)
     f2 = process_lidar_points([(3.0, 0.0, 0.0)], frame=2)
-    summary = build_lidar_summary([f1, f2], dropped=1, callback_errors=0)
+    summary = build_lidar_summary([f1, f2], natural_drops=1, injected_drops=0, callback_errors=0)
     assert summary.nearest_obstacle_overall == pytest.approx(3.0)
     assert summary.nearest_obstacle_front == pytest.approx(3.0)
     assert summary.frames_dropped == 1
+    assert summary.natural_drops == 1
+    assert summary.injected_drops == 0
     assert summary.frames_received == 2
 
 
 def test_lidar_summary_mean_nearest_front() -> None:
     f1 = process_lidar_points([(4.0, 0.0, 0.0)], frame=1)   # nearest_front=4
     f2 = process_lidar_points([(8.0, 0.0, 0.0)], frame=2)   # nearest_front=8
-    summary = build_lidar_summary([f1, f2], 0, 0)
+    summary = build_lidar_summary([f1, f2], 0, 0, 0)
     assert summary.mean_nearest_front == pytest.approx(6.0)
 
 
 def test_lidar_summary_as_dict_complete() -> None:
-    summary = build_lidar_summary([], 0, 0)
+    summary = build_lidar_summary([], 0, 0, 0)
     d = summary.as_dict()
     for key in (
-        "frames_received", "frames_dropped", "callback_errors",
+        "frames_received", "frames_dropped", "natural_drops", "injected_drops",
+        "callback_errors",
         "total_points", "total_invalid",
         "nearest_obstacle_overall", "nearest_obstacle_front", "mean_nearest_front",
     ):

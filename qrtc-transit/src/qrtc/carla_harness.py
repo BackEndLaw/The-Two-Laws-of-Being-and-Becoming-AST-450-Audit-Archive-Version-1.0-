@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from qrtc.carla_config import CarlaConfig, carla_config_from_env, validate_carla_config
-from qrtc.carla_lidar import LidarCollector, build_lidar_summary, process_lidar_points
+from qrtc.carla_lidar import LidarCollector, LidarCollectorSnapshot, build_lidar_summary, process_lidar_points
 from qrtc.carla_telemetry import build_qrtc_projection, submit_to_qrtc_pipeline
 from qrtc.limits import canonical_json
 
@@ -330,15 +330,23 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
         # Lidar summary
         lidar_frame_evidence: list[dict[str, Any]] = []
         lidar_summary_dict: dict[str, Any] = {}
+        lidar_snap: LidarCollectorSnapshot | None = None
         if lidar_collector is not None:
-            frames, dropped, cb_errors = lidar_collector.snapshot()
-            summary = build_lidar_summary(frames, dropped, cb_errors)
+            lidar_snap = lidar_collector.snapshot()
+            summary = build_lidar_summary(
+                lidar_snap.accepted_frames,
+                lidar_snap.natural_drops,
+                lidar_snap.injected_drops,
+                lidar_snap.callback_errors,
+            )
             lidar_summary_dict = summary.as_dict()
-            lidar_frame_evidence = [f.as_dict() for f in frames]
+            lidar_frame_evidence = [f.as_dict() for f in lidar_snap.accepted_frames]
         else:
             lidar_summary_dict = {
                 "frames_received": 0,
                 "frames_dropped": 0,
+                "natural_drops": 0,
+                "injected_drops": 0,
                 "callback_errors": 0,
                 "total_points": 0,
                 "total_invalid": 0,
@@ -348,6 +356,36 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
             }
 
         # --- Build run report -----------------------------------------------
+        # Fault injection accounting (assembled before QRTC so evidence is always present)
+        fault_injection_section: dict[str, Any] = {}
+        lidar_callbacks_received: int = 0
+        lidar_frames_accepted: int = 0
+        lidar_frames_natural_dropped: int = 0
+        lidar_frames_injected_dropped: int = 0
+        if lidar_snap is not None:
+            fi_enabled = lidar_snap.fault_injection_enabled
+            fault_injection_section = {
+                "enabled": fi_enabled,
+                "type": "lidar-frame-drop" if fi_enabled else None,
+                "requested_callback_index": lidar_snap.requested_callback_index,
+                "triggered": lidar_snap.fault_injection_triggered,
+                "triggered_callback_index": lidar_snap.triggered_callback_index,
+                "triggered_sensor_frame": lidar_snap.triggered_sensor_frame,
+            }
+            lidar_callbacks_received = lidar_snap.callbacks_received
+            lidar_frames_accepted = len(lidar_snap.accepted_frames)
+            lidar_frames_natural_dropped = lidar_snap.natural_drops
+            lidar_frames_injected_dropped = lidar_snap.injected_drops
+        else:
+            fault_injection_section = {
+                "enabled": False,
+                "type": None,
+                "requested_callback_index": None,
+                "triggered": False,
+                "triggered_callback_index": None,
+                "triggered_sensor_frame": None,
+            }
+
         run_report: dict[str, Any] = {
             "run_id": run_id,
             "run_timestamp_utc": run_ts,
@@ -375,6 +413,11 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
             "samples": samples,
             "lidar_summary": lidar_summary_dict,
             "lidar_frame_evidence": lidar_frame_evidence,
+            "fault_injection": fault_injection_section,
+            "lidar_callbacks_received": lidar_callbacks_received,
+            "lidar_frames_accepted": lidar_frames_accepted,
+            "lidar_frames_natural_dropped": lidar_frames_natural_dropped,
+            "lidar_frames_injected_dropped": lidar_frames_injected_dropped,
         }
 
         # Emit config and evidence digests
@@ -406,7 +449,77 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
                 f"transit_id={qrtc_result.transit_id} db={qrtc_result.db_path}",
                 flush=True,
             )
-            # Rewrite with QRTC result included
+
+            # Post-run rejection test classification (post-run validation only,
+            # not runtime protection).
+            fi = run_report.get("fault_injection", {})
+            fi_requested = bool(fi.get("enabled"))
+            fi_triggered = bool(fi.get("triggered"))
+            n_injected = run_report.get("lidar_frames_injected_dropped", 0)
+            n_accepted = run_report.get("lidar_frames_accepted", 0)
+            expected_frames = cfg.ticks
+
+            # Determine health guard result and evidence preservation.
+            qrtc_sub = run_report["qrtc_submission"]
+            qrtc_status = qrtc_sub.get("status")
+            evidence_preserved = bool(qrtc_sub.get("evidence_preserved"))
+            health_guard_failed = False
+            for gr in qrtc_sub.get("guard_reasons", []):
+                if gr.get("guard_id") == "carla-health-v1" and not gr.get("qualified"):
+                    health_guard_failed = True
+                    break
+
+            if not fi_requested:
+                test_outcome = "no_fault_injection"
+                post_run_passed = False
+            elif not fi_triggered:
+                test_outcome = "invalid_fault_injection"
+                post_run_passed = False
+            elif (
+                fi_triggered
+                and n_injected == 1
+                and n_accepted == expected_frames - 1
+                and qrtc_status == "rejected"
+                and health_guard_failed
+                and evidence_preserved
+            ):
+                test_outcome = "post_run_rejection_pass"
+                post_run_passed = True
+            else:
+                test_outcome = "post_run_rejection_fail"
+                post_run_passed = False
+
+            run_report["test_outcome"] = test_outcome
+            run_report["post_run_rejection_test_passed"] = post_run_passed
+            if not fi_requested:
+                run_report.pop("fault_requested", None)
+                run_report.pop("fault_observed", None)
+            else:
+                run_report["fault_requested"] = fi_requested
+                run_report["fault_observed"] = fi_triggered
+
+            # Rewrite with QRTC result and classification included
+            out_path.write_text(
+                json.dumps(run_report, indent=2, default=str),
+                encoding="utf-8",
+            )
+        else:
+            # No QRTC submission — post_run_rejection_test_passed must remain False.
+            fi = run_report.get("fault_injection", {})
+            fi_requested = bool(fi.get("enabled"))
+            fi_triggered = bool(fi.get("triggered"))
+            if not fi_requested:
+                test_outcome = "no_fault_injection"
+            elif not fi_triggered:
+                test_outcome = "invalid_fault_injection"
+            else:
+                test_outcome = "fault_injection_no_qrtc"
+            run_report["test_outcome"] = test_outcome
+            run_report["post_run_rejection_test_passed"] = False
+            if fi_requested:
+                run_report["fault_requested"] = fi_requested
+                run_report["fault_observed"] = fi_triggered
+            # Rewrite with classification
             out_path.write_text(
                 json.dumps(run_report, indent=2, default=str),
                 encoding="utf-8",
