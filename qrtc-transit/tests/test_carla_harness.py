@@ -5,23 +5,23 @@ All tests use fakes; no real CARLA simulator is required.
 
 A live-marked test skeleton is included for explicit --live runs.
 """
+
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from qrtc.carla_config import CarlaConfig, LidarConfig
 from qrtc.carla_harness import _displacement, _select_blueprint, _transform_snapshot
 
-
 # ---------------------------------------------------------------------------
 # Pure helpers
 # ---------------------------------------------------------------------------
+
 
 def test_displacement_zero() -> None:
     assert _displacement((0.0, 0.0, 0.0), (0.0, 0.0, 0.0)) == pytest.approx(0.0)
@@ -61,6 +61,7 @@ def test_transform_snapshot_computes_speed() -> None:
 # Blueprint selection
 # ---------------------------------------------------------------------------
 
+
 def test_select_blueprint_finds_preferred() -> None:
     preferred_bp = MagicMock()
     preferred_bp.id = "vehicle.tesla.model3"
@@ -98,6 +99,7 @@ def test_select_blueprint_raises_when_no_vehicles() -> None:
 # ---------------------------------------------------------------------------
 # Fake CARLA world infrastructure
 # ---------------------------------------------------------------------------
+
 
 def _make_spawn_point() -> MagicMock:
     sp = MagicMock()
@@ -149,9 +151,12 @@ def _make_carla_module(ego: MagicMock, tick_count: int = 5) -> MagicMock:
     lidar_bp.set_attribute = MagicMock()
     lib = MagicMock()
     lib.find.side_effect = lambda name: (
-        blueprint if "tesla" in name
-        else collision_bp if "collision" in name
-        else lidar_bp if "lidar" in name
+        blueprint
+        if "tesla" in name
+        else collision_bp
+        if "collision" in name
+        else lidar_bp
+        if "lidar" in name
         else None
     )
     lib.filter.return_value = [blueprint]
@@ -203,6 +208,7 @@ def _make_carla_module(ego: MagicMock, tick_count: int = 5) -> MagicMock:
 # run_drive smoke test with fakes
 # ---------------------------------------------------------------------------
 
+
 def test_run_drive_completes_and_writes_report(tmp_path: Path) -> None:
     """run_drive should complete successfully using fake CARLA objects."""
     ego = _make_ego_vehicle()
@@ -218,6 +224,7 @@ def test_run_drive_completes_and_writes_report(tmp_path: Path) -> None:
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         report = run_drive(cfg)
 
     assert report["status"] == "completed"
@@ -248,6 +255,7 @@ def test_run_drive_cleanup_always_called(tmp_path: Path) -> None:
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         report = run_drive(cfg)
 
     # Partial data is retained
@@ -264,8 +272,6 @@ def test_run_drive_lidar_sensor_destroyed_in_cleanup(tmp_path: Path) -> None:
 
     # Recover spawned sensors from side_effect
     spawned: list[MagicMock] = []
-    original_spawn = fake_carla.Client.return_value.get_world.return_value.spawn_actor.side_effect
-    lidar_sensor_ref: list[MagicMock] = []
 
     def tracking_spawn(bp, transform, attach_to=None):
         result = MagicMock()
@@ -289,6 +295,7 @@ def test_run_drive_lidar_sensor_destroyed_in_cleanup(tmp_path: Path) -> None:
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         run_drive(cfg)
 
     # Both collision and lidar sensors should be destroyed
@@ -315,6 +322,7 @@ def test_run_drive_restores_world_settings(tmp_path: Path) -> None:
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         run_drive(cfg)
 
     # apply_settings should be called at least twice:
@@ -339,6 +347,7 @@ def test_run_drive_connection_failure_raises_system_exit(tmp_path: Path) -> None
 
     with patch("qrtc.carla_harness._require_carla", return_value=fake_carla):
         from qrtc.carla_harness import run_drive
+
         with pytest.raises(SystemExit) as exc_info:
             run_drive(cfg)
     assert exc_info.value.code == 2
@@ -357,6 +366,7 @@ def test_require_carla_raises_import_error_when_missing() -> None:
 
     with patch("builtins.__import__", side_effect=patched_import):
         from qrtc.carla_harness import _require_carla
+
         with pytest.raises(ImportError, match="CARLA Python API"):
             _require_carla()
 
@@ -370,13 +380,17 @@ def test_main_returns_zero_on_success(tmp_path: Path) -> None:
 
     with (
         patch("qrtc.carla_harness._require_carla", return_value=fake_carla),
-        patch.dict("os.environ", {
-            "CARLA_TICKS": "3",
-            "CARLA_OUTPUT": output,
-            "CARLA_LIDAR_ENABLED": "false",
-        }),
+        patch.dict(
+            "os.environ",
+            {
+                "CARLA_TICKS": "3",
+                "CARLA_OUTPUT": output,
+                "CARLA_LIDAR_ENABLED": "false",
+            },
+        ),
     ):
         from qrtc.carla_harness import main
+
         code = main()
 
     assert code == 0
@@ -385,6 +399,7 @@ def test_main_returns_zero_on_success(tmp_path: Path) -> None:
 def test_main_returns_nonzero_on_config_error() -> None:
     with patch.dict("os.environ", {"CARLA_PORT": "0"}):
         from qrtc.carla_harness import main
+
         code = main()
     assert code != 0
 
@@ -392,6 +407,7 @@ def test_main_returns_nonzero_on_config_error() -> None:
 # ---------------------------------------------------------------------------
 # Live test placeholder (excluded unless --live is passed)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.live
 def test_live_carla_drive(tmp_path: Path) -> None:
@@ -414,6 +430,7 @@ def test_live_carla_drive(tmp_path: Path) -> None:
     )
 
     from qrtc.carla_harness import run_drive
+
     report = run_drive(cfg)
 
     assert report["status"] == "completed"

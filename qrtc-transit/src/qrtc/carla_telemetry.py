@@ -7,16 +7,17 @@ optionally, submits it through the configured transit pipeline.
 No CARLA imports are required here. This module depends only on the
 existing qrtc-transit pipeline utilities.
 """
+
 from __future__ import annotations
 
 import hashlib
 import uuid
+from contextlib import suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
 
 from qrtc.limits import canonical_json
-
 
 # ---------------------------------------------------------------------------
 # Evidence projection
@@ -29,34 +30,36 @@ _FUTURE_FAMILY = "carla-drive-evidence"
 # Fields accepted as interface_projection in the QRTC evidence record.
 # Lidar fields that are richer than the core schema go into a separate
 # namespaced section inside ``context``.
-_QRTC_INTERFACE_FIELDS = frozenset({
-    "run_id",
-    "principal",
-    "destination",
-    "run_timestamp_utc",
-    "map_name",
-    "client_version",
-    "server_version",
-    "blueprint",
-    "spawn_point_index",
-    "fixed_delta",
-    "ticks_requested",
-    "ticks_completed",
-    "collision_count",
-    "displacement_m",
-    "mean_speed_mps",
-    "max_speed_mps",
-    "lidar_enabled",
-    "lidar_frames_received",
-    "lidar_frames_dropped",
-    "lidar_frames_natural_dropped",
-    "lidar_frames_injected_dropped",
-    "lidar_callback_errors",
-    "lidar_nearest_obstacle_m",
-    "lidar_nearest_front_m",
-    "missing_data_count",
-    "status",
-})
+_QRTC_INTERFACE_FIELDS = frozenset(
+    {
+        "run_id",
+        "principal",
+        "destination",
+        "run_timestamp_utc",
+        "map_name",
+        "client_version",
+        "server_version",
+        "blueprint",
+        "spawn_point_index",
+        "fixed_delta",
+        "ticks_requested",
+        "ticks_completed",
+        "collision_count",
+        "displacement_m",
+        "mean_speed_mps",
+        "max_speed_mps",
+        "lidar_enabled",
+        "lidar_frames_received",
+        "lidar_frames_dropped",
+        "lidar_frames_natural_dropped",
+        "lidar_frames_injected_dropped",
+        "lidar_callback_errors",
+        "lidar_nearest_obstacle_m",
+        "lidar_nearest_front_m",
+        "missing_data_count",
+        "status",
+    }
+)
 
 
 def _truncate_samples(
@@ -71,20 +74,17 @@ def _truncate_samples(
 
 
 def _config_digest(config_dict: dict[str, Any]) -> str:
-    return hashlib.sha256(
-        canonical_json(config_dict).encode("utf-8")
-    ).hexdigest()
+    return hashlib.sha256(canonical_json(config_dict).encode("utf-8")).hexdigest()
 
 
 def _evidence_digest(evidence_dict: dict[str, Any]) -> str:
-    return hashlib.sha256(
-        canonical_json(evidence_dict).encode("utf-8")
-    ).hexdigest()
+    return hashlib.sha256(canonical_json(evidence_dict).encode("utf-8")).hexdigest()
 
 
 @dataclass(frozen=True)
 class QrtcProjection:
     """QRTC-compatible projection of a CARLA drive run."""
+
     transit_id: str
     principal: str
     destination: str
@@ -145,7 +145,9 @@ def build_qrtc_projection(
     missing_data_count = int(run_report.get("missing_data_count", 0))
     status = run_report.get("status", "unknown")
 
-    lidar_enabled = bool(lidar.get("frames_received", 0)) or cfg.get("lidar", {}).get("enabled", False)
+    lidar_enabled = bool(lidar.get("frames_received", 0)) or cfg.get("lidar", {}).get(
+        "enabled", False
+    )
     lidar_frames = int(lidar.get("frames_received", 0))
     lidar_dropped = int(lidar.get("frames_dropped", 0))
     lidar_natural_dropped = int(lidar.get("natural_drops", 0))
@@ -224,6 +226,7 @@ def build_qrtc_projection(
 # ---------------------------------------------------------------------------
 # Optional QRTC submission
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class QrtcSubmissionResult:
@@ -336,16 +339,12 @@ def submit_to_qrtc_pipeline(
             evidence_preserved=False,
         )
     finally:
-        try:
+        with suppress(Exception):
             Path(tmp_path).unlink(missing_ok=True)
-        except Exception:  # noqa: BLE001
-            pass
 
     try:
         registry = build_default_registry(carla_principal=carla_principal)
-        configured, outcome = execute_configured_transit(
-            policy, input_record, registry
-        )
+        configured, outcome = execute_configured_transit(policy, input_record, registry)
     except Exception as exc:  # noqa: BLE001
         return QrtcSubmissionResult(
             submitted=False,
@@ -360,7 +359,7 @@ def submit_to_qrtc_pipeline(
     # Record the outcome in the evidence database.  A serialization error
     # (e.g. NaN in the interface) must not suppress the pipeline result.
     evidence_preserved = False
-    try:
+    with suppress(Exception):
         store = EvidenceStore(db_path)
         store.record_transit(
             policy,
@@ -372,8 +371,6 @@ def submit_to_qrtc_pipeline(
             resolved_components=configured.resolved_component_ids,
         )
         evidence_preserved = True
-    except Exception:  # noqa: BLE001
-        pass
 
     accepted = outcome.failure_state is None
 
@@ -393,7 +390,9 @@ def submit_to_qrtc_pipeline(
         transit_id=outcome.transit_id,
         status="accepted" if accepted else "rejected",
         failure_stage=outcome.failure_state.value if outcome.failure_state else None,
-        failure_reason=None if accepted else (
+        failure_reason=None
+        if accepted
+        else (
             outcome.authorization.reason
             if outcome.failure_state is TransitFailureState.REJECTED_BY_KEY
             else (

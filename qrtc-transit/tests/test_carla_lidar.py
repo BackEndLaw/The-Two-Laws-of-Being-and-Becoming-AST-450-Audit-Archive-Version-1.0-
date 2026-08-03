@@ -1,4 +1,5 @@
 """Unit tests for qrtc.carla_lidar — lidar processing and evidence."""
+
 from __future__ import annotations
 
 import math
@@ -11,16 +12,15 @@ import pytest
 from qrtc.carla_lidar import (
     LidarCollector,
     LidarCollectorSnapshot,
-    LidarFrameEvidence,
     build_lidar_summary,
     compute_speed_mps,
     process_lidar_points,
 )
 
-
 # ---------------------------------------------------------------------------
 # Speed calculation
 # ---------------------------------------------------------------------------
+
 
 def test_speed_zero_velocity() -> None:
     assert compute_speed_mps(0.0, 0.0, 0.0) == pytest.approx(0.0)
@@ -42,6 +42,7 @@ def test_speed_pythagoras_3d() -> None:
 # ---------------------------------------------------------------------------
 # Empty scan
 # ---------------------------------------------------------------------------
+
 
 def test_empty_lidar_scan_produces_none_stats() -> None:
     ev = process_lidar_points([])
@@ -65,6 +66,7 @@ def test_empty_lidar_scan_produces_none_stats() -> None:
 # Non-finite / malformed samples
 # ---------------------------------------------------------------------------
 
+
 def test_all_non_finite_points_counted_as_invalid() -> None:
     points = [
         (float("nan"), 0.0, 0.0),
@@ -81,9 +83,9 @@ def test_all_non_finite_points_counted_as_invalid() -> None:
 
 def test_mixed_finite_and_non_finite() -> None:
     points = [
-        (5.0, 0.0, 0.0),        # finite, front, r=5
+        (5.0, 0.0, 0.0),  # finite, front, r=5
         (float("nan"), 0.0, 0.0),  # invalid
-        (0.0, -3.0, 0.0),       # finite, right, r=3
+        (0.0, -3.0, 0.0),  # finite, right, r=3
     ]
     ev = process_lidar_points(points)
     assert ev.point_count == 3
@@ -95,6 +97,7 @@ def test_mixed_finite_and_non_finite() -> None:
 # ---------------------------------------------------------------------------
 # Statistical correctness
 # ---------------------------------------------------------------------------
+
 
 def test_single_point_statistics() -> None:
     ev = process_lidar_points([(10.0, 0.0, 0.0)])
@@ -124,6 +127,7 @@ def test_range_min_is_nearest_overall() -> None:
 # ---------------------------------------------------------------------------
 # Sector assignment
 # ---------------------------------------------------------------------------
+
 
 def test_forward_points_go_to_front_sector() -> None:
     ev = process_lidar_points([(5.0, 0.0, 0.0)])
@@ -158,6 +162,7 @@ def test_sector_nearest_is_minimum_in_sector() -> None:
 # Frame metadata
 # ---------------------------------------------------------------------------
 
+
 def test_frame_and_timestamp_are_preserved() -> None:
     ev = process_lidar_points([(1.0, 0.0, 0.0)], frame=42, timestamp=3.14)
     assert ev.frame == 42
@@ -174,15 +179,26 @@ def test_none_frame_and_timestamp_are_preserved() -> None:
 # as_dict completeness
 # ---------------------------------------------------------------------------
 
+
 def test_lidar_frame_evidence_as_dict_has_all_keys() -> None:
     ev = process_lidar_points([(1.0, 0.0, 0.0)], frame=1, timestamp=0.1)
     d = ev.as_dict()
     for key in (
-        "frame", "timestamp", "point_count", "finite_count", "invalid_count",
-        "range_min", "range_max", "range_mean",
-        "range_p10", "range_p50", "range_p90",
-        "nearest_overall", "nearest_front",
-        "sector_counts", "sector_nearest",
+        "frame",
+        "timestamp",
+        "point_count",
+        "finite_count",
+        "invalid_count",
+        "range_min",
+        "range_max",
+        "range_mean",
+        "range_p10",
+        "range_p50",
+        "range_p90",
+        "nearest_overall",
+        "nearest_front",
+        "sector_counts",
+        "sector_nearest",
     ):
         assert key in d, f"missing key: {key}"
 
@@ -190,6 +206,7 @@ def test_lidar_frame_evidence_as_dict_has_all_keys() -> None:
 # ---------------------------------------------------------------------------
 # Collector — thread-safe on_data via fake measurement
 # ---------------------------------------------------------------------------
+
 
 def _make_fake_measurement(
     points: list[tuple[float, float, float]],
@@ -295,6 +312,7 @@ def test_collector_record_drop() -> None:
 # Fault injection — drop_frame_index
 # ---------------------------------------------------------------------------
 
+
 def test_collector_fault_injection_disabled_retains_all_callbacks() -> None:
     """When drop_frame_index=-1 (default) all callbacks are retained."""
     collector = LidarCollector(drop_frame_index=-1)
@@ -385,6 +403,7 @@ def test_collector_fault_injection_beyond_range_does_not_drop() -> None:
 # Deterministic frame waiting / natural timeout accounting
 # ---------------------------------------------------------------------------
 
+
 def test_wait_for_frame_returns_when_expected_frame_arrives() -> None:
     collector = LidarCollector()
 
@@ -465,6 +484,7 @@ def test_wait_for_frame_returns_callback_error_deterministically() -> None:
 # Build lidar summary
 # ---------------------------------------------------------------------------
 
+
 def test_lidar_summary_empty() -> None:
     summary = build_lidar_summary([], 0, 0, 0)
     assert summary.frames_received == 0
@@ -476,7 +496,9 @@ def test_lidar_summary_empty() -> None:
 def test_lidar_summary_computes_nearest() -> None:
     f1 = process_lidar_points([(10.0, 0.0, 0.0)], frame=1)
     f2 = process_lidar_points([(3.0, 0.0, 0.0)], frame=2)
-    summary = build_lidar_summary([f1, f2], natural_drops=1, injected_drops=0, callback_errors=0)
+    summary = build_lidar_summary(
+        [f1, f2], natural_drops=1, injected_drops=0, callback_errors=0
+    )
     assert summary.nearest_obstacle_overall == pytest.approx(3.0)
     assert summary.nearest_obstacle_front == pytest.approx(3.0)
     assert summary.frames_dropped == 1
@@ -486,8 +508,8 @@ def test_lidar_summary_computes_nearest() -> None:
 
 
 def test_lidar_summary_mean_nearest_front() -> None:
-    f1 = process_lidar_points([(4.0, 0.0, 0.0)], frame=1)   # nearest_front=4
-    f2 = process_lidar_points([(8.0, 0.0, 0.0)], frame=2)   # nearest_front=8
+    f1 = process_lidar_points([(4.0, 0.0, 0.0)], frame=1)  # nearest_front=4
+    f2 = process_lidar_points([(8.0, 0.0, 0.0)], frame=2)  # nearest_front=8
     summary = build_lidar_summary([f1, f2], 0, 0, 0)
     assert summary.mean_nearest_front == pytest.approx(6.0)
 
@@ -496,9 +518,15 @@ def test_lidar_summary_as_dict_complete() -> None:
     summary = build_lidar_summary([], 0, 0, 0)
     d = summary.as_dict()
     for key in (
-        "frames_received", "frames_dropped", "natural_drops", "injected_drops",
+        "frames_received",
+        "frames_dropped",
+        "natural_drops",
+        "injected_drops",
         "callback_errors",
-        "total_points", "total_invalid",
-        "nearest_obstacle_overall", "nearest_obstacle_front", "mean_nearest_front",
+        "total_points",
+        "total_invalid",
+        "nearest_obstacle_overall",
+        "nearest_obstacle_front",
+        "mean_nearest_front",
     ):
         assert key in d, f"missing key: {key}"

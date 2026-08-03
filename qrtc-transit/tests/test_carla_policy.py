@@ -11,6 +11,7 @@ These tests cover:
 - Detailed authorization/guard reasons in submission results
 - Accepted and rejected outcomes are persisted in the evidence database
 """
+
 from __future__ import annotations
 
 import math
@@ -34,8 +35,7 @@ from qrtc.registry import (
     _carla_schema_guard,
     build_default_registry,
 )
-from qrtc.transit import TransitEnvelope, AuthorizationDecision
-
+from qrtc.transit import AuthorizationDecision, TransitEnvelope
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -140,14 +140,14 @@ def _projection_for(
 # carla-policy.json loads correctly
 # ---------------------------------------------------------------------------
 
+
 def test_carla_policy_file_exists() -> None:
-    assert Path(_CARLA_POLICY_PATH).exists(), (
-        "carla-policy.json not found in examples/"
-    )
+    assert Path(_CARLA_POLICY_PATH).exists(), "carla-policy.json not found in examples/"
 
 
 def test_carla_policy_has_distinct_component_ids() -> None:
     from qrtc.policy import load_policy_document
+
     policy = load_policy_document(_CARLA_POLICY_PATH)
     assert policy.policy_id == "carla-drive-transit"
     assert policy.key_policy == "carla-key-v1"
@@ -162,6 +162,7 @@ def test_carla_policy_has_distinct_component_ids() -> None:
 
 def test_carla_policy_components_differ_from_telemetry_policy() -> None:
     from qrtc.policy import load_policy_document
+
     carla_p = load_policy_document(_CARLA_POLICY_PATH)
     tel_p = load_policy_document(_TELEMETRY_POLICY_PATH)
     assert carla_p.key_policy != tel_p.key_policy
@@ -174,6 +175,7 @@ def test_carla_policy_components_differ_from_telemetry_policy() -> None:
 # ---------------------------------------------------------------------------
 # Default registry contains CARLA components
 # ---------------------------------------------------------------------------
+
 
 def test_registry_has_carla_key_policy() -> None:
     reg = build_default_registry(carla_principal="BackEndLaw")
@@ -216,6 +218,7 @@ def test_existing_equipment_telemetry_components_unchanged() -> None:
 # ---------------------------------------------------------------------------
 # CARLA schema guard unit tests
 # ---------------------------------------------------------------------------
+
 
 def _valid_schema_iface() -> dict[str, Any]:
     return {
@@ -295,6 +298,7 @@ def test_carla_schema_guard_rejects_negative_missing_data() -> None:
 # ---------------------------------------------------------------------------
 # CARLA health guard unit tests
 # ---------------------------------------------------------------------------
+
 
 def _valid_health_iface() -> dict[str, Any]:
     return {
@@ -401,6 +405,7 @@ def test_carla_health_guard_accepts_none_lidar_nearest_when_enabled() -> None:
 # End-to-end submission: acceptance
 # ---------------------------------------------------------------------------
 
+
 def test_carla_submission_accepted_with_correct_principal(tmp_path: Path) -> None:
     """A completed, valid CARLA run is accepted when principal matches the key."""
     report = _completed_report(principal="BackEndLaw")
@@ -470,6 +475,7 @@ def test_carla_submission_populates_guard_reasons_on_accept(tmp_path: Path) -> N
 # End-to-end submission: rejection — wrong principal
 # ---------------------------------------------------------------------------
 
+
 def test_carla_submission_rejected_mismatched_principal(tmp_path: Path) -> None:
     """A projection with the wrong principal is rejected by the key."""
     report = _completed_report(principal="BackEndLaw")
@@ -507,6 +513,7 @@ def test_carla_rejection_by_key_has_authorization_reason(tmp_path: Path) -> None
 # End-to-end submission: rejection — incomplete ticks
 # ---------------------------------------------------------------------------
 
+
 def test_carla_submission_rejected_incomplete_ticks(tmp_path: Path) -> None:
     """A 'completed' run with fewer ticks_completed than ticks_requested is rejected."""
     report = _completed_report(
@@ -528,6 +535,7 @@ def test_carla_submission_rejected_incomplete_ticks(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 # End-to-end submission: rejection — lidar health failure
 # ---------------------------------------------------------------------------
+
 
 def test_carla_submission_rejected_zero_lidar_frames_when_enabled(
     tmp_path: Path,
@@ -559,12 +567,14 @@ def test_runtime_protection_partial_run_qualifies_schema_and_fails_health(
         status="partial",
         lidar_frames=150,
     )
-    report["lidar_summary"].update({
-        "frames_dropped": 1,
-        "natural_drops": 0,
-        "injected_drops": 1,
-        "callback_errors": 0,
-    })
+    report["lidar_summary"].update(
+        {
+            "frames_dropped": 1,
+            "natural_drops": 0,
+            "injected_drops": 1,
+            "callback_errors": 0,
+        }
+    )
     proj = _projection_for(report, principal="BackEndLaw")
     result = submit_to_qrtc_pipeline(
         proj,
@@ -587,6 +597,7 @@ def test_runtime_protection_partial_run_qualifies_schema_and_fails_health(
 # ---------------------------------------------------------------------------
 # End-to-end submission: rejection — NaN/infinite/negative telemetry
 # ---------------------------------------------------------------------------
+
 
 def test_carla_submission_rejected_nan_displacement(tmp_path: Path) -> None:
     """A projection with NaN displacement is rejected by the health guard."""
@@ -636,6 +647,7 @@ def test_carla_submission_rejected_negative_displacement(tmp_path: Path) -> None
 # Guard reasons appear in rejection results
 # ---------------------------------------------------------------------------
 
+
 def test_guard_reasons_present_on_guard_rejection(tmp_path: Path) -> None:
     """Rejected-by-guard result includes guard_reasons with the failing guard."""
     report = _completed_report(
@@ -659,6 +671,7 @@ def test_guard_reasons_present_on_guard_rejection(tmp_path: Path) -> None:
 # as_dict includes new fields (backward-compatible)
 # ---------------------------------------------------------------------------
 
+
 def test_submission_result_as_dict_includes_new_fields() -> None:
     result = QrtcSubmissionResult(
         submitted=True,
@@ -669,7 +682,9 @@ def test_submission_result_as_dict_includes_new_fields() -> None:
         db_path="test.sqlite3",
         evidence_preserved=True,
         authorization_reason="identity mismatch",
-        guard_reasons=({"guard_id": "carla-schema-v1", "qualified": False, "reason": "x"},),
+        guard_reasons=(
+            {"guard_id": "carla-schema-v1", "qualified": False, "reason": "x"},
+        ),
     )
     d = result.as_dict()
     assert d["authorization_reason"] == "identity mismatch"
@@ -696,6 +711,7 @@ def test_submission_result_as_dict_backward_compatible_defaults() -> None:
 # ---------------------------------------------------------------------------
 # Evidence persisted for both accepted and rejected outcomes
 # ---------------------------------------------------------------------------
+
 
 def test_accepted_outcome_persisted_in_evidence_db(tmp_path: Path) -> None:
     """Accepted transit is stored in the evidence database."""
@@ -739,6 +755,7 @@ def test_rejected_outcome_persisted_in_evidence_db(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 # Existing equipment telemetry policy still works (no regression)
 # ---------------------------------------------------------------------------
+
 
 def test_equipment_telemetry_policy_accepted_unchanged(tmp_path: Path) -> None:
     """The original telemetry-policy.json still accepts equipment telemetry."""
@@ -840,9 +857,13 @@ def test_equipment_telemetry_policy_guard_rejection_unchanged(tmp_path: Path) ->
         "collision_events": [],
         "samples": [],
         "lidar_summary": {
-            "frames_received": 0, "frames_dropped": 0, "callback_errors": 0,
-            "total_points": 0, "total_invalid": 0,
-            "nearest_obstacle_overall": None, "nearest_obstacle_front": None,
+            "frames_received": 0,
+            "frames_dropped": 0,
+            "callback_errors": 0,
+            "total_points": 0,
+            "total_invalid": 0,
+            "nearest_obstacle_overall": None,
+            "nearest_obstacle_front": None,
             "mean_nearest_front": None,
         },
         "lidar_frame_evidence": [],

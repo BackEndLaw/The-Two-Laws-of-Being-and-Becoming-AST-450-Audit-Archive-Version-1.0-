@@ -7,15 +7,17 @@ point-clouds. Derives compact evidence safe for long-running drives.
 Thread-safety: LidarCollector.on_data is called from the CARLA sensor
 callback thread; all shared state is protected by a threading.Lock.
 """
+
 from __future__ import annotations
 
 import math
 import threading
 import time
 from collections import deque
+from collections.abc import Callable, Sequence
+from contextlib import suppress
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, Sequence
-
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Sector helpers
@@ -23,6 +25,7 @@ from typing import Any, Callable, Optional, Sequence
 
 # CARLA lidar point x=forward, y=left, z=up (right-hand, z-up).
 # We split the horizontal plane into four quadrants.
+
 
 def _azimuth_sector(x: float, y: float) -> str:
     """Return cardinal sector for a lidar point (x=forward, y=left)."""
@@ -41,6 +44,7 @@ def _azimuth_sector(x: float, y: float) -> str:
 # ---------------------------------------------------------------------------
 # Compact lidar evidence per frame
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class LidarFrameEvidence:
@@ -101,7 +105,7 @@ def _percentile(sorted_values: list[float], pct: float) -> float | None:
 
 def compute_speed_mps(velocity_x: float, velocity_y: float, velocity_z: float) -> float:
     """Return 3-D speed in m/s from velocity components."""
-    return math.sqrt(velocity_x ** 2 + velocity_y ** 2 + velocity_z ** 2)
+    return math.sqrt(velocity_x**2 + velocity_y**2 + velocity_z**2)
 
 
 def process_lidar_points(
@@ -169,6 +173,7 @@ def process_lidar_points(
 # Named immutable snapshot from LidarCollector
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class LidarCollectorSnapshot:
     """
@@ -191,6 +196,7 @@ class LidarCollectorSnapshot:
     ``triggered_sensor_frame`` is the CARLA sensor frame number at injection
     (``None`` when not triggered).
     """
+
     callbacks_received: int
     accepted_frames: tuple[LidarFrameEvidence, ...]
     natural_drops: int
@@ -198,14 +204,15 @@ class LidarCollectorSnapshot:
     callback_errors: int
     fault_injection_enabled: bool
     fault_injection_triggered: bool
-    requested_callback_index: Optional[int]
-    triggered_callback_index: Optional[int]
-    triggered_sensor_frame: Optional[int]
+    requested_callback_index: int | None
+    triggered_callback_index: int | None
+    triggered_sensor_frame: int | None
 
 
 # ---------------------------------------------------------------------------
 # Collector — integrates with CARLA sensor callback
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class LidarCollector:
@@ -232,17 +239,22 @@ class LidarCollector:
     internal accounting is updated and outside the collector lock to avoid
     deadlocks.  Useful for connecting to a runtime protection supervisor.
     """
+
     retain_raw: bool = False
     max_raw_frames: int = 10
     # TEST-ONLY fault injection.  -1 = disabled.
     drop_frame_index: int = -1
     # Optional notification callback for runtime protection integration.
-    fault_notify: Optional[Callable[[Optional[int], Optional[int]], None]] = field(
+    fault_notify: Callable[[int | None, int | None], None] | None = field(
         default=None, compare=False, repr=False
     )
-    _lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
+    _lock: threading.Lock = field(
+        default_factory=threading.Lock, init=False, repr=False
+    )
     _condition: threading.Condition = field(init=False, repr=False)
-    _frames: list[LidarFrameEvidence] = field(default_factory=list, init=False, repr=False)
+    _frames: list[LidarFrameEvidence] = field(
+        default_factory=list, init=False, repr=False
+    )
     _raw_buffer: deque[list[tuple[float, float, float]]] = field(
         default_factory=lambda: deque(maxlen=10), init=False, repr=False
     )
@@ -251,8 +263,8 @@ class LidarCollector:
     _callback_errors: int = field(default=0, init=False, repr=False)
     _callback_counter: int = field(default=0, init=False, repr=False)
     _fault_injection_triggered: bool = field(default=False, init=False, repr=False)
-    _triggered_callback_index: Optional[int] = field(default=None, init=False, repr=False)
-    _triggered_sensor_frame: Optional[int] = field(default=None, init=False, repr=False)
+    _triggered_callback_index: int | None = field(default=None, init=False, repr=False)
+    _triggered_sensor_frame: int | None = field(default=None, init=False, repr=False)
     _frame_states: dict[int, str] = field(default_factory=dict, init=False, repr=False)
 
     def __post_init__(self) -> None:
@@ -260,13 +272,13 @@ class LidarCollector:
         self._raw_buffer = deque(maxlen=self.max_raw_frames)
         self._condition = threading.Condition(self._lock)
 
-    def on_data(self, measurement: Any) -> None:  # noqa: ANN401
+    def on_data(self, measurement: Any) -> None:
         """CARLA sensor callback — called from sensor thread."""
         # Atomically claim a zero-based callback index.  Also apply fault
         # injection when the index matches the configured drop target.
         fault_injected = False
-        notify_fn: Optional[Callable[[Optional[int], Optional[int]], None]] = None
-        notify_args: tuple[Optional[int], Optional[int]] | None = None
+        notify_fn: Callable[[int | None, int | None], None] | None = None
+        notify_args: tuple[int | None, int | None] | None = None
         frame: int | None = getattr(measurement, "frame", None)
         timestamp: float | None = getattr(measurement, "timestamp", None)
 
@@ -278,7 +290,7 @@ class LidarCollector:
                 self._fault_injection_triggered = True
                 self._triggered_callback_index = callback_idx
                 # Capture the sensor frame number before discarding.
-                sensor_frame: Optional[int] = frame
+                sensor_frame: int | None = frame
                 self._triggered_sensor_frame = sensor_frame
                 if sensor_frame is not None:
                     self._frame_states[sensor_frame] = "injected"
@@ -294,10 +306,8 @@ class LidarCollector:
             # can safely acquire other locks (e.g. RuntimeProtection._lock)
             # without risking a deadlock.  MUST NOT do vehicle control here.
             if notify_fn is not None and notify_args is not None:
-                try:
+                with suppress(Exception):
                     notify_fn(*notify_args)
-                except Exception:  # noqa: BLE001
-                    pass
             return
 
         try:
@@ -386,6 +396,7 @@ class LidarCollector:
 # Aggregate lidar health summary
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class LidarSummary:
     frames_received: int
@@ -428,9 +439,10 @@ def build_lidar_summary(
     front_nearest_values: list[float] = []
 
     for frm in frames:
-        if frm.nearest_overall is not None:
-            if nearest_overall is None or frm.nearest_overall < nearest_overall:
-                nearest_overall = frm.nearest_overall
+        if frm.nearest_overall is not None and (
+            nearest_overall is None or frm.nearest_overall < nearest_overall
+        ):
+            nearest_overall = frm.nearest_overall
         if frm.nearest_front is not None:
             front_nearest_values.append(frm.nearest_front)
             if nearest_front is None or frm.nearest_front < nearest_front:

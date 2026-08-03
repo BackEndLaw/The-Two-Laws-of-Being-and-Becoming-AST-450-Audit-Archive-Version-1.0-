@@ -3,6 +3,7 @@ CARLA live-drive harness — environment configuration.
 
 All CARLA imports are lazy so ordinary installs and CI remain unaffected.
 """
+
 from __future__ import annotations
 
 import math
@@ -10,10 +11,10 @@ import os
 from dataclasses import dataclass, field
 from typing import Any
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _env_str(name: str, default: str) -> str:
     return os.environ.get(name, default).strip() or default
@@ -26,7 +27,9 @@ def _env_int(name: str, default: int) -> int:
     try:
         value = int(raw)
     except ValueError as exc:
-        raise ValueError(f"Environment variable {name}={raw!r} is not a valid integer") from exc
+        raise ValueError(
+            f"Environment variable {name}={raw!r} is not a valid integer"
+        ) from exc
     return value
 
 
@@ -37,7 +40,9 @@ def _env_float(name: str, default: float) -> float:
     try:
         value = float(raw)
     except ValueError as exc:
-        raise ValueError(f"Environment variable {name}={raw!r} is not a valid float") from exc
+        raise ValueError(
+            f"Environment variable {name}={raw!r} is not a valid float"
+        ) from exc
     return value
 
 
@@ -56,9 +61,11 @@ def _env_bool(name: str, default: bool) -> bool:
 # Configuration dataclasses
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class LidarConfig:
     """Conservative lidar defaults suitable for low-resource live testing."""
+
     enabled: bool = True
     channels: int = 16
     range_m: float = 30.0
@@ -146,6 +153,7 @@ class CarlaConfig:
 # Factory from environment
 # ---------------------------------------------------------------------------
 
+
 def lidar_config_from_env() -> LidarConfig:
     return LidarConfig(
         enabled=_env_bool("CARLA_LIDAR_ENABLED", True),
@@ -177,9 +185,7 @@ def carla_config_from_env() -> CarlaConfig:
         submit_to_qrtc=_env_bool("CARLA_SUBMIT_QRTC", False),
         qrtc_db=_env_str("CARLA_QRTC_DB", "qrtc_evidence.sqlite3"),
         lidar=lidar_config_from_env(),
-        runtime_protection_enabled=_env_bool(
-            "CARLA_RUNTIME_PROTECTION_ENABLED", False
-        ),
+        runtime_protection_enabled=_env_bool("CARLA_RUNTIME_PROTECTION_ENABLED", False),
         runtime_stop_speed_mps=_env_float("CARLA_RUNTIME_STOP_SPEED_MPS", 0.10),
         runtime_required_stopped_ticks=_env_int("CARLA_RUNTIME_STOPPED_TICKS", 5),
         runtime_maximum_braking_ticks=_env_int("CARLA_RUNTIME_MAX_BRAKING_TICKS", 100),
@@ -193,6 +199,7 @@ def carla_config_from_env() -> CarlaConfig:
 # ---------------------------------------------------------------------------
 # Validation
 # ---------------------------------------------------------------------------
+
 
 def validate_carla_config(cfg: CarlaConfig) -> list[str]:
     """Return a list of validation error messages (empty means valid)."""
@@ -217,9 +224,13 @@ def validate_carla_config(cfg: CarlaConfig) -> list[str]:
     if lidar.range_m <= 0:
         errors.append(f"lidar range_m must be positive, got {lidar.range_m}")
     if lidar.points_per_second < 1:
-        errors.append(f"lidar points_per_second must be >= 1, got {lidar.points_per_second}")
+        errors.append(
+            f"lidar points_per_second must be >= 1, got {lidar.points_per_second}"
+        )
     if lidar.rotation_frequency <= 0:
-        errors.append(f"lidar rotation_frequency must be positive, got {lidar.rotation_frequency}")
+        errors.append(
+            f"lidar rotation_frequency must be positive, got {lidar.rotation_frequency}"
+        )
     if lidar.upper_fov <= lidar.lower_fov:
         errors.append(
             f"lidar upper_fov ({lidar.upper_fov}) must be > lower_fov ({lidar.lower_fov})"
@@ -231,8 +242,7 @@ def validate_carla_config(cfg: CarlaConfig) -> list[str]:
         )
     if not math.isfinite(cfg.runtime_stop_speed_mps):
         errors.append(
-            "runtime_stop_speed_mps must be finite, "
-            f"got {cfg.runtime_stop_speed_mps}"
+            f"runtime_stop_speed_mps must be finite, got {cfg.runtime_stop_speed_mps}"
         )
     elif cfg.runtime_stop_speed_mps < 0.0:
         errors.append(
@@ -249,7 +259,9 @@ def validate_carla_config(cfg: CarlaConfig) -> list[str]:
             f"got {cfg.runtime_maximum_braking_ticks}"
         )
     if not math.isfinite(cfg.runtime_full_brake):
-        errors.append(f"runtime_full_brake must be finite, got {cfg.runtime_full_brake}")
+        errors.append(
+            f"runtime_full_brake must be finite, got {cfg.runtime_full_brake}"
+        )
     elif not (0.0 < cfg.runtime_full_brake <= 1.0):
         errors.append(
             f"runtime_full_brake must be in (0, 1], got {cfg.runtime_full_brake}"

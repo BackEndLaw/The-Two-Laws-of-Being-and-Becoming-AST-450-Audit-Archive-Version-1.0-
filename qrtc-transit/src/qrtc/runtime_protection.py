@@ -16,18 +16,20 @@ acceptance must still verify: configured stop threshold, braking deadline,
 road conditions, timeout bounds, early termination, QRTC rejection, and
 evidence preservation before drawing any safety conclusion.
 """
+
 from __future__ import annotations
 
 import math
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Optional
-
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # State
 # ---------------------------------------------------------------------------
+
 
 class RuntimeProtectionState(str, Enum):
     ARMED = "armed"
@@ -42,6 +44,7 @@ class RuntimeProtectionState(str, Enum):
 # Configuration
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class RuntimeProtectionConfig:
     """
@@ -50,6 +53,7 @@ class RuntimeProtectionConfig:
     Disabled by default so that all existing baseline and post-run behaviour
     is completely unchanged when ``enabled=False``.
     """
+
     enabled: bool = False
     stop_speed_mps: float = 0.10
     required_stopped_ticks: int = 5
@@ -58,9 +62,7 @@ class RuntimeProtectionConfig:
 
     def __post_init__(self) -> None:
         if self.stop_speed_mps < 0.0:
-            raise ValueError(
-                f"stop_speed_mps must be >= 0, got {self.stop_speed_mps}"
-            )
+            raise ValueError(f"stop_speed_mps must be >= 0, got {self.stop_speed_mps}")
         if not math.isfinite(self.stop_speed_mps):
             raise ValueError(
                 f"stop_speed_mps must be finite, got {self.stop_speed_mps}"
@@ -72,15 +74,12 @@ class RuntimeProtectionConfig:
             )
         if self.maximum_braking_ticks < 1:
             raise ValueError(
-                f"maximum_braking_ticks must be >= 1, "
-                f"got {self.maximum_braking_ticks}"
+                f"maximum_braking_ticks must be >= 1, got {self.maximum_braking_ticks}"
             )
         if not math.isfinite(self.full_brake):
             raise ValueError(f"full_brake must be finite, got {self.full_brake}")
         if not (0.0 < self.full_brake <= 1.0):
-            raise ValueError(
-                f"full_brake must be in (0, 1], got {self.full_brake}"
-            )
+            raise ValueError(f"full_brake must be in (0, 1], got {self.full_brake}")
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -96,10 +95,11 @@ class RuntimeProtectionConfig:
 # Evidence
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class FaultMetadata:
-    callback_index: Optional[int]
-    sensor_frame: Optional[int]
+    callback_index: int | None
+    sensor_frame: int | None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -125,21 +125,22 @@ class ControlActionError:
 @dataclass(frozen=True)
 class RuntimeProtectionSnapshot:
     """Immutable evidence snapshot from the runtime protection supervisor."""
+
     state: RuntimeProtectionState
     fault_triggered: bool
     autopilot_disabled: bool
     braking_ticks: int
-    speed_at_detection_mps: Optional[float]
-    final_speed_mps: Optional[float]
+    speed_at_detection_mps: float | None
+    final_speed_mps: float | None
     stopped_ticks: int
     safe_stop: bool
     stop_timeout: bool
-    first_enforcement_tick: Optional[int]
-    fault_metadata: Optional[FaultMetadata]
-    fault_reason: Optional[str]
-    termination_reason: Optional[str]
+    first_enforcement_tick: int | None
+    fault_metadata: FaultMetadata | None
+    fault_reason: str | None
+    termination_reason: str | None
     control_action_failed: bool
-    control_action_error: Optional[ControlActionError]
+    control_action_error: ControlActionError | None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -154,9 +155,7 @@ class RuntimeProtectionSnapshot:
             "stop_timeout": self.stop_timeout,
             "first_enforcement_tick": self.first_enforcement_tick,
             "fault_metadata": (
-                None
-                if self.fault_metadata is None
-                else self.fault_metadata.as_dict()
+                None if self.fault_metadata is None else self.fault_metadata.as_dict()
             ),
             "fault_reason": self.fault_reason,
             "termination_reason": self.termination_reason,
@@ -172,6 +171,7 @@ class RuntimeProtectionSnapshot:
 # ---------------------------------------------------------------------------
 # Supervisor
 # ---------------------------------------------------------------------------
+
 
 class RuntimeProtection:
     """
@@ -190,18 +190,18 @@ class RuntimeProtection:
         self._cfg = config
         self._lock = threading.Lock()
         self._state = RuntimeProtectionState.ARMED
-        self._fault_metadata: Optional[FaultMetadata] = None
-        self._fault_reason: Optional[str] = None
+        self._fault_metadata: FaultMetadata | None = None
+        self._fault_reason: str | None = None
         self._autopilot_disabled = False
         self._braking_ticks = 0
         self._stopped_ticks = 0
-        self._speed_at_detection: Optional[float] = None
-        self._final_speed: Optional[float] = None
-        self._first_enforcement_tick: Optional[int] = None
+        self._speed_at_detection: float | None = None
+        self._final_speed: float | None = None
+        self._first_enforcement_tick: int | None = None
         self._safe_stop = False
         self._stop_timeout = False
-        self._termination_reason: Optional[str] = None
-        self._control_action_error: Optional[ControlActionError] = None
+        self._termination_reason: str | None = None
+        self._control_action_error: ControlActionError | None = None
 
     # ------------------------------------------------------------------
     # Sensor-thread API (no vehicle control)
@@ -209,8 +209,8 @@ class RuntimeProtection:
 
     def latch_fault(
         self,
-        callback_index: Optional[int],
-        sensor_frame: Optional[int] = None,
+        callback_index: int | None,
+        sensor_frame: int | None = None,
         *,
         reason: str = "fault_injection",
     ) -> None:

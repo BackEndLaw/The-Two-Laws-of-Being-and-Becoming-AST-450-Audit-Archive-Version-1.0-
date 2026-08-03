@@ -10,14 +10,12 @@ All three pools must have:
   - Disjoint triple IDs
   - Disjoint seed families
 """
+
 from __future__ import annotations
 
 import pytest
 
 from qrtc_benchmark.phase5 import (
-    SPLIT_SEEDS,
-    Phase5Config,
-    Phase5Family,
     _DEVELOPMENT_MECHANISMS,
     _DEVELOPMENT_PAIRS,
     _DEVELOPMENT_TRIPLES,
@@ -27,6 +25,9 @@ from qrtc_benchmark.phase5 import (
     _VALIDATION_MECHANISMS,
     _VALIDATION_PAIRS,
     _VALIDATION_TRIPLES,
+    SPLIT_SEEDS,
+    Phase5Config,
+    Phase5Family,
     build_phase5_trials,
 )
 
@@ -39,6 +40,7 @@ SMALL_CFG = Phase5Config(
 
 
 # ── Static pool-definition disjointness tests ─────────────────────────────────
+
 
 def test_mechanism_ids_disjoint_dev_vs_validation() -> None:
     for family in Phase5Family:
@@ -141,6 +143,7 @@ def test_seed_families_disjoint_across_pools() -> None:
 
 # ── Runtime disjointness tests (generated rows) ───────────────────────────────
 
+
 def test_generated_mechanism_ids_disjoint_dev_vs_test() -> None:
     dev_rows = build_phase5_trials("development", SMALL_CFG)
     test_rows = build_phase5_trials("test", SMALL_CFG)
@@ -182,9 +185,7 @@ def test_generated_pair_ids_disjoint_all_three_pools() -> None:
     # Only check V2 (unseen pair) family where composition_id is the pair.
     def pair_ids(rows, split):
         return {
-            r.composition_id
-            for r in rows
-            if r.policy == "qrtc" and r.family == "V2"
+            r.composition_id for r in rows if r.policy == "qrtc" and r.family == "V2"
         }
 
     dev_pairs = pair_ids(dev_rows, "development")
@@ -209,9 +210,7 @@ def test_generated_triple_ids_disjoint_all_three_pools() -> None:
 
     def triple_ids(rows):
         return {
-            r.composition_id
-            for r in rows
-            if r.policy == "qrtc" and r.family == "V3"
+            r.composition_id for r in rows if r.policy == "qrtc" and r.family == "V3"
         }
 
     dev_triples = triple_ids(dev_rows)
@@ -232,6 +231,7 @@ def test_generated_triple_ids_disjoint_all_three_pools() -> None:
 def test_final_validation_locked_without_unlock_flag(tmp_path) -> None:
     """Final-validation pool must raise PermissionError unless explicitly unlocked."""
     from qrtc_benchmark.phase5 import run_phase5_benchmark
+
     with pytest.raises(PermissionError):
         run_phase5_benchmark("test", tmp_path, unlock_test=False, config=SMALL_CFG)
 
@@ -239,6 +239,7 @@ def test_final_validation_locked_without_unlock_flag(tmp_path) -> None:
 def test_final_validation_gate_requires_explicit_unlock(tmp_path) -> None:
     """Passing unlock_test=True is the ONLY way to run final validation."""
     from qrtc_benchmark.phase5 import run_phase5_benchmark
+
     # This should NOT raise — the explicit flag was passed.
     bundle = run_phase5_benchmark("test", tmp_path, unlock_test=True, config=SMALL_CFG)
     assert bundle["runs_csv"].exists()

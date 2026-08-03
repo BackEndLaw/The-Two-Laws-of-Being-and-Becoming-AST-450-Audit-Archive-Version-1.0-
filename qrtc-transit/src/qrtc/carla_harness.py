@@ -18,6 +18,7 @@ the module can still be imported; only the :func:`run_drive` function
 (and the ``__main__`` block) will fail with an ImportError that includes
 installation guidance.
 """
+
 from __future__ import annotations
 
 import json
@@ -25,31 +26,35 @@ import math
 import sys
 import traceback
 import uuid
+from contextlib import suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from qrtc.carla_config import CarlaConfig, carla_config_from_env, validate_carla_config
-from qrtc.carla_lidar import LidarCollector, LidarCollectorSnapshot, build_lidar_summary, process_lidar_points
+from qrtc.carla_lidar import (
+    LidarCollector,
+    LidarCollectorSnapshot,
+    build_lidar_summary,
+)
 from qrtc.carla_telemetry import build_qrtc_projection, submit_to_qrtc_pipeline
-from qrtc.limits import canonical_json
 from qrtc.runtime_protection import (
     RuntimeProtection,
     RuntimeProtectionConfig,
-    RuntimeProtectionSnapshot,
     RuntimeProtectionState,
 )
-
 
 # ---------------------------------------------------------------------------
 # CARLA lazy import helper
 # ---------------------------------------------------------------------------
 
-def _require_carla() -> Any:  # noqa: ANN401
+
+def _require_carla() -> Any:
     """Import and return the ``carla`` module, or raise ImportError with help."""
     try:
         import carla  # type: ignore[import]
+
         return carla
     except ImportError as exc:
         raise ImportError(
@@ -64,6 +69,7 @@ def _require_carla() -> Any:  # noqa: ANN401
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _displacement(
     start: tuple[float, float, float],
     end: tuple[float, float, float],
@@ -75,7 +81,7 @@ def _displacement(
 def _transform_snapshot(transform: Any, velocity: Any) -> dict[str, Any]:
     loc = transform.location
     rot = transform.rotation
-    speed = math.sqrt(velocity.x ** 2 + velocity.y ** 2 + velocity.z ** 2)
+    speed = math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)
     return {
         "x": loc.x,
         "y": loc.y,
@@ -169,7 +175,9 @@ def _classify_post_run_rejection(
     lidar_frames_accepted = run_report.get("lidar_frames_accepted")
     lidar_frames_natural_dropped = run_report.get("lidar_frames_natural_dropped")
     lidar_frames_injected_dropped = run_report.get("lidar_frames_injected_dropped")
-    lidar_callback_errors = (run_report.get("lidar_summary") or {}).get("callback_errors")
+    lidar_callback_errors = (run_report.get("lidar_summary") or {}).get(
+        "callback_errors"
+    )
 
     callback_accounting_consistent = (
         lidar_callbacks_received is not None
@@ -200,7 +208,15 @@ def _classify_post_run_rejection(
 
     post_run_passed = (
         qrtc_submission is not None
-        and fault_injection.get("triggered_callback_index") == cfg.lidar.drop_frame_index
+        and fault_injection.get("triggered_callback_index")
+        == cfg.lidar.drop_frame_index
+        and ticks_requested is not None
+        and ticks_completed is not None
+        and lidar_callbacks_received is not None
+        and lidar_frames_accepted is not None
+        and lidar_frames_natural_dropped is not None
+        and lidar_frames_injected_dropped is not None
+        and lidar_callback_errors is not None
         and ticks_completed == ticks_requested
         and lidar_callbacks_received == ticks_requested
         and lidar_frames_accepted == ticks_requested - 1
@@ -214,9 +230,7 @@ def _classify_post_run_rejection(
     )
     return PostRunClassification(
         test_outcome=(
-            "post_run_rejection_pass"
-            if post_run_passed
-            else "post_run_rejection_fail"
+            "post_run_rejection_pass" if post_run_passed else "post_run_rejection_fail"
         ),
         post_run_rejection_test_passed=post_run_passed,
         fault_requested=True,
@@ -332,6 +346,7 @@ def _classify_runtime_protection(
 # Core drive function
 # ---------------------------------------------------------------------------
 
+
 def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
     """
     Execute a bounded synchronous CARLA drive and return a detailed run report.
@@ -370,7 +385,7 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
         server_version = client.get_server_version()
         world = client.get_world()
         map_name = world.get_map().name
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"[carla-harness] connection failed: {exc}", file=sys.stderr)
         traceback.print_exc()
         raise SystemExit(2) from exc
@@ -459,9 +474,7 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
                     file=sys.stderr,
                 )
             else:
-                lidar_bp.set_attribute(
-                    "channels", str(cfg.lidar.channels)
-                )
+                lidar_bp.set_attribute("channels", str(cfg.lidar.channels))
                 lidar_bp.set_attribute("range", str(cfg.lidar.range_m))
                 lidar_bp.set_attribute(
                     "points_per_second", str(cfg.lidar.points_per_second)
@@ -472,9 +485,7 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
                 lidar_bp.set_attribute("upper_fov", str(cfg.lidar.upper_fov))
                 lidar_bp.set_attribute("lower_fov", str(cfg.lidar.lower_fov))
 
-                lidar_transform = carla.Transform(
-                    carla.Location(x=0.0, z=2.4)
-                )
+                lidar_transform = carla.Transform(carla.Location(x=0.0, z=2.4))
                 lidar_sensor = world.spawn_actor(
                     lidar_bp, lidar_transform, attach_to=ego_vehicle
                 )
@@ -638,11 +649,13 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
         lidar_frames_natural_dropped: int = 0
         lidar_frames_injected_dropped: int = 0
         if lidar_snap is not None:
-            fault_injection_section.update({
-                "triggered": lidar_snap.fault_injection_triggered,
-                "triggered_callback_index": lidar_snap.triggered_callback_index,
-                "triggered_sensor_frame": lidar_snap.triggered_sensor_frame,
-            })
+            fault_injection_section.update(
+                {
+                    "triggered": lidar_snap.fault_injection_triggered,
+                    "triggered_callback_index": lidar_snap.triggered_callback_index,
+                    "triggered_sensor_frame": lidar_snap.triggered_sensor_frame,
+                }
+            )
             lidar_callbacks_received = lidar_snap.callbacks_received
             lidar_frames_accepted = len(lidar_snap.accepted_frames)
             lidar_frames_natural_dropped = lidar_snap.natural_drops
@@ -691,6 +704,7 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
 
         # Emit config and evidence digests
         from qrtc.carla_telemetry import _config_digest, _evidence_digest
+
         run_report["config_digest"] = _config_digest(cfg.as_dict())
         run_report["evidence_digest"] = _evidence_digest(run_report["summary"])
 
@@ -789,33 +803,21 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
         # --- Cleanup (always executed) --------------------------------------
         print("[carla-harness] cleaning up ...", flush=True)
         if ego_vehicle is not None:
-            try:
+            with suppress(Exception):
                 ego_vehicle.set_autopilot(False)
-            except Exception:  # noqa: BLE001
-                pass
         for sensor in (lidar_sensor, collision_sensor):
             if sensor is not None:
-                try:
+                with suppress(Exception):
                     sensor.stop()
-                except Exception:  # noqa: BLE001
-                    pass
-                try:
+                with suppress(Exception):
                     sensor.destroy()
-                except Exception:  # noqa: BLE001
-                    pass
         if ego_vehicle is not None:
-            try:
+            with suppress(Exception):
                 ego_vehicle.destroy()
-            except Exception:  # noqa: BLE001
-                pass
-        try:
+        with suppress(Exception):
             tm.set_synchronous_mode(False)
-        except Exception:  # noqa: BLE001
-            pass
-        try:
+        with suppress(Exception):
             world.apply_settings(original_settings)
-        except Exception:  # noqa: BLE001
-            pass
         print("[carla-harness] cleanup complete", flush=True)
 
 
@@ -823,7 +825,8 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
 # Console entry point
 # ---------------------------------------------------------------------------
 
-def main(argv: list[str] | None = None) -> int:  # noqa: ARG001
+
+def main(argv: list[str] | None = None) -> int:
     """Entry point for the ``carla-live-drive`` console script."""
     cfg = carla_config_from_env()
     errors = validate_carla_config(cfg)
