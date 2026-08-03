@@ -3,7 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from qrtc_benchmark.phase5b_selection_validation import (
+    PreflightError,
     run_selection_validation,
     run_selection_validation_preflight,
     verify_selection_validation_reproducibility,
@@ -25,6 +28,17 @@ def test_selection_validation_preflight_passes(tmp_path: Path) -> None:
     assert report["status"] == "ok"
     assert report["protocol_id"] == PROTOCOL_ID
     assert report["stage"] == "selection-validation"
+
+
+def test_selection_validation_preflight_fails_closed_for_missing_protocol(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(PreflightError, match="preregistration.json"):
+        run_selection_validation_preflight(
+            protocol_dir=tmp_path / "missing-protocol",
+            artifacts_root=_ARTIFACTS_ROOT,
+            output_dir=tmp_path / "unused-output",
+        )
 
 
 def test_run_selection_validation_creates_expected_artifacts(tmp_path: Path) -> None:

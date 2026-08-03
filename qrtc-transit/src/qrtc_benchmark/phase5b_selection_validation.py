@@ -68,7 +68,11 @@ from qrtc_benchmark.selection_protocol import (
     compute_protocol_hashes,
 )
 from qrtc_benchmark.selection_rule import SelectionOutcome, select_controller
-from qrtc_benchmark.validation_cli import LockedStageError, validate_protocol_directory
+from qrtc_benchmark.validation_cli import (
+    LockedStageError,
+    ProtocolValidationError,
+    validate_protocol_directory,
+)
 
 _MERGED_DEVELOPMENT_SOURCE_COMMIT = "390481e62500fda6e98559508c46134382b77736"
 _DEVELOPMENT_RESULT_DIR = "development-run-1"
@@ -222,9 +226,13 @@ def _check_development_result(artifacts_root: Path) -> list[str]:
 
 def _check_validation_split_declaration(protocol_dir: Path) -> list[str]:
     errors: list[str] = []
-    prereg = json.loads(
-        (protocol_dir / "preregistration.json").read_text(encoding="utf-8")
-    )
+    prereg_path = protocol_dir / "preregistration.json"
+    if not prereg_path.exists():
+        return [f"preregistration.json missing from {protocol_dir}"]
+    try:
+        prereg = json.loads(prereg_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        return [f"failed to parse preregistration.json: {exc}"]
     splits = prereg.get("splits", {})
     if splits.get("validation_family_trials") != VALIDATION_FAMILY_TRIALS:
         errors.append(
@@ -309,15 +317,19 @@ def run_selection_validation_preflight(
     errors.extend(_check_validation_split_declaration(protocol_dir))
     errors.extend(_check_final_validation_locked_and_absent(artifacts_root, output_dir))
 
-    validation_report = validate_protocol_directory(
-        protocol_dir=protocol_dir,
-        stage="selection-validation",
-        implementation_commit=IMPLEMENTATION_COMMIT,
-        expected_protocol_hash=expected_protocol_hash,
-        output_dir=output_dir,
-    )
-    if validation_report.status != "ok":
-        errors.extend(f"validation_cli: {error}" for error in validation_report.errors)
+    try:
+        validation_report = validate_protocol_directory(
+            protocol_dir=protocol_dir,
+            stage="selection-validation",
+            implementation_commit=IMPLEMENTATION_COMMIT,
+            expected_protocol_hash=expected_protocol_hash,
+            output_dir=output_dir,
+        )
+        if validation_report.status != "ok":
+            errors.extend(f"validation_cli: {error}" for error in validation_report.errors)
+    except ProtocolValidationError as exc:
+        errors.append(f"validation_cli: {exc}")
+        validation_report = None
 
     if errors:
         error_lines = "\n".join(f"  - {error}" for error in errors)
@@ -331,7 +343,7 @@ def run_selection_validation_preflight(
         "source_commit": source_commit,
         "implementation_commit": IMPLEMENTATION_COMMIT,
         "stage": "selection-validation",
-        "validation_report": validation_report.as_dict(),
+        "validation_report": validation_report.as_dict() if validation_report else None,
         "status": "ok",
     }
 
