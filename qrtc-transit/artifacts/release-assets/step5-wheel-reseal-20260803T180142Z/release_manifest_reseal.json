@@ -1,0 +1,13 @@
+{
+  "clean_room_report_sha256": "5d350e3d42447760b5b804efd92848cf46b9fa2277aed84fc2fccccc291bce1b",
+  "controller_filename": "phase5b-rule-policy-v1/manifest.json",
+  "controller_sha256": "3a5845cbcda7260497050dfd027787fa06d0e3f02dc49e23d7ea2af8a868bcc1",
+  "exact_source_commit": "dcf27715df36cf772e10928f0652ea42e23db1a6",
+  "fixed_decision_checksum": "2928653190c53335bd7b78862283d1118aba3b63c83eb0126f3b63c8c0f12f47",
+  "original_step5_release_reference": "artifacts/phase5b-selection-v1/step5-packaging-closure/release_manifest.json",
+  "original_step5_wheel_sha256": "c3a37c7a3e134d73523bc2d073732b871902a65606563dd2b1d6986a16b0b7c0",
+  "schema": "rescueos-wheel-reseal-manifest-v1",
+  "status": "REBUILT AND RESEALED",
+  "wheel_filename": "qrtc_transit-0.1.0-py3-none-any.whl",
+  "wheel_sha256": "f4889afb75861b81c313be7362d6a023d5ef51422a3b9d058c9d75d93c1acae8"
+}
