@@ -1,0 +1,339 @@
+{
+  "schema": "sdr-physical-bench-protocol-v1",
+  "protocol_id": "sdr-bench-candidate-a-v1",
+  "protocol_state": "preregistered_not_executed",
+  "date_authored": "2026-08-03",
+  "prohibition": "This protocol must not be changed after any bench results are observed. Any necessary change creates a new protocol_id and a separately identified test run.",
+
+  "release_identity": {
+    "release_record_path": "artifacts/phase5b-selection-v1/step5-packaging-closure/RELEASE_RECORD.json",
+    "wheel_filename": "qrtc_transit-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "c3a37c7a3e134d73523bc2d073732b871902a65606563dd2b1d6986a16b0b7c0",
+    "controller_artifact_sha256": "3a5845cbcda7260497050dfd027787fa06d0e3f02dc49e23d7ea2af8a868bcc1",
+    "decision_checksum": "2928653190c53335bd7b78862283d1118aba3b63c83eb0126f3b63c8c0f12f47",
+    "authority": "recommend_only",
+    "hardware_actuation_enabled": false
+  },
+
+  "hardware_requirements": {
+    "transmitter": {
+      "manufacturer": "Great Scott Gadgets",
+      "model": "HackRF One",
+      "minimum_hardware_revision": "r9",
+      "firmware_version_minimum": "2024.02.1",
+      "role": "bench harness controlled; RescueOS Advisor has no access"
+    },
+    "receiver": {
+      "manufacturer": "RTL-SDR Blog",
+      "model": "RTL-SDR Blog V3",
+      "driver": "librtlsdr",
+      "driver_version_minimum": "0.6.0",
+      "role": "observation only; telemetry fed to Advisor"
+    },
+    "attenuator_fixed": {
+      "description": "Fixed 20 dB SMA attenuator, always in-circuit",
+      "attenuation_db": 20,
+      "power_rating_w": 1,
+      "connector": "SMA",
+      "quantity": 1,
+      "note": "MUST remain in-circuit at all times. Removal at any point during bench operation is a safety violation."
+    },
+    "attenuator_programmable": {
+      "description": "Programmable or stepped attenuator for sweep scenarios",
+      "range_db": [0, 30],
+      "step_db": 5,
+      "connector": "SMA",
+      "quantity": 1
+    },
+    "dc_block": {
+      "description": "SMA DC block for bias/DC isolation between HackRF and attenuator chain",
+      "quantity": 1,
+      "connector": "SMA"
+    },
+    "coaxial_cable": {
+      "description": "RG-316 or equivalent 50-ohm coaxial cable, SMA-SMA",
+      "length_m": 0.5,
+      "quantity": 2
+    },
+    "terminator": {
+      "description": "50-ohm SMA terminator for unused ports",
+      "quantity": 2
+    },
+    "host_pc": {
+      "description": "Host PC running GNU Radio 3.10+ and Python 3.11+",
+      "os": "Linux (Ubuntu 22.04 LTS or equivalent)",
+      "gnuradio_version_minimum": "3.10.0",
+      "python_version_minimum": "3.11"
+    }
+  },
+
+  "rf_parameters": {
+    "carrier_frequency_hz": 433920000,
+    "carrier_frequency_mhz": 433.92,
+    "band": "ISM 433 MHz",
+    "modulation": "FM (Frequency Modulation)",
+    "fsk_deviation_hz": 10000,
+    "symbol_rate_baud": 9600,
+    "bandwidth_hz": 25000,
+    "tx_power_max_dbm": 10,
+    "rf_path": "coaxial_only",
+    "radiation": "none — fully conducted via coaxial cable",
+    "licence_required": false
+  },
+
+  "link_budget": {
+    "tx_max_output_dbm": 10,
+    "fixed_attenuation_db": -20,
+    "programmable_attenuation_db_range": [0, -30],
+    "dc_block_insertion_loss_db": -0.5,
+    "coax_insertion_loss_db": -0.2,
+    "rx_nominal_input_at_0db_step_dbm": -10.7,
+    "rx_input_worst_case_fixed_only_dbm": -10.7,
+    "rx_absolute_maximum_input_dbm": 10,
+    "rx_protection_margin_db": 20.7,
+    "safety_check": "PASS — minimum 20.7 dB margin above RTL-SDR absolute maximum input at all attenuation states"
+  },
+
+  "warm_up": {
+    "duration_s": 30,
+    "description": "Allow RTL-SDR AGC and driver to stabilize. Record RSSI baseline (mean over last 20 s of warm-up). Record RSSI stability (std dev must be <= 1 dB to proceed).",
+    "baseline_stability_requirement_db": 1.0,
+    "abort_if_not_met": true
+  },
+
+  "telemetry_collection": {
+    "rate_hz": 1,
+    "window_duration_s": 1.0,
+    "measurements_per_window": ["rssi_dbm", "snr_db", "ber", "packet_loss_rate"],
+    "timestamp_source": "harness wall-clock at record receipt (UTC)",
+    "storage_format": "JSON lines (one record per line)",
+    "raw_iq_recording": "Record raw IQ for each scenario trial; filename = {scenario_id}_{trial_id}_{source_timestamp}.iq",
+    "raw_iq_checksum": "SHA-256 of raw IQ file recorded in audit log"
+  },
+
+  "scenarios": {
+    "A_baseline_stability": {
+      "id": "A",
+      "name": "Baseline stability",
+      "description": "Verify RSSI is stable and the mapping produces consistent observations at 0 dB impairment.",
+      "attenuation_step_db": 0,
+      "noise_injection": "none",
+      "blocking": false,
+      "duration_s": 60,
+      "observations_target": 60,
+      "repetitions": 3,
+      "order": "fixed",
+      "ground_truth_impairment": "none",
+      "ground_truth_severity_raw": 0.0,
+      "expected_family": "V3",
+      "expected_evidence_insufficient": false,
+      "pass_criterion": "RSSI std dev <= 1 dB across all 60 observations; all 3 repetitions agree"
+    },
+    "B_attenuation_sweep": {
+      "id": "B",
+      "name": "Attenuation sweep",
+      "description": "Step programmable attenuation from 0 to 30 dB in 5 dB steps. Verify monotonic RSSI decrease and Advisor severity mapping.",
+      "attenuation_steps_db": [0, 5, 10, 15, 20, 25, 30],
+      "noise_injection": "none",
+      "blocking": false,
+      "dwell_per_step_s": 30,
+      "observations_per_step": 30,
+      "repetitions": 3,
+      "order": "ascending_then_descending_then_ascending",
+      "ground_truth_impairment": "path_loss_only",
+      "ground_truth_severity_raw": "attenuation_db / dynamic_range_db",
+      "recovery_step_db": 0,
+      "pass_criterion": "RSSI decreases monotonically at each step in >= 95% of observations; Advisor action sequence matches expected band in >= 95% of cases"
+    },
+    "C_ambiguous_state_injection": {
+      "id": "C",
+      "name": "Ambiguous-state injection",
+      "description": "Inject conditions that produce SNR in the ambiguous band [0, 3] dB. Verify Advisor abstains or flags evidence_initially_insufficient.",
+      "attenuation_step_db": 25,
+      "snr_target_range_db": [0, 3],
+      "noise_injection": "gaussian_to_reduce_snr_to_target",
+      "blocking": false,
+      "duration_s": 50,
+      "observations_target": 50,
+      "repetitions": 3,
+      "order": "fixed",
+      "ground_truth_impairment": "ambiguous — cannot determine primary fault from available evidence",
+      "expected_evidence_insufficient": true,
+      "pass_criterion": "evidence_initially_insufficient=true OR Advisor outputs r0 (abstain) in >= 90% of observations"
+    },
+    "D_impairment_removal_recovery": {
+      "id": "D",
+      "name": "Impairment removal and recovery",
+      "description": "Apply 15 dB attenuation then remove it. Verify Advisor action sequence returns to baseline within 3 telemetry cycles.",
+      "impairment_attenuation_db": 15,
+      "recovery_attenuation_db": 0,
+      "impairment_duration_s": 15,
+      "recovery_observation_window_s": 3,
+      "repetitions": 30,
+      "cycle_duration_s": 30,
+      "order": "fixed",
+      "ground_truth_impairment_during": "path_loss_15dB",
+      "ground_truth_impairment_after": "none",
+      "pass_criterion": "Advisor returns to baseline action sequence (stop or single low-cost action) within 3 telemetry cycles after attenuation removal in >= 95% of repetitions"
+    },
+    "E_schema_determinism": {
+      "id": "E",
+      "name": "Repeated-input schema determinism",
+      "description": "Submit 100 identical synthetic telemetry records twice. Verify byte-identical mapping output and Advisor response.",
+      "input_type": "synthetic_offline",
+      "input_count": 100,
+      "input_values": {
+        "rssi_dbm": -70.0,
+        "snr_db": 15.0,
+        "ber": 0.01,
+        "packet_loss_rate": 0.02,
+        "window_duration_s": 1.0
+      },
+      "repetitions": 2,
+      "order": "fixed",
+      "ground_truth": "deterministic — identical inputs must produce identical outputs",
+      "pass_criterion": "100% of observation_json fields are byte-identical across both runs; 100% of decision_sha256 values match"
+    }
+  },
+
+  "scenario_execution_order": ["A", "B", "C", "D", "E"],
+  "total_repetitions_per_scenario": {
+    "A": 3,
+    "B": 3,
+    "C": 3,
+    "D": 30,
+    "E": 2
+  },
+
+  "observation_schema_mapping": {
+    "spec_path": "artifacts/sdr-bench-v1/observation-mapping-spec.json",
+    "spec_sha256": "35b488eb41b96b06c2f93ddad301d3596524362e68f10ed187c8e44a384e49b2",
+    "note": "Spec SHA-256 filled at protocol authoring time (2026-08-03)"
+  },
+
+  "pass_fail_thresholds": {
+    "observation_integrity": {
+      "threshold": 0.99,
+      "description": "Fraction of 1 Hz telemetry frames collected",
+      "max_gap_s": 2.0,
+      "max_gap_window_s": 60.0
+    },
+    "schema_mapping_determinism": {
+      "threshold": 1.0,
+      "description": "Fraction of repeat runs on identical input vectors that produce byte-identical output"
+    },
+    "degradation_detection": {
+      "threshold": 0.95,
+      "description": "Fraction of attenuation steps >= 15 dB where Advisor produces non-stop recommendation"
+    },
+    "recommendation_admissibility": {
+      "threshold": 1.0,
+      "description": "Fraction of Advisor outputs that pass causal-graph admissibility check"
+    },
+    "ambiguous_state_abstention": {
+      "threshold": 0.90,
+      "description": "Fraction of ambiguous-state observations where Advisor abstains or flags evidence_initially_insufficient"
+    },
+    "end_to_end_latency_ms_p99": {
+      "threshold": 500,
+      "description": "End-to-end latency from telemetry receipt to audit record written, at 99th percentile"
+    },
+    "repeatability": {
+      "threshold": 0.95,
+      "description": "Fraction of identical attenuation-step sequences that produce identical Advisor action sequences across >= 3 replays"
+    },
+    "auditability": {
+      "threshold": 1.0,
+      "description": "Fraction of Advisor outputs that have a decision_sha256 independently recomputable from stored inputs"
+    },
+    "advisor_transmitter_bytes": {
+      "threshold": 0,
+      "description": "Total bytes originating from RescueOS Advisor to any transmitter-control interface. Must be exactly zero."
+    },
+    "recovery": {
+      "threshold": 0.95,
+      "description": "Fraction of recovery trials where Advisor returns to baseline within 3 telemetry cycles after impairment removal"
+    }
+  },
+
+  "missing_data_policy": {
+    "definition": "A trial is missing if the telemetry record is rejected (malformed, stale, or invalid) or the harness fails to produce an audit record.",
+    "missing_threshold": 0.01,
+    "action": "Count toward observation_integrity failure. Do not impute or substitute values. Record exclusion reason.",
+    "excluded_trial_policy": "Record in audit log with rejection_reason. Include in denominator for all rate calculations."
+  },
+
+  "timeout_policy": {
+    "scenario_timeout_s": 300,
+    "trial_timeout_s": 10,
+    "action": "Record as missing trial if no telemetry received within trial_timeout_s. Record as scenario failure if scenario_timeout_s is exceeded."
+  },
+
+  "latency_measurement": {
+    "start_event": "harness receives telemetry record from GNU Radio",
+    "end_event": "harness writes audit record with audit_record_sha256 to log",
+    "clock": "harness process wall-clock (UTC, microsecond resolution)",
+    "measurement": "ingestion_timestamp_utc - source_timestamp_utc + advisor_processing_time",
+    "reporting": "Record all latency values; compute p50, p95, p99 over all valid trials"
+  },
+
+  "early_stop_conditions": [
+    "Emergency power isolation activated by bench operator",
+    "RTL-SDR input power exceeds -20 dBm (absolute maximum - 30 dB margin)",
+    "Any Advisor output contains a transmitter-control command",
+    "advisor_transmitter_bytes > 0",
+    "Hardware fault detected by GNU Radio driver",
+    "Protocol-frozen artifacts (controller, graph, thresholds) modified during bench run"
+  ],
+
+  "power_on_sequence": [
+    "1. Verify all attenuators are in-circuit (minimum 20 dB fixed attenuation present)",
+    "2. Verify DC block is in-circuit",
+    "3. Connect coaxial cable between HackRF TX and RTL-SDR RX through attenuator chain",
+    "4. Power on host PC",
+    "5. Start RTL-SDR driver and verify baseline RSSI",
+    "6. Start HackRF driver at minimum power level",
+    "7. Increase HackRF output to protocol level with all attenuation in-circuit",
+    "8. Verify RTL-SDR input power is <= -10 dBm before proceeding"
+  ],
+
+  "power_off_sequence": [
+    "1. Halt GNU Radio flowgraph",
+    "2. Set HackRF output to 0 (disable transmit)",
+    "3. Close RTL-SDR driver",
+    "4. Disconnect coaxial cable",
+    "5. Power off HackRF",
+    "6. Power off host PC"
+  ],
+
+  "evidence_requirements": {
+    "per_trial": [
+      "scenario_id and trial_id",
+      "ground_truth impairment value",
+      "raw IQ recording reference and SHA-256",
+      "telemetry record (rssi_dbm, snr_db, ber, packet_loss_rate, timestamps)",
+      "mapped observation (Phase5OODCase JSON)",
+      "Advisor output (action_sequence, authority, hardware_actuation_enabled)",
+      "decision_sha256",
+      "audit_record_sha256",
+      "end-to-end latency (ms)",
+      "advisor_transmitter_bytes (must be 0)"
+    ],
+    "per_scenario": [
+      "scenario-level pass/fail for each threshold",
+      "count of valid, rejected, and excluded trials",
+      "latency statistics (p50, p95, p99)"
+    ],
+    "overall": [
+      "checksummed equipment inventory",
+      "checksummed link budget and connection diagram",
+      "release record checksum verification",
+      "protocol SHA-256",
+      "all per-trial evidence",
+      "all per-scenario results",
+      "final result: PASSED or FAILED"
+    ]
+  },
+
+  "post_test_prohibition": "Do not tune the controller, thresholds, schema mapping, or exit criteria after observing results. Any necessary change creates a new protocol version and a separately identified test run."
+}
