@@ -4,10 +4,11 @@
 
 clear; clc;
 
+scriptDir = fileparts(mfilename("fullpath"));
 fileCandidates = [
-    "atlas_predictions_with_accuracy.csv"
-    "atlas_predictions_with_accuracy.xlsx"
-    "Final_Atlas_Coded_Analysis-f086.xlsx"
+    fullfile(scriptDir, "atlas_predictions_with_accuracy.csv")
+    fullfile(scriptDir, "atlas_predictions_with_accuracy.xlsx")
+    fullfile(scriptDir, "Final_Atlas_Coded_Analysis-f086.xlsx")
 ];
 
 inputFile = "";
@@ -19,7 +20,7 @@ for k = 1:numel(fileCandidates)
 end
 
 if inputFile == ""
-    error("No Atlas input file found in the current folder.");
+    error("No Atlas input file found in the repository directory.");
 end
 
 fprintf("Loading Atlas file: %s\n", inputFile);
