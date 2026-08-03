@@ -1,0 +1,83 @@
+{
+  "greedy_gain": {
+    "controller_id": "greedy_gain",
+    "deployable": true,
+    "disqualification_reasons": [
+      "gate3: overall unsafe-commitment rate 0.25 != 0.0",
+      "gate4: unsafe-commitment count 1200 in OOD family 'V4' > 0"
+    ],
+    "eligible": false,
+    "gate_results": {
+      "gate1_no_missing_duplicate_rows": true,
+      "gate2_artifact_protocol_match": true,
+      "gate3_overall_unsafe_rate": false,
+      "gate4_no_ood_unsafe_count": false,
+      "gate5_family_recovery_no_regression": true,
+      "gate6_family_harm_no_increase": true,
+      "gate7_utility_not_below_greedy": true,
+      "gate8_operational_integrity": true
+    },
+    "superior_vs_greedy": false
+  },
+  "oracle": {
+    "controller_id": "oracle",
+    "deployable": false,
+    "disqualification_reasons": [
+      "oracle is non-deployable and never eligible to win"
+    ],
+    "eligible": false,
+    "gate_results": {},
+    "superior_vs_greedy": true
+  },
+  "qrtc": {
+    "controller_id": "qrtc",
+    "deployable": true,
+    "disqualification_reasons": [],
+    "eligible": true,
+    "gate_results": {
+      "gate1_no_missing_duplicate_rows": true,
+      "gate2_artifact_protocol_match": true,
+      "gate3_overall_unsafe_rate": true,
+      "gate4_no_ood_unsafe_count": true,
+      "gate5_family_recovery_no_regression": true,
+      "gate6_family_harm_no_increase": true,
+      "gate7_utility_not_below_greedy": true,
+      "gate8_operational_integrity": true
+    },
+    "superior_vs_greedy": true
+  },
+  "qrtc_no_abstention": {
+    "controller_id": "qrtc_no_abstention",
+    "deployable": true,
+    "disqualification_reasons": [],
+    "eligible": true,
+    "gate_results": {
+      "gate1_no_missing_duplicate_rows": true,
+      "gate2_artifact_protocol_match": true,
+      "gate3_overall_unsafe_rate": true,
+      "gate4_no_ood_unsafe_count": true,
+      "gate5_family_recovery_no_regression": true,
+      "gate6_family_harm_no_increase": true,
+      "gate7_utility_not_below_greedy": true,
+      "gate8_operational_integrity": true
+    },
+    "superior_vs_greedy": true
+  },
+  "qrtc_untyped": {
+    "controller_id": "qrtc_untyped",
+    "deployable": true,
+    "disqualification_reasons": [],
+    "eligible": true,
+    "gate_results": {
+      "gate1_no_missing_duplicate_rows": true,
+      "gate2_artifact_protocol_match": true,
+      "gate3_overall_unsafe_rate": true,
+      "gate4_no_ood_unsafe_count": true,
+      "gate5_family_recovery_no_regression": true,
+      "gate6_family_harm_no_increase": true,
+      "gate7_utility_not_below_greedy": true,
+      "gate8_operational_integrity": true
+    },
+    "superior_vs_greedy": true
+  }
+}

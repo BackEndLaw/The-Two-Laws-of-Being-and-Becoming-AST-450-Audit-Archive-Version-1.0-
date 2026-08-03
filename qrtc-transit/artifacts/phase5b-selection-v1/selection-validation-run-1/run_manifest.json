@@ -1,0 +1,57 @@
+{
+  "base_commit": "390481e62500fda6e98559508c46134382b77736",
+  "beta_harm": 0.25,
+  "bootstrap_reps": 2000,
+  "bootstrap_seed": 9101,
+  "cost_regimes": [
+    "familiar"
+  ],
+  "execution_command": "python -m qrtc_benchmark.phase5b_selection_validation --protocol-dir <protocol_dir> --artifacts-root <artifacts_root> --output-dir <output_dir> --source-commit <source_commit> --protocol-hash <protocol_hash>",
+  "gamma_unsafe": 0.2,
+  "implementation_commit": "6aa56a7abae975274e95a9ba2941fe2002794592",
+  "input_hashes": {
+    "checksums.sha256": "4e94bdf97c9b0ad5811eadf8d65ac42140057966641876561833ac0985af7b0c",
+    "commit.txt": "a6fc87a42b5fd35dfdf744ce98a587946f3c7084b02ff5027c497f50dc88fe09",
+    "frozen_semantic_declarations.json": "c3e6d76311d6a3398369b626c52a8961895d324cbc2a967308d9b3d9160be37a",
+    "manifests/greedy_gain.json": "ff0d60d600a7a3cc354bf8bb0c6b9348f291cac87accc2fe446ef9d972abd41d",
+    "manifests/oracle.json": "c5ef3df0c19aa0908f40b851c8b2f07cfe859466fff3cce27cbb5b7b983e6c9c",
+    "manifests/qrtc.json": "184dbf5d9dc3a527a1d31f40e719adfc6a39b0c1f775125af47cc3fbaa44a1bf",
+    "manifests/qrtc_no_abstention.json": "5dccec335d8892b3b0a8c208c84698bc10b043c159fe0630aad5e55c6a7a1e23",
+    "manifests/qrtc_untyped.json": "21e1e89a4b0411295ca719fff608cebafce38065748fb522b3be9b7851c08dd4",
+    "preregistration.json": "dba13048aeef01abc380200d898b696f766de6307b468505db813023a48b48f2"
+  },
+  "lambda_cost": 0.05,
+  "mandatory_candidates": [
+    "qrtc",
+    "qrtc_no_abstention",
+    "qrtc_untyped",
+    "greedy_gain",
+    "oracle"
+  ],
+  "max_actions": 4,
+  "optional_baselines": [
+    "end_to_end",
+    "highest_stage_posterior",
+    "cheapest_first",
+    "random"
+  ],
+  "phase_revision": "phase5b",
+  "preflight_validate_command": "qrtc-selection validate --protocol-dir <protocol_dir> --stage selection-validation --implementation-commit <implementation_commit> --protocol-hash <protocol_hash> --output-dir <unused_output_dir>",
+  "protocol_hash": "fc6b86912182d216be4d381992732345cc5d6a38299d6c5946ab1b8fe2bfe77c",
+  "protocol_id": "phase5b-selection-v1",
+  "python_version": "3.12.3",
+  "reliability_levels": [
+    0.8,
+    1.0
+  ],
+  "schema": "qrtc-selection-validation-run-manifest-v1",
+  "source_commit": "8f06e2271c58b624ee210df504056a7862dbf30e",
+  "split": "validation",
+  "split_seeds": [
+    751,
+    752
+  ],
+  "stage": "selection-validation",
+  "trial_count": 43200,
+  "validation_family_trials": 600
+}

@@ -49,6 +49,7 @@ _REQUIRED_FIELDS: frozenset[str] = frozenset(
         "stage",
         "input_hashes",
         "implementation_commit",
+        "source_commit",
         "metrics_summary",
         "eligibility_reasons",
         "bootstrap_comparisons",
@@ -82,6 +83,7 @@ class SelectionResultV1:
     stage: str
     input_hashes: dict[str, str]
     implementation_commit: str
+    source_commit: str
     metrics_summary: dict[str, Any]
     eligibility_reasons: dict[str, Any]
     bootstrap_comparisons: dict[str, Any]
@@ -102,6 +104,7 @@ class SelectionResultV1:
                 "stage": self.stage,
                 "input_hashes": self.input_hashes,
                 "implementation_commit": self.implementation_commit,
+                "source_commit": self.source_commit,
                 "metrics_summary": self.metrics_summary,
                 "eligibility_reasons": self.eligibility_reasons,
                 "bootstrap_comparisons": self.bootstrap_comparisons,
@@ -152,6 +155,7 @@ def load_selection_result(
     - selected_id is never oracle
     - selected_id must be in MANDATORY_CANDIDATES when set
     - implementation_commit is 40-hex
+    - source_commit is 40-hex
     - protocol_hash is 64-hex and matches computed canonical hash
     - authority == "recommend_only"
     - hardware_actuation_enabled == False
@@ -224,6 +228,7 @@ def load_selection_result(
 
     # Commit
     _validate_commit(payload["implementation_commit"], "implementation_commit")
+    _validate_commit(payload["source_commit"], "source_commit")
 
     # Authority and hardware
     if payload["authority"] != "recommend_only":
@@ -252,6 +257,7 @@ def load_selection_result(
         stage=str(payload["stage"]),
         input_hashes={str(k): str(v) for k, v in input_hashes_raw.items()},
         implementation_commit=str(payload["implementation_commit"]),
+        source_commit=str(payload["source_commit"]),
         metrics_summary=dict(payload["metrics_summary"]),  # type: ignore[arg-type]
         eligibility_reasons=dict(payload["eligibility_reasons"]),  # type: ignore[arg-type]
         bootstrap_comparisons=dict(payload["bootstrap_comparisons"]),  # type: ignore[arg-type]
@@ -285,6 +291,7 @@ def make_synthetic_no_selection_result(
         stage=stage,
         input_hashes={"synthetic_input": dummy_sha},
         implementation_commit=implementation_commit,
+        source_commit=implementation_commit,
         metrics_summary={},
         eligibility_reasons={},
         bootstrap_comparisons={},
