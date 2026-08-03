@@ -104,3 +104,51 @@ These are distinct stages; provisional selection alone does not constitute bench
 - Hardware actuation remains **disabled**.
 - Any deployment, advisor integration, physical testing, or actuation requires a **new, separately reviewed protocol and authorization**.
 - **No additional Phase V-B experiment run** is authorized by this summary.
+
+---
+
+## 8. Decision-focused test inventory for the current tree
+
+This inventory is scoped to the **current frozen Phase V-B release claim boundary**:
+
+- benchmark-confirmed `qrtc` under `phase5b-selection-v1`;
+- **recommend-only** authority;
+- **no hardware actuation**; and
+- **no additional Phase V-B experiment run authorized**.
+
+`Required?` therefore means **required to run now** for the current release decision, not
+“valuable in the abstract.” Any row marked `No` may become `Yes` again if the scope expands
+(for example, if controller selection is reopened, CARLA claims are added, or runtime
+hardening becomes part of the first-release claim).
+
+| Test | Path | Release claim protected | Selection or final validation? | Existing evidence? | Estimated cost | Required? | What decision changes if it fails? |
+|---|---|---|---|---|---:|---|---|
+| Selection protocol integrity | `tests/qrtc_benchmark/test_selection_protocol.py` | Frozen controller-selection rule and protocol integrity | Selection integrity | Yes | Low | Yes | The provisional-selection record is not credible, so the benchmark confirmation chain must be treated as invalid. |
+| Selection-validation preflight / ancestry / scope | `tests/qrtc_benchmark/test_phase5b_selection_validation.py` | No leakage, valid ancestry, locked scope before expensive runs | Selection gate | Yes | Low | Yes | Stop any further benchmark execution because the selection-validation stage is not admissible. |
+| Final-validation preflight / scope / authorization | `tests/qrtc_benchmark/test_phase5b_final_validation.py` | Final-validation integrity on the frozen held-out split | Final-validation gate | Yes | Low | Yes | The final-validation result cannot be accepted as valid release evidence. |
+| Closure index / chain of custody | `tests/qrtc_benchmark/test_phase5b_closure_index.py` | Artifact closure, hash trail, and chain-of-custody integrity | Final validation / packaging | Yes | Low | Yes | The release evidence bundle cannot be trusted or audited as frozen. |
+| Controller artifact integrity | `tests/qrtc_benchmark/test_controller_artifact.py` | Frozen controller artifact is complete and reproducible | Both | Yes | Low | Yes | The selected controller cannot be treated as frozen or reproducible for release. |
+| Installed-wheel smoke | `tests/integration/test_package_smoke.py` | Frozen product installs, imports, and exposes working entry points | Packaging | Yes | Low | Yes | The frozen product is not reproducible as an installable package. |
+| Release candidate smoke | `tests/integration/test_release_candidate.py` | Clean-room release flow runs end-to-end from the packaged CLI | Packaging | Yes | Low | Yes | The release candidate is not shippable as the claimed Advisor package. |
+| Determinism / reproducibility | `tests/qrtc_benchmark/test_phase5b_determinism.py` | Benchmark results belong to the frozen controller and protocol | Both | Yes | Low | Yes | The reported result may not be reproducible enough to support the frozen release claim. |
+| Pool / split partition checks | `tests/qrtc_benchmark/test_phase5b_pools.py` | Correct split boundaries and no selection/validation leakage | Selection and final-validation integrity | Yes | Low | Yes | The benchmark partitions are contaminated, so both comparison and final confirmation lose credibility. |
+| Phase 5 benchmark result checks | `tests/qrtc_benchmark/test_phase5.py` | Utility, harm, recovery, and paired-comparison metrics are meaningful | Selection evidence | Partial | Medium | Yes | The numerical basis for the benchmark claim is unreliable, so the product claim must be revisited. |
+| Candidate/controller behavior comparison | `tests/qrtc_benchmark/test_controllers.py` | Controller-comparison correctness while multiple viable candidates remain | Selection only | Partial | Low | No | None for the current frozen release unless controller selection is reopened. |
+| Development benchmark checks | `tests/qrtc_benchmark/test_phase5b_development.py` | Descriptive comparison quality during open controller selection | Selection only | Yes | Medium | No | None for the current frozen release unless a new selection program is authorized. |
+| Historical Phase IV-B benchmark tests | `tests/qrtc_benchmark/test_phase4b.py` | Archival verification of legacy benchmark code | Neither for the current claim | Yes | Medium | No | None for the current RescueOS Advisor release decision. |
+| Core CLI / policy / kernel / replay / evidence invariants | `tests/test_cli.py`, `tests/test_policy.py`, `tests/test_kernel.py`, `tests/property/*.py`, `tests/test_pipeline.py`, `tests/test_replay.py`, `tests/test_transit_models.py`, `tests/test_evidence_store.py`, `tests/test_boat.py`, `tests/test_river.py` | General product correctness outside the narrow frozen release gates | Product/runtime | Yes | Medium | No | None immediately for the current benchmark release unless the first-release claim is broadened beyond packaging and frozen validation. |
+| CARLA scenario and harness tests | `tests/test_carla_*` | CARLA-driving, LiDAR, telemetry, and harness behavior | Neither for the current frozen benchmark claim | Unknown | High | No | None unless CARLA performance becomes part of the first-release claim. |
+| Runtime protection / fault-injection tests | `tests/test_runtime_protection.py`, `tests/test_fault_injection_accounting.py` | Physical runtime braking and fault-handling behavior | Product/runtime | Partial | Medium | No | None unless physical runtime protection is brought into release scope. |
+| Broad reliability tests | `tests/reliability/*` | Crash recovery, idempotency, concurrency, and runtime fault tolerance | Product/runtime | Partial | Medium | No | None unless runtime fault tolerance becomes a first-release claim. |
+| Broad security hardening tests | `tests/security/*` | Adversarial robustness, resource hardening, and redaction guarantees | Product/runtime | Partial | Medium | No | None unless the initial release claim explicitly includes these security guarantees. |
+
+### Minimum run order under the current scope
+
+1. Run the **cheap preflight / integrity** rows first.
+2. If ancestry, scope, partition, or authorization checks fail, **stop**.
+3. Run only the remaining `Required = Yes` rows needed to preserve:
+   - final-validation integrity;
+   - frozen artifact reproducibility; and
+   - clean-room package verification.
+4. Do **not** reopen broad controller comparison, CARLA expansion, or runtime-hardening test
+   runs unless the release decision itself changes.
