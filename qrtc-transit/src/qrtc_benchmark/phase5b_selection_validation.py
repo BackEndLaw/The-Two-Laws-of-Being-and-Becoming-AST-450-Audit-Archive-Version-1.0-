@@ -131,7 +131,9 @@ def _check_preregistration_and_semantics(protocol_dir: Path) -> list[str]:
             f"phase_revision mismatch: got {prereg.get('phase_revision')!r}, expected {PROTOCOL_PHASE_REVISION!r}"
         )
     if prereg.get("protocol_hash") != hashes.protocol_declaration_sha256:
-        errors.append("preregistration protocol_hash does not match canonical preregistration")
+        errors.append(
+            "preregistration protocol_hash does not match canonical preregistration"
+        )
     if prereg.get("implementation_commit") != IMPLEMENTATION_COMMIT:
         errors.append(
             f"preregistration implementation_commit mismatch: got {prereg.get('implementation_commit')!r}"
@@ -141,7 +143,9 @@ def _check_preregistration_and_semantics(protocol_dir: Path) -> list[str]:
     if prereg.get("hardware_actuation_enabled") is not False:
         errors.append("preregistration hardware_actuation_enabled must be false")
     if prereg.get("final_validation_status") != "locked_not_executed":
-        errors.append("preregistration final_validation_status must be locked_not_executed")
+        errors.append(
+            "preregistration final_validation_status must be locked_not_executed"
+        )
 
     if semantic.get("protocol_id") != PROTOCOL_ID:
         errors.append("frozen semantic declarations protocol_id mismatch")
@@ -152,13 +156,19 @@ def _check_preregistration_and_semantics(protocol_dir: Path) -> list[str]:
         "protocol_declaration_sha256": hashes.protocol_declaration_sha256,
     }
     if semantic.get("hashes") != expected_hashes:
-        errors.append("frozen semantic declaration hashes do not match canonical values")
+        errors.append(
+            "frozen semantic declaration hashes do not match canonical values"
+        )
     if semantic.get("split_declaration") != canonical_split_declaration():
         errors.append("frozen split declaration does not match authoritative constants")
     if semantic.get("config_declaration") != canonical_config_declaration():
-        errors.append("frozen config declaration does not match authoritative constants")
+        errors.append(
+            "frozen config declaration does not match authoritative constants"
+        )
     if semantic.get("candidate_declaration") != canonical_candidate_declaration():
-        errors.append("frozen candidate declaration does not match authoritative constants")
+        errors.append(
+            "frozen candidate declaration does not match authoritative constants"
+        )
     return errors
 
 
@@ -181,7 +191,9 @@ def _check_development_result(artifacts_root: Path) -> list[str]:
         return [f"failed to load development artifacts: {exc}"]
 
     if development_result.stage != "development":
-        errors.append(f"development result stage must be 'development', got {development_result.stage!r}")
+        errors.append(
+            f"development result stage must be 'development', got {development_result.stage!r}"
+        )
     if development_result.outcome != "development_completed_no_selection":
         errors.append(
             f"development result outcome must be development_completed_no_selection, got {development_result.outcome!r}"
@@ -189,21 +201,30 @@ def _check_development_result(artifacts_root: Path) -> list[str]:
     if development_result.selected_id is not None:
         errors.append("development result selected_id must be null")
     if development_result.selection_validation_status != "not_executed":
-        errors.append("development result selection_validation_status must be not_executed")
+        errors.append(
+            "development result selection_validation_status must be not_executed"
+        )
     if development_result.final_validation_status != "locked_not_executed":
-        errors.append("development result final_validation_status must be locked_not_executed")
+        errors.append(
+            "development result final_validation_status must be locked_not_executed"
+        )
     if development_result.integrity_all_passed is not True:
         errors.append("development result integrity_all_passed must be true")
     if run_manifest.get("stage") != "development":
         errors.append("development run manifest stage must be development")
-    if run_manifest.get("protocol_hash") != compute_protocol_hashes().protocol_declaration_sha256:
+    if (
+        run_manifest.get("protocol_hash")
+        != compute_protocol_hashes().protocol_declaration_sha256
+    ):
         errors.append("development run manifest protocol_hash mismatch")
     return errors
 
 
 def _check_validation_split_declaration(protocol_dir: Path) -> list[str]:
     errors: list[str] = []
-    prereg = json.loads((protocol_dir / "preregistration.json").read_text(encoding="utf-8"))
+    prereg = json.loads(
+        (protocol_dir / "preregistration.json").read_text(encoding="utf-8")
+    )
     splits = prereg.get("splits", {})
     if splits.get("validation_family_trials") != VALIDATION_FAMILY_TRIALS:
         errors.append(
@@ -212,7 +233,9 @@ def _check_validation_split_declaration(protocol_dir: Path) -> list[str]:
         )
     if splits.get("split_aliases") != SPLIT_ALIASES:
         errors.append("split_aliases mismatch for validation declaration")
-    if splits.get("split_seeds") != {name: list(values) for name, values in SPLIT_SEEDS_FROZEN.items()}:
+    if splits.get("split_seeds") != {
+        name: list(values) for name, values in SPLIT_SEEDS_FROZEN.items()
+    }:
         errors.append("split_seeds mismatch for validation declaration")
     for family in Phase5Family:
         recorded = splits.get("validation_mechanisms", {}).get(family.value, [])
@@ -245,7 +268,9 @@ def _check_final_validation_locked_and_absent(
 
     for name in _FORBIDDEN_FINAL_NAMES:
         if (current_output_dir / name).exists():
-            errors.append(f"forbidden final-validation path exists in output dir: {current_output_dir / name}")
+            errors.append(
+                f"forbidden final-validation path exists in output dir: {current_output_dir / name}"
+            )
 
     for runs_csv in artifacts_root.glob("*/phase5_runs.csv"):
         try:
@@ -323,10 +348,16 @@ def _build_policy_metrics(rows: list[Phase5TrialRow], candidate: str) -> dict[st
         family_metrics[family.value] = {
             "trial_count": len(family_subset),
             "mean_utility": mean(row.utility for row in family_subset),
-            "recovery_rate": mean(1.0 if row.recovered else 0.0 for row in family_subset),
-            "mean_intervention_cost": mean(row.intervention_cost for row in family_subset),
+            "recovery_rate": mean(
+                1.0 if row.recovered else 0.0 for row in family_subset
+            ),
+            "mean_intervention_cost": mean(
+                row.intervention_cost for row in family_subset
+            ),
             "mean_harm": mean(row.harm for row in family_subset),
-            "unsafe_commitment_rate": mean(float(row.unsafe_commitment) for row in family_subset),
+            "unsafe_commitment_rate": mean(
+                float(row.unsafe_commitment) for row in family_subset
+            ),
             "unsafe_commitment_count": sum(
                 int(row.unsafe_commitment) for row in family_subset
             ),
@@ -336,7 +367,11 @@ def _build_policy_metrics(rows: list[Phase5TrialRow], candidate: str) -> dict[st
         }
     matched_keys = [row.trial_key for row in subset if row.trial_key in oracle_by_key]
     oracle_regret = (
-        mean(oracle_by_key[key].utility - next(row.utility for row in subset if row.trial_key == key) for key in matched_keys)
+        mean(
+            oracle_by_key[key].utility
+            - next(row.utility for row in subset if row.trial_key == key)
+            for key in matched_keys
+        )
         if matched_keys
         else 0.0
     )
@@ -367,13 +402,16 @@ def _build_candidate_metrics(
     for candidate in PHASE5_POLICIES:
         policy_metrics = _build_policy_metrics(rows, candidate)
         metrics_payload[candidate] = {
-            key: value for key, value in policy_metrics.items() if key != "family_metrics"
+            key: value
+            for key, value in policy_metrics.items()
+            if key != "family_metrics"
         }
         family_payload[candidate] = policy_metrics.get("family_metrics", {})
 
     mandatory_metrics: list[CandidateMetrics] = []
     mandatory_trial_keys: dict[str, set[str]] = {
-        cid: {row.trial_key for row in _policy_rows(rows, cid)} for cid in MANDATORY_CANDIDATES
+        cid: {row.trial_key for row in _policy_rows(rows, cid)}
+        for cid in MANDATORY_CANDIDATES
     }
     expected_keys = mandatory_trial_keys["greedy_gain"]
 
@@ -426,10 +464,16 @@ def _build_candidate_metrics(
                 controller_id=candidate,
                 mean_utility=metrics_payload[candidate]["mean_utility"],
                 recovery_rate=metrics_payload[candidate]["recovery_rate"],
-                mean_intervention_cost=metrics_payload[candidate]["mean_intervention_cost"],
+                mean_intervention_cost=metrics_payload[candidate][
+                    "mean_intervention_cost"
+                ],
                 mean_harm=metrics_payload[candidate]["mean_harm"],
-                unsafe_commitment_rate=metrics_payload[candidate]["unsafe_commitment_rate"],
-                evidence_request_rate=metrics_payload[candidate]["evidence_request_rate"],
+                unsafe_commitment_rate=metrics_payload[candidate][
+                    "unsafe_commitment_rate"
+                ],
+                evidence_request_rate=metrics_payload[candidate][
+                    "evidence_request_rate"
+                ],
                 per_family_recovery_rate={
                     family: family_payload[candidate][family]["recovery_rate"]
                     for family in family_payload[candidate]
@@ -454,12 +498,18 @@ def _build_candidate_metrics(
     return mandatory_metrics, metrics_payload, family_payload
 
 
-def _build_bootstrap_payload(mandatory_metrics: list[CandidateMetrics]) -> dict[str, Any]:
+def _build_bootstrap_payload(
+    mandatory_metrics: list[CandidateMetrics],
+) -> dict[str, Any]:
     metrics_by_id = {metric.controller_id: metric for metric in mandatory_metrics}
     payload: dict[str, Any] = {}
     for candidate in DEPLOYABLE_MANDATORY_CANDIDATES:
-        payload[f"{candidate}_vs_greedy_gain"] = metrics_by_id[candidate].bootstrap_vs_greedy
-        payload[f"{candidate}_vs_strongest_other"] = metrics_by_id[candidate].bootstrap_vs_strongest
+        payload[f"{candidate}_vs_greedy_gain"] = metrics_by_id[
+            candidate
+        ].bootstrap_vs_greedy
+        payload[f"{candidate}_vs_strongest_other"] = metrics_by_id[
+            candidate
+        ].bootstrap_vs_strongest
     return payload
 
 
@@ -668,7 +718,9 @@ def run_selection_validation(
 
     trials_csv = output_dir / "phase5_runs.csv"
     with trials_csv.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(Phase5TrialRow.__annotations__.keys()))
+        writer = csv.DictWriter(
+            handle, fieldnames=list(Phase5TrialRow.__annotations__.keys())
+        )
         writer.writeheader()
         for row in rows:
             writer.writerow(_asdict(row))
@@ -699,11 +751,17 @@ def run_selection_validation(
         eligibility_result = eligibility_payload.get(candidate)
         metrics_csv_rows.append(
             {
-                **{field: metric.get(field, "") for field in csv_fields if field in metric},
+                **{
+                    field: metric.get(field, "")
+                    for field in csv_fields
+                    if field in metric
+                },
                 "candidate": candidate,
                 "mandatory": candidate in MANDATORY_CANDIDATES,
                 "deployable": candidate in DEPLOYABLE_MANDATORY_CANDIDATES,
-                "eligible": eligibility_result["eligible"] if eligibility_result else "",
+                "eligible": eligibility_result["eligible"]
+                if eligibility_result
+                else "",
                 "superior_vs_greedy": eligibility_result["superior_vs_greedy"]
                 if eligibility_result
                 else "",

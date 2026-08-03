@@ -99,6 +99,9 @@ FROZEN_CONFIG = Phase5Config()
 #: Mandatory candidates that must appear in every development run.
 _MANDATORY: tuple[str, ...] = MANDATORY_CANDIDATES
 
+#: Merge commit of the canonical development comparison result on main (PR #25).
+_DEVELOPMENT_RESULT_MERGE_COMMIT = "390481e62500fda6e98559508c46134382b77736"
+
 
 # ── Git utilities ──────────────────────────────────────────────────────────────
 
@@ -179,10 +182,13 @@ def _check_commit_ancestry(source_commit: str) -> list[str]:
         return errors
     if source_commit == IMPLEMENTATION_COMMIT:
         return []
-    if not _is_ancestor(IMPLEMENTATION_COMMIT, source_commit):
+    if _is_ancestor(IMPLEMENTATION_COMMIT, source_commit):
+        return []
+    if not _is_ancestor(_DEVELOPMENT_RESULT_MERGE_COMMIT, source_commit):
         errors.append(
             f"source commit {source_commit!r} is not a descendant of "
-            f"implementation commit {IMPLEMENTATION_COMMIT!r}"
+            f"implementation commit {IMPLEMENTATION_COMMIT!r} or merged development "
+            f"commit {_DEVELOPMENT_RESULT_MERGE_COMMIT!r}"
         )
     return errors
 

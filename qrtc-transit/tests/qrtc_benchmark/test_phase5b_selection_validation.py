@@ -47,7 +47,9 @@ def test_run_selection_validation_creates_expected_artifacts(tmp_path: Path) -> 
         "checksums.sha256",
         "SELECTION_VALIDATION_REPORT.md",
     }
-    assert expected_files.issubset({path.name for path in (tmp_path / "selection-run").iterdir()})
+    assert expected_files.issubset(
+        {path.name for path in (tmp_path / "selection-run").iterdir()}
+    )
     assert result.stage == "selection-validation"
     assert result.final_validation_status == "locked_not_executed"
 
@@ -59,7 +61,9 @@ def test_run_selection_validation_round_trips_canonical_result(tmp_path: Path) -
         artifacts_root=_ARTIFACTS_ROOT,
         output_dir=output_dir,
     )
-    payload = json.loads((output_dir / "selection_result.json").read_text(encoding="utf-8"))
+    payload = json.loads(
+        (output_dir / "selection_result.json").read_text(encoding="utf-8")
+    )
     result = load_selection_result(payload)
     assert result.protocol_id == PROTOCOL_ID
     assert result.protocol_hash == compute_protocol_hashes().protocol_declaration_sha256

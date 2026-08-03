@@ -971,7 +971,9 @@ def test_validate_reports_nonempty_output_dir(tmp_path: Path) -> None:
         output_dir=output_dir,
     )
     assert report.status == "error"
-    assert any("output_dir must be unused and empty" in error for error in report.errors)
+    assert any(
+        "output_dir must be unused and empty" in error for error in report.errors
+    )
 
 
 # ── 13. Lock behaviour ────────────────────────────────────────────────────────
