@@ -57,7 +57,7 @@ This is not a certification of safety, a production deployment approval, or a ph
 
 ## Reproducibility
 
-Development and final-validation runs were each executed twice with `PYTHONHASHSEED=111` and `PYTHONHASHSEED=222`. All output files were byte-identical across both executions.
+Development runs were executed twice with `PYTHONHASHSEED=42` and `PYTHONHASHSEED=999`. Final-validation runs were executed twice with `PYTHONHASHSEED=111` and `PYTHONHASHSEED=222`. All output files were byte-identical across both executions in each stage.
 
 ---
 

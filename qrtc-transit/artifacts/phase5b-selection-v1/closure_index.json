@@ -3,7 +3,7 @@
   "protocol_id": "phase5b-selection-v1",
   "protocol_hash": "fc6b86912182d216be4d381992732345cc5d6a38299d6c5946ab1b8fe2bfe77c",
   "validated_controller_id": "qrtc",
-  "validated_controller_version": "phase5b-selection-v1",
+  "validated_controller_version": "phase5b-rule-policy-v1",
   "authority": "recommend_only",
   "hardware_actuation_enabled": false,
   "deployment_approval": false,
@@ -75,10 +75,19 @@
   },
   "all_final_gates_passed": true,
   "reproducibility": {
-    "byte_identical_runs": true,
-    "registered_pythonhashseeds": [
-      111,
-      222
-    ]
+    "development": {
+      "byte_identical_runs": true,
+      "registered_pythonhashseeds": [
+        42,
+        999
+      ]
+    },
+    "final_validation": {
+      "byte_identical_runs": true,
+      "registered_pythonhashseeds": [
+        111,
+        222
+      ]
+    }
   }
 }
