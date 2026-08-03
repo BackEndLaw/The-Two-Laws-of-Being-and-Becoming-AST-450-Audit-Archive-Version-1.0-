@@ -1,0 +1,111 @@
+{
+  "schema": "rescueos-release-record-v1",
+  "release_name": "RescueOS Advisor",
+  "release_version": "0.1.0",
+  "release_label": "qrtc-transit-0.1.0+phase5b-rule-policy-v1",
+  "release_date": "2026-08-03",
+  "seal_status": "RELEASE SEALED",
+
+  "source_identity": {
+    "validated_main_commit": "d4bc5b56d1dcfa88b413adc15b423aa09814d750",
+    "implementation_commit": "6aa56a7abae975274e95a9ba2941fe2002794592",
+    "source_commit": "9a8eb19473b0b92a2ebb6921ea3b333379cbe65a",
+    "source_base_commit": "54ac41b57af075dc2fa22cce66b6fe3ce7f5cffe",
+    "packaging_closure_commit": "dcf27715df36cf772e10928f0652ea42e23db1a6"
+  },
+
+  "distribution": {
+    "model": "option_b_two_artifact",
+    "wheel_filename": "qrtc_transit-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "c3a37c7a3e134d73523bc2d073732b871902a65606563dd2b1d6986a16b0b7c0",
+    "controller_artifact_filename": "phase5b-rule-policy-v1/manifest.json",
+    "controller_artifact_sha256": "3a5845cbcda7260497050dfd027787fa06d0e3f02dc49e23d7ea2af8a868bcc1"
+  },
+
+  "controller": {
+    "controller_id": "qrtc",
+    "controller_version": "phase5b-rule-policy-v1",
+    "controller_manifest_sha256": "184dbf5d9dc3a527a1d31f40e719adfc6a39b0c1f775125af47cc3fbaa44a1bf",
+    "implementation_sha256": "5226e4547f8e9122deef3883c02f78cac815927dbb8a11945405e5b657b30830",
+    "controller_parameters_sha256": "c1321dea6ba463a573a9f3db84ae9ad5c8b41298cfdac9d69aa11f3898af6852"
+  },
+
+  "fixed_decision": {
+    "decision_checksum": "2928653190c53335bd7b78862283d1118aba3b63c83eb0126f3b63c8c0f12f47",
+    "expected_action_sequence": ["rG", "rW", "rJ"],
+    "probe_case_family": "V3",
+    "state_loading_mode": "registry_lookup_only_no_retraining",
+    "reproducibility_probe_sha256": "4a412e45fc67a6e686821370f18c0f82c40f9fbcd7f99bd0a81a7287826c594d"
+  },
+
+  "graph_and_schemas": {
+    "causal_graph_sha256": "1fdebca70dea89b3062917c64e0b79efc38dcf256f45671d79a6790831be2714",
+    "action_allowlist_sha256": "633e56f00c9e56b17e3110f1c96d5875c7e110b6b0da23b7dc1a018d17a93df8",
+    "observation_schema_version": "phase5-ood-case-v1",
+    "observation_schema_sha256": "f5c1e3ce4e1e0809d6ecde6d44ec950fdef9773fd155a3d0767037cc476c61d7",
+    "action_schema_version": "phase5-intervention-sequence-v1",
+    "action_schema_sha256": "e2704923147c697ef88476b6228130a5d3094bea7f6471eacfa86621b43bc0bc",
+    "decision_thresholds_sha256": "d4d6879f7833bfa08894180cd6617a049be7d38e4565c9fb9f826428a44a2851"
+  },
+
+  "python_compatibility": {
+    "requires_python": ">=3.11",
+    "tested_runtime": "3.12.3",
+    "build_system_requires": ["setuptools>=69"],
+    "build_venv_setuptools_version": "83.0.0",
+    "runtime_setuptools": "not installed (build-time only)"
+  },
+
+  "dependency_identity": {
+    "project_name": "qrtc-transit",
+    "project_version": "0.1.0",
+    "dependency_lock_sha256": "1716ab685b33dcabd9cf2b4702691fda4e1dbf95c63c9639de24e4ba00f269cb",
+    "lock_kind": "pyproject-dependency-declaration",
+    "dedicated_lock_file_present": false
+  },
+
+  "selection_validation_references": {
+    "closure_index_sha256": "22745c35108e8ed6fdd9308f1e029a68680c2f6f2d375c93a2dcb8127b822222",
+    "selection_references_sha256": "9379d8441c1008ef2b3079873f711d7746a407f3dae5b19cfaa79a4200c8e3ae",
+    "selection_result_sha256": "a74a8b5e0e573e937bdcfa7ec72c63aef14ed3eb8bfce2631c15c09672518be5",
+    "final_validation_result_sha256": "f74ad40e01cde81cd2234391c62746e55dc0a61ed0bd9e996873f42744fca590",
+    "final_validation_report_sha256": "9a46b3d7ee4c09cb260818f53eb4241e2e7eb80fe91c8890e013ad9eebf4841a",
+    "final_outcome": "final_validation_passed",
+    "all_final_gates_passed": true
+  },
+
+  "step5_clean_room_references": {
+    "report_path": "artifacts/phase5b-selection-v1/step5-packaging-closure/STEP5_PACKAGING_CLOSURE.md",
+    "report_sha256": "97960325b3144cb138d255dbbe222f4c3b3d84bd55c0f563a2681b15477bd4cb",
+    "release_manifest_path": "artifacts/phase5b-selection-v1/step5-packaging-closure/release_manifest.json",
+    "release_manifest_sha256": "3ca9b49b7e0bcd9c16335e343d5b68f6f2520bb20892f3c06dae60967906e818",
+    "cleanroom_outcome": "PASS"
+  },
+
+  "authority": "recommend_only",
+  "hardware_actuation_enabled": false,
+  "deployment_approval": false,
+  "physical_certification": false,
+
+  "known_limitations": [
+    "Authority is recommend_only; physical actuation requires separate human authorization.",
+    "No physical certification has been performed.",
+    "Deployment approval has not been granted.",
+    "The observation schema covers five family types (V1–V4 with sub-types); physical signals require an adapter to map to this schema before the Advisor can process them.",
+    "The clean-room verification used a reproducibility probe case; full production coverage requires physical bench testing.",
+    "setuptools is absent from the runtime environment; this is intentional and correct.",
+    "A dedicated pip-lock file is not present; version ranges are declared in pyproject.toml.",
+    "The Advisor produces recommendations only; it does not send commands to hardware."
+  ],
+
+  "supported_operating_scope": [
+    "Software-only observation and recommendation under human oversight.",
+    "Physical communication-link bench testing in observation-only mode.",
+    "Structured audit record generation.",
+    "Reproducibility probe verification against the frozen decision checksum."
+  ],
+
+  "reconstruction_instructions": "Install qrtc_transit-0.1.0-py3-none-any.whl in a fresh venv. Verify wheel SHA-256. Copy phase5b-rule-policy-v1/manifest.json to a separate directory. Verify controller artifact SHA-256. Load with load_selected_controller_bundle() passing the artifact dict (not a Path). Verify decision checksum with selected_controller_decision_checksum(). No source repository access is required.",
+
+  "_note": "This record was produced by the Step 6 release-seal task. Hash values were read from committed artifacts and verified against the Step 5 clean-room run. No controller, graph, schema, threshold, or validation artifact was modified."
+}
