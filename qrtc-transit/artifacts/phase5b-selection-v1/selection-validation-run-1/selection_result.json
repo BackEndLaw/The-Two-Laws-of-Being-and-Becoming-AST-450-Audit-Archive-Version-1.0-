@@ -353,6 +353,6 @@
   "protocol_id": "phase5b-selection-v1",
   "result_schema": "rescueos-selection-result-v1",
   "selected_id": "qrtc",
-  "source_commit": "bec2f2c7781f8ad357262b6357841ddf6e6abfb4",
+  "source_commit": "8f06e2271c58b624ee210df504056a7862dbf30e",
   "stage": "selection-validation"
 }

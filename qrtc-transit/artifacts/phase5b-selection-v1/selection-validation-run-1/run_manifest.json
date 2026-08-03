@@ -45,7 +45,7 @@
     1.0
   ],
   "schema": "qrtc-selection-validation-run-manifest-v1",
-  "source_commit": "bec2f2c7781f8ad357262b6357841ddf6e6abfb4",
+  "source_commit": "8f06e2271c58b624ee210df504056a7862dbf30e",
   "split": "validation",
   "split_seeds": [
     751,

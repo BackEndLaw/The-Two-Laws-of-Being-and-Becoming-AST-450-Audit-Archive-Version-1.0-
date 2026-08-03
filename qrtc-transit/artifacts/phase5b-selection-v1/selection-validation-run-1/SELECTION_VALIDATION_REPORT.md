@@ -3,7 +3,7 @@
 **Stage:** selection-validation  
 **Protocol:** `phase5b-selection-v1`  
 **Protocol hash:** `fc6b86912182d216be4d381992732345cc5d6a38299d6c5946ab1b8fe2bfe77c`  
-**Source commit:** `bec2f2c7781f8ad357262b6357841ddf6e6abfb4`  
+**Source commit:** `8f06e2271c58b624ee210df504056a7862dbf30e`  
 **Implementation commit:** `6aa56a7abae975274e95a9ba2941fe2002794592`  
 **Outcome:** `provisional_selection`  
 **Selected controller:** `qrtc`  
