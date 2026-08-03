@@ -1,0 +1,2 @@
+candidate,trial_count,mean_utility,recovery_rate,mean_harm
+greedy_gain,9216,0.007006835937499996,0.2985026041666667,0.2272677951388889

@@ -1,0 +1,18 @@
+{
+  "allowed_execution_indices": [
+    1,
+    2
+  ],
+  "authority": "recommend_only",
+  "authorization_schema": "rescueos-final-validation-authorization-v1",
+  "event_id": "phase5b-selection-v1-final-validation-run-1",
+  "hardware_actuation_enabled": false,
+  "implementation_commit": "6aa56a7abae975274e95a9ba2941fe2002794592",
+  "one_time_execution_intent": "reproducibility_pair",
+  "protocol_hash": "fc6b86912182d216be4d381992732345cc5d6a38299d6c5946ab1b8fe2bfe77c",
+  "protocol_id": "phase5b-selection-v1",
+  "selected_controller_id": "qrtc",
+  "selection_result_sha256": "a74a8b5e0e573e937bdcfa7ec72c63aef14ed3eb8bfce2631c15c09672518be5",
+  "source_base_commit": "54ac41b57af075dc2fa22cce66b6fe3ce7f5cffe",
+  "stage": "final-validation"
+}

@@ -1,0 +1,16 @@
+{
+  "bootstrap_reps": 2000,
+  "bootstrap_seed": 9101,
+  "ci_high": 0.43790159035115805,
+  "ci_low": 0.4155334499344119,
+  "cluster_count": 5366,
+  "left_policy": "qrtc",
+  "loss_rate": 0.17686631944444445,
+  "matched_trial_count": 9216,
+  "mean_difference": 0.4267713758680555,
+  "median_difference": 0.6,
+  "method": "paired_cluster_bootstrap",
+  "right_policy": "greedy_gain",
+  "tie_rate": 0.0,
+  "win_rate": 0.8231336805555556
+}

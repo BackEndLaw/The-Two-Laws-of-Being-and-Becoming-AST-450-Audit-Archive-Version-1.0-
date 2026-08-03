@@ -99,8 +99,8 @@ FROZEN_CONFIG = Phase5Config()
 #: Mandatory candidates that must appear in every development run.
 _MANDATORY: tuple[str, ...] = MANDATORY_CANDIDATES
 
-#: Merge commit of the canonical development comparison result on main (PR #25).
-_DEVELOPMENT_RESULT_MERGE_COMMIT = "390481e62500fda6e98559508c46134382b77736"
+#: Merge commit on main containing merged selection-validation result (PR #26).
+_DEVELOPMENT_RESULT_MERGE_COMMIT = "54ac41b57af075dc2fa22cce66b6fe3ce7f5cffe"
 
 
 # ── Git utilities ──────────────────────────────────────────────────────────────

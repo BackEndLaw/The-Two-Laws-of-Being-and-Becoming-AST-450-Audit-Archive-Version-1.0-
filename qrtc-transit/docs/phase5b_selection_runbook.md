@@ -265,15 +265,27 @@ All `validate` invocations are **dry-run only**; no benchmark data is generated.
 
 ---
 
-## Final-validation lock
+## Final-validation lock and narrow authorization
 
-Final-validation is **permanently locked** in this PR.
+`qrtc-selection validate` remains locked for `final-validation`.
 
 - Requesting `--stage final-validation` on the CLI raises `LockedStageError` (exit code 3).
 - The `authorize_phase5_split("test")` guard in `phase5.py` raises `PermissionError`.
-- Final-validation definitions are declared and hashed statically, but no result rows
-  may be generated.
+- Final-validation definitions are declared and hashed statically.
 - `final_validation_status = "locked_not_executed"` is mandatory in all result records.
+
+A separate one-time authorized runner now exists for the merged final-validation event:
+
+```bash
+python -m qrtc_benchmark.phase5b_final_validation \
+  --protocol-dir artifacts/protocols/phase5b-selection-v1 \
+  --artifacts-root artifacts/phase5b-selection-v1 \
+  --output-dir artifacts/phase5b-selection-v1/final-validation-run-1 \
+  --authorization artifacts/phase5b-selection-v1/final-validation-authorization-v1.json \
+  --execution-index 1
+```
+
+This runner is fail-closed and requires the exact canonical authorization artifact.
 
 ---
 
@@ -325,4 +337,4 @@ artifacts/protocols/phase5b-selection-v1/
 
 ---
 
-*This runbook is documentation only.  No experiment has been run.  No winner has been selected.*
+*This runbook documents frozen protocol execution controls, including the narrow authorized final-validation path for `qrtc` under recommend-only authority.*

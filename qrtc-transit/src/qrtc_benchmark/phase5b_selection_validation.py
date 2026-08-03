@@ -74,7 +74,7 @@ from qrtc_benchmark.validation_cli import (
     validate_protocol_directory,
 )
 
-_MERGED_DEVELOPMENT_SOURCE_COMMIT = "390481e62500fda6e98559508c46134382b77736"
+_MERGED_DEVELOPMENT_SOURCE_COMMIT = "54ac41b57af075dc2fa22cce66b6fe3ce7f5cffe"
 _DEVELOPMENT_RESULT_DIR = "development-run-1"
 _FORBIDDEN_FINAL_NAMES = ("final-validation", "test")
 
@@ -281,6 +281,16 @@ def _check_final_validation_locked_and_absent(
             )
 
     for runs_csv in artifacts_root.glob("*/phase5_runs.csv"):
+        run_dir_name = runs_csv.parent.name
+        if run_dir_name == "final-validation-run-1":
+            # Authorized Stage 3 output may exist after PR #26; keep scanning strict for
+            # all other unexpected final-validation outputs.
+            continue
+        if run_dir_name.startswith("final-validation-run-"):
+            errors.append(
+                f"unregistered final-validation output detected: {runs_csv.parent}"
+            )
+            continue
         try:
             with runs_csv.open(encoding="utf-8", newline="") as handle:
                 reader = csv.DictReader(handle)

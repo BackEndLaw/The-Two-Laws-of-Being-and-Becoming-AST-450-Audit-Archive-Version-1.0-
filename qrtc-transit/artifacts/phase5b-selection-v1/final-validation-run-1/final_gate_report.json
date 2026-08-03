@@ -1,0 +1,18 @@
+{
+  "all_passed": true,
+  "gate_results": {
+    "gate10_only_required_comparators": true,
+    "gate11_complete_unique_matched_rows": true,
+    "gate1_no_missing_duplicate_rows": true,
+    "gate2_artifact_protocol_match": true,
+    "gate3_overall_unsafe_rate": true,
+    "gate4_no_ood_unsafe_count": true,
+    "gate5_family_recovery_no_regression": true,
+    "gate6_family_harm_no_increase": true,
+    "gate7_utility_not_below_greedy": true,
+    "gate8_operational_integrity": true,
+    "gate9_complete_frozen_coverage": true
+  },
+  "outcome": "final_validation_passed",
+  "outcome_reasons": []
+}
