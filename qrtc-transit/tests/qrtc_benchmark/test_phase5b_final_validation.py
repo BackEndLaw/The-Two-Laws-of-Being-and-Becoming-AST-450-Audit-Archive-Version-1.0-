@@ -20,7 +20,9 @@ from qrtc_benchmark.selection_protocol import IMPLEMENTATION_COMMIT, PROTOCOL_ID
 _ROOT = Path(__file__).resolve().parents[2]
 _PROTOCOL_DIR = _ROOT / "artifacts" / "protocols" / PROTOCOL_ID
 _ARTIFACTS_ROOT = _ROOT / "artifacts" / "phase5b-selection-v1"
-_SELECTION_RESULT_PATH = _ARTIFACTS_ROOT / "selection-validation-run-1" / "selection_result.json"
+_SELECTION_RESULT_PATH = (
+    _ARTIFACTS_ROOT / "selection-validation-run-1" / "selection_result.json"
+)
 _SELECTION_SHA = hashlib.sha256(_SELECTION_RESULT_PATH.read_bytes()).hexdigest()
 
 
@@ -53,7 +55,9 @@ def test_preflight_fails_closed_for_bad_authorization_hash(tmp_path: Path) -> No
     payload = _authorization_payload()
     payload["selection_result_sha256"] = "0" * 64
     authorization_path = tmp_path / "auth.json"
-    authorization_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    authorization_path.write_text(
+        json.dumps(payload, indent=2) + "\n", encoding="utf-8"
+    )
     with pytest.raises(Exception, match="selection_result_sha256 mismatch"):
         run_final_validation_preflight(
             protocol_dir=_PROTOCOL_DIR,

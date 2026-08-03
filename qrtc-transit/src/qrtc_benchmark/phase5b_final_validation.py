@@ -156,7 +156,9 @@ def load_final_validation_authorization(
     else:
         payload = payload_or_json
     if not isinstance(payload, dict):
-        raise AuthorizationValidationError("authorization payload must be a JSON object")
+        raise AuthorizationValidationError(
+            "authorization payload must be a JSON object"
+        )
 
     missing = sorted(_AUTH_FIELDS - set(payload))
     extra = sorted(set(payload) - _AUTH_FIELDS)
@@ -290,7 +292,9 @@ def load_final_validation_result(
     else:
         payload = payload_or_json
     if not isinstance(payload, dict):
-        raise FinalValidationResultValidationError("result payload must be a JSON object")
+        raise FinalValidationResultValidationError(
+            "result payload must be a JSON object"
+        )
     missing = sorted(_FINAL_RESULT_FIELDS - set(payload))
     extra = sorted(set(payload) - _FINAL_RESULT_FIELDS)
     if missing or extra:
@@ -301,7 +305,10 @@ def load_final_validation_result(
         raise FinalValidationResultValidationError("result_schema mismatch")
     if payload["protocol_id"] != PROTOCOL_ID:
         raise FinalValidationResultValidationError("protocol_id mismatch")
-    if payload["protocol_hash"] != compute_protocol_hashes().protocol_declaration_sha256:
+    if (
+        payload["protocol_hash"]
+        != compute_protocol_hashes().protocol_declaration_sha256
+    ):
         raise FinalValidationResultValidationError("protocol_hash mismatch")
     if payload["phase_revision"] != PROTOCOL_PHASE_REVISION:
         raise FinalValidationResultValidationError("phase_revision mismatch")
@@ -322,7 +329,9 @@ def load_final_validation_result(
     if payload["deployment_approval"] is not False:
         raise FinalValidationResultValidationError("deployment_approval must be false")
     if payload["physical_certification"] is not False:
-        raise FinalValidationResultValidationError("physical_certification must be false")
+        raise FinalValidationResultValidationError(
+            "physical_certification must be false"
+        )
     if payload["comparator_ids"] != [_BASELINE_ID, _ORACLE_ID]:
         raise FinalValidationResultValidationError(
             "comparator_ids must be ['greedy_gain', 'oracle']"
@@ -348,7 +357,9 @@ def load_final_validation_result(
         )
     bound = payload["bound_selection_result_sha256"]
     if expected_selection_hash is not None and bound != expected_selection_hash:
-        raise FinalValidationResultValidationError("bound_selection_result_sha256 mismatch")
+        raise FinalValidationResultValidationError(
+            "bound_selection_result_sha256 mismatch"
+        )
     return FinalValidationResultV1(
         result_schema=str(payload["result_schema"]),
         protocol_id=str(payload["protocol_id"]),
@@ -377,7 +388,9 @@ def load_final_validation_result(
     )
 
 
-def _collect_input_hashes(protocol_dir: Path, selection_run_dir: Path) -> dict[str, str]:
+def _collect_input_hashes(
+    protocol_dir: Path, selection_run_dir: Path
+) -> dict[str, str]:
     hashes: dict[str, str] = {}
     protocol_files = [
         "preregistration.json",
@@ -403,7 +416,9 @@ def _collect_input_hashes(protocol_dir: Path, selection_run_dir: Path) -> dict[s
 
 def _check_preregistration_and_semantics(protocol_dir: Path) -> list[str]:
     errors: list[str] = []
-    prereg = json.loads((protocol_dir / "preregistration.json").read_text(encoding="utf-8"))
+    prereg = json.loads(
+        (protocol_dir / "preregistration.json").read_text(encoding="utf-8")
+    )
     semantic = json.loads(
         (protocol_dir / "frozen_semantic_declarations.json").read_text(encoding="utf-8")
     )
@@ -420,15 +435,25 @@ def _check_preregistration_and_semantics(protocol_dir: Path) -> list[str]:
 
 
 def _check_final_split_declaration(protocol_dir: Path) -> list[str]:
-    prereg = json.loads((protocol_dir / "preregistration.json").read_text(encoding="utf-8"))
+    prereg = json.loads(
+        (protocol_dir / "preregistration.json").read_text(encoding="utf-8")
+    )
     splits = prereg.get("splits", {})
     expected = canonical_split_declaration()
     errors: list[str] = []
     checks: tuple[tuple[str, object, object], ...] = (
         ("split_aliases", splits.get("split_aliases"), expected["split_aliases"]),
         ("split_seeds", splits.get("split_seeds"), expected["split_seeds"]),
-        ("test_family_trials", splits.get("test_family_trials"), expected["test_family_trials"]),
-        ("final_mechanisms", splits.get("final_mechanisms"), expected["final_mechanisms"]),
+        (
+            "test_family_trials",
+            splits.get("test_family_trials"),
+            expected["test_family_trials"],
+        ),
+        (
+            "final_mechanisms",
+            splits.get("final_mechanisms"),
+            expected["final_mechanisms"],
+        ),
         ("final_pairs", splits.get("final_pairs"), expected["final_pairs"]),
         ("final_triples", splits.get("final_triples"), expected["final_triples"]),
     )
@@ -543,7 +568,9 @@ def _check_output_dir(output_dir: Path, artifacts_root: Path) -> list[str]:
     for ancestor in forbidden_ancestors:
         try:
             output_dir.relative_to(ancestor)
-            errors.append(f"output_dir must not be inside immutable directory {ancestor}")
+            errors.append(
+                f"output_dir must not be inside immutable directory {ancestor}"
+            )
         except ValueError:
             pass
     return errors
@@ -568,12 +595,16 @@ def _check_post_selection_change_scope(source_commit: str) -> list[str]:
         return []
     allowed_prefixes = (
         "qrtc-transit/src/qrtc_benchmark/phase5b_final_validation.py",
+        "qrtc-transit/src/qrtc_benchmark/phase5b_development.py",
+        "qrtc-transit/src/qrtc_benchmark/phase5b_selection_validation.py",
         "qrtc-transit/src/qrtc_benchmark/result_schema.py",
         "qrtc-transit/tests/qrtc_benchmark/test_phase5b_final_validation.py",
         "qrtc-transit/docs/phase5b_selection_runbook.md",
         "qrtc-transit/artifacts/phase5b-selection-v1/",
     )
-    disallowed = [path for path in changed_files if not path.startswith(allowed_prefixes)]
+    disallowed = [
+        path for path in changed_files if not path.startswith(allowed_prefixes)
+    ]
     if disallowed:
         return [
             "post-selection source changes exceed final-validation scope: "
@@ -661,7 +692,8 @@ def _build_final_rows(config: Phase5Config) -> list[Phase5TrialRow]:
         family_cases = _trial_case_pool(
             split_name,
             family,
-            seed=root_seed + _stable_hash("phase5b:family_pool_seed", family.value) % 991,
+            seed=root_seed
+            + _stable_hash("phase5b:family_pool_seed", family.value) % 991,
             config=config,
         )
         for index, case in enumerate(family_cases):
@@ -689,7 +721,8 @@ def _build_final_rows(config: Phase5Config) -> list[Phase5TrialRow]:
                                 reliability=reliability,
                                 costs=costs,
                                 seed=scenario_seed
-                                + _stable_hash("phase5b:scenario_policy_seed", policy) % 997,
+                                + _stable_hash("phase5b:scenario_policy_seed", policy)
+                                % 997,
                             )
                         outcome = _evaluate_sequence(
                             case=case,
@@ -743,7 +776,8 @@ def _build_final_rows(config: Phase5Config) -> list[Phase5TrialRow]:
                                 oracle_cost=float(oracle["cost"]),
                                 oracle_recovered=bool(oracle["recovered"]),
                                 relation_observed=case.relation_type.value,
-                                is_triple_fault=case.family == Phase5Family.V3_THREE_FAULT,
+                                is_triple_fault=case.family
+                                == Phase5Family.V3_THREE_FAULT,
                                 unknown_fault=case.unknown_fault,
                             )
                         )
@@ -757,9 +791,13 @@ def _metrics(rows: list[Phase5TrialRow], policy: str) -> dict[str, Any]:
         family_subset = [row for row in subset if row.family == family.value]
         families[family.value] = {
             "trial_count": len(family_subset),
-            "recovery_rate": mean(1.0 if row.recovered else 0.0 for row in family_subset),
+            "recovery_rate": mean(
+                1.0 if row.recovered else 0.0 for row in family_subset
+            ),
             "mean_harm": mean(row.harm for row in family_subset),
-            "unsafe_commitment_count": sum(int(row.unsafe_commitment) for row in family_subset),
+            "unsafe_commitment_count": sum(
+                int(row.unsafe_commitment) for row in family_subset
+            ),
             "unsafe_commitment_rate": mean(
                 float(row.unsafe_commitment) for row in family_subset
             ),
@@ -773,7 +811,9 @@ def _metrics(rows: list[Phase5TrialRow], policy: str) -> dict[str, Any]:
         "mean_harm": mean(row.harm for row in subset),
         "unsafe_commitment_rate": mean(float(row.unsafe_commitment) for row in subset),
         "unsafe_commitment_count": sum(int(row.unsafe_commitment) for row in subset),
-        "evidence_request_rate": mean(1.0 if row.evidence_requested else 0.0 for row in subset),
+        "evidence_request_rate": mean(
+            1.0 if row.evidence_requested else 0.0 for row in subset
+        ),
         "oracle_regret": mean(row.oracle_utility - row.utility for row in subset),
         "family_metrics": families,
     }
@@ -802,10 +842,12 @@ def _candidate_metrics_for_gates(
         unsafe_commitment_rate=metric["unsafe_commitment_rate"],
         evidence_request_rate=metric["evidence_request_rate"],
         per_family_recovery_rate={
-            family: values["recovery_rate"] for family, values in metric["family_metrics"].items()
+            family: values["recovery_rate"]
+            for family, values in metric["family_metrics"].items()
         },
         per_family_mean_harm={
-            family: values["mean_harm"] for family, values in metric["family_metrics"].items()
+            family: values["mean_harm"]
+            for family, values in metric["family_metrics"].items()
         },
         per_family_unsafe_count={
             family: values["unsafe_commitment_count"]
@@ -821,17 +863,24 @@ def _candidate_metrics_for_gates(
     )
 
 
-def _build_gate_report(rows: list[Phase5TrialRow]) -> tuple[dict[str, Any], list[str], str]:
+def _build_gate_report(
+    rows: list[Phase5TrialRow],
+) -> tuple[dict[str, Any], list[str], str]:
     selected = _metrics(rows, _SELECTED_CONTROLLER_ID)
     baseline = _metrics(rows, _BASELINE_ID)
-    selected_metrics = _candidate_metrics_for_gates(rows, _SELECTED_CONTROLLER_ID, baseline)
+    selected_metrics = _candidate_metrics_for_gates(
+        rows, _SELECTED_CONTROLLER_ID, baseline
+    )
     baseline_metrics = _candidate_metrics_for_gates(rows, _BASELINE_ID, baseline)
     eligibility = check_eligibility(selected_metrics, baseline_metrics)
     gate_results = dict(eligibility.gate_results)
     reasons = list(eligibility.disqualification_reasons)
     complete_unique = selected_metrics.matched_rows_ok
-    required_trials = TEST_FAMILY_TRIALS * len(Phase5Family) * len(RELIABILITY_LEVELS) * len(
-        COST_REGIMES
+    required_trials = (
+        TEST_FAMILY_TRIALS
+        * len(Phase5Family)
+        * len(RELIABILITY_LEVELS)
+        * len(COST_REGIMES)
     )
     gate_results["gate9_complete_frozen_coverage"] = (
         selected["trial_count"] == required_trials
@@ -858,7 +907,9 @@ def _build_gate_report(rows: list[Phase5TrialRow]) -> tuple[dict[str, Any], list
 
 def _write_rows_csv(path: Path, rows: list[Phase5TrialRow]) -> None:
     with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(Phase5TrialRow.__annotations__.keys()))
+        writer = csv.DictWriter(
+            handle, fieldnames=list(Phase5TrialRow.__annotations__.keys())
+        )
         writer.writeheader()
         for row in rows:
             writer.writerow(_asdict(row))
@@ -978,7 +1029,9 @@ def run_final_validation(
             _BASELINE_ID: {
                 key: value for key, value in baseline.items() if key != "family_metrics"
             },
-            _ORACLE_ID: {key: value for key, value in oracle.items() if key != "family_metrics"},
+            _ORACLE_ID: {
+                key: value for key, value in oracle.items() if key != "family_metrics"
+            },
         },
         family_metrics=family_metrics,
         paired_bootstrap_vs_greedy=paired,
@@ -1023,7 +1076,9 @@ def run_final_validation(
     _write_json(baseline_json, baseline)
     _write_json(oracle_json, oracle)
     _write_json(family_json, family_metrics)
-    _write_json(gates_json, gate_payload | {"outcome_reasons": reasons, "outcome": outcome})
+    _write_json(
+        gates_json, gate_payload | {"outcome_reasons": reasons, "outcome": outcome}
+    )
     _write_json(paired_json, paired)
     _write_json(manifest_json, run_manifest)
     split_decl = canonical_split_declaration()

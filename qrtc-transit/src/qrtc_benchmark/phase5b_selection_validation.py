@@ -336,7 +336,9 @@ def run_selection_validation_preflight(
             output_dir=output_dir,
         )
         if validation_report.status != "ok":
-            errors.extend(f"validation_cli: {error}" for error in validation_report.errors)
+            errors.extend(
+                f"validation_cli: {error}" for error in validation_report.errors
+            )
     except ProtocolValidationError as exc:
         errors.append(f"validation_cli: {exc}")
         validation_report = None
