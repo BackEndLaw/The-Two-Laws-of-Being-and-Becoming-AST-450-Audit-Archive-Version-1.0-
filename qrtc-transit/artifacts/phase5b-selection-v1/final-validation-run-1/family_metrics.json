@@ -1,0 +1,92 @@
+{
+  "greedy_gain": {
+    "V1": {
+      "mean_harm": 0.017795138888888888,
+      "recovery_rate": 0.4548611111111111,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V2": {
+      "mean_harm": 0.017795138888888888,
+      "recovery_rate": 0.4466145833333333,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V3": {
+      "mean_harm": 0.017795138888888888,
+      "recovery_rate": 0.2925347222222222,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V4": {
+      "mean_harm": 0.8556857638888888,
+      "recovery_rate": 0.0,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 2304,
+      "unsafe_commitment_rate": 1.0
+    }
+  },
+  "oracle": {
+    "V1": {
+      "mean_harm": 0.007378472222222222,
+      "recovery_rate": 0.9053819444444444,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V2": {
+      "mean_harm": 0.008680555555555556,
+      "recovery_rate": 0.9105902777777778,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V3": {
+      "mean_harm": 0.013020833333333334,
+      "recovery_rate": 0.828125,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V4": {
+      "mean_harm": 0.0,
+      "recovery_rate": 0.0,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    }
+  },
+  "qrtc": {
+    "V1": {
+      "mean_harm": 0.026909722222222224,
+      "recovery_rate": 0.8676215277777778,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V2": {
+      "mean_harm": 0.026909722222222224,
+      "recovery_rate": 0.8702256944444444,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V3": {
+      "mean_harm": 0.04600694444444445,
+      "recovery_rate": 0.7547743055555556,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V4": {
+      "mean_harm": 0.0,
+      "recovery_rate": 0.0,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "candidate": "oracle",
+  "evidence_request_rate": 0.0,
+  "family_metrics": {
+    "V1": {
+      "mean_harm": 0.007378472222222222,
+      "recovery_rate": 0.9053819444444444,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V2": {
+      "mean_harm": 0.008680555555555556,
+      "recovery_rate": 0.9105902777777778,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V3": {
+      "mean_harm": 0.013020833333333334,
+      "recovery_rate": 0.828125,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    },
+    "V4": {
+      "mean_harm": 0.0,
+      "recovery_rate": 0.0,
+      "trial_count": 2304,
+      "unsafe_commitment_count": 0,
+      "unsafe_commitment_rate": 0.0
+    }
+  },
+  "mean_harm": 0.007269965277777778,
+  "mean_intervention_cost": 2.574978298611111,
+  "mean_utility": 0.5304578993055555,
+  "oracle_regret": 0.0,
+  "recovery_rate": 0.6610243055555556,
+  "trial_count": 9216,
+  "unsafe_commitment_count": 0,
+  "unsafe_commitment_rate": 0.0
+}

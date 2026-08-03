@@ -1,0 +1,47 @@
+{
+  "authorization_sha256": "0a4c4861afeba2fd6c8327d0dc9eb53753db2a46f885eecd0a4424b34873d9a9",
+  "bootstrap_reps": 2000,
+  "bootstrap_seed": 9101,
+  "comparator_ids": [
+    "greedy_gain",
+    "oracle"
+  ],
+  "cost_regimes": [
+    "familiar"
+  ],
+  "implementation_commit": "6aa56a7abae975274e95a9ba2941fe2002794592",
+  "input_hashes": {
+    "protocol/checksums.sha256": "4e94bdf97c9b0ad5811eadf8d65ac42140057966641876561833ac0985af7b0c",
+    "protocol/commit.txt": "a6fc87a42b5fd35dfdf744ce98a587946f3c7084b02ff5027c497f50dc88fe09",
+    "protocol/frozen_semantic_declarations.json": "c3e6d76311d6a3398369b626c52a8961895d324cbc2a967308d9b3d9160be37a",
+    "protocol/manifests/greedy_gain.json": "ff0d60d600a7a3cc354bf8bb0c6b9348f291cac87accc2fe446ef9d972abd41d",
+    "protocol/manifests/oracle.json": "c5ef3df0c19aa0908f40b851c8b2f07cfe859466fff3cce27cbb5b7b983e6c9c",
+    "protocol/manifests/qrtc.json": "184dbf5d9dc3a527a1d31f40e719adfc6a39b0c1f775125af47cc3fbaa44a1bf",
+    "protocol/manifests/qrtc_no_abstention.json": "5dccec335d8892b3b0a8c208c84698bc10b043c159fe0630aad5e55c6a7a1e23",
+    "protocol/manifests/qrtc_untyped.json": "21e1e89a4b0411295ca719fff608cebafce38065748fb522b3be9b7851c08dd4",
+    "protocol/preregistration.json": "dba13048aeef01abc380200d898b696f766de6307b468505db813023a48b48f2",
+    "selection/candidate_metrics.json": "88c50adb7744b992f5c5714029f611c3a6850094ccffeee04c367efa7f425504",
+    "selection/checksums.sha256": "8e175666ac7d2735e2fe2703541405ec243cc96432e582181e209a2be3a0d8ec",
+    "selection/eligibility_report.json": "b5637eb98de49ec450fa3235ea0ca826b391f3a6b5d2e0aa9441c1fd949d58c6",
+    "selection/selection_result.json": "a74a8b5e0e573e937bdcfa7ec72c63aef14ed3eb8bfce2631c15c09672518be5"
+  },
+  "protocol_hash": "fc6b86912182d216be4d381992732345cc5d6a38299d6c5946ab1b8fe2bfe77c",
+  "protocol_id": "phase5b-selection-v1",
+  "reliability_levels": [
+    0.8,
+    1.0
+  ],
+  "schema": "qrtc-final-validation-run-manifest-v1",
+  "selected_id": "qrtc",
+  "selection_result_sha256": "a74a8b5e0e573e937bdcfa7ec72c63aef14ed3eb8bfce2631c15c09672518be5",
+  "source_base_commit": "54ac41b57af075dc2fa22cce66b6fe3ce7f5cffe",
+  "source_commit": "9a8eb19473b0b92a2ebb6921ea3b333379cbe65a",
+  "split": "test",
+  "split_seeds": [
+    801,
+    802
+  ],
+  "stage": "final-validation",
+  "test_family_trials": 1152,
+  "trial_count": 27648
+}

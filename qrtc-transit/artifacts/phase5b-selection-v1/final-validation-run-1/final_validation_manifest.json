@@ -1,0 +1,57 @@
+{
+  "final_mechanisms": {
+    "V1": [
+      "distributed_cross_channel_delay",
+      "witness_adaptive_saturation",
+      "jurisdiction_context_boundary"
+    ],
+    "V2": [
+      "pair_ood_m3",
+      "pair_ood_m4"
+    ],
+    "V3": [
+      "triple_ood_m3",
+      "triple_ood_m4"
+    ],
+    "V4": [
+      "unknown_ood_m3",
+      "unknown_ood_m4"
+    ]
+  },
+  "final_pairs": [
+    "FR+FW",
+    "FD+FJ",
+    "FB+FW"
+  ],
+  "final_triples": [
+    "FB+FR+FW",
+    "FR+FW+FD",
+    "FR+FW+FJ",
+    "FW+FD+FJ"
+  ],
+  "phase_revision": "phase5b",
+  "protocol_id": "phase5b-selection-v1",
+  "split_alias": "test",
+  "split_aliases": {
+    "development": "development",
+    "test": "final-validation",
+    "validation": "selection-validation"
+  },
+  "split_name": "final-validation",
+  "split_seeds": {
+    "development": [
+      701,
+      702,
+      703
+    ],
+    "test": [
+      801,
+      802
+    ],
+    "validation": [
+      751,
+      752
+    ]
+  },
+  "test_family_trials": 1152
+}
