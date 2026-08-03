@@ -30,6 +30,32 @@ This artifact freezes a controller identity for pre-selection workflows (default
 
 Repeated generation with identical inputs produces byte-identical manifests across directories/processes.
 
+## Selected-controller freeze bundle
+
+The completed Phase V-B selection result for `qrtc` is frozen separately under:
+
+```text
+artifacts/phase5b-selection-v1/selected-controller/
+  manifest.json
+  checksums.sha256
+```
+
+`manifest.json` uses `rescueos-selected-controller-bundle-v1` and embeds the canonical
+controller manifest plus:
+
+- source commit and source-base commit from the final-validation record;
+- causal graph payload + SHA-256;
+- action allowlist payload + SHA-256;
+- controller parameters / learned-table declaration (`learned_tables = null` for rule-based controllers);
+- frozen decision thresholds and eligibility-threshold SHA-256;
+- observation/action schema versions and payload hashes;
+- dependency identity bound to the committed `pyproject.toml` SHA-256;
+- selection / authorization / final-validation reference paths + SHA-256 values; and
+- a fixed reproducibility probe whose expected decision SHA-256 must reload in a fresh process
+  without retraining or refitting.
+
+`checksums.sha256` records the complete SHA-256 checksum for `manifest.json`.
+
 ## Freeze API / CLI
 
 - Python API: `freeze_controller_artifact(...)`
