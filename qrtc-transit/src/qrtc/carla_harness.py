@@ -41,13 +41,12 @@ from qrtc.runtime_protection import (
     RuntimeProtectionState,
 )
 
-
 # ---------------------------------------------------------------------------
 # CARLA lazy import helper
 # ---------------------------------------------------------------------------
 
 
-def _require_carla() -> Any:  # noqa: ANN401
+def _require_carla() -> Any:
     """Import and return the ``carla`` module, or raise ImportError with help."""
     try:
         import carla  # type: ignore[import]
@@ -376,7 +375,7 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
         server_version = client.get_server_version()
         world = client.get_world()
         map_name = world.get_map().name
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"[carla-harness] connection failed: {exc}", file=sys.stderr)
         traceback.print_exc()
         raise SystemExit(2) from exc
@@ -796,30 +795,30 @@ def run_drive(cfg: CarlaConfig | None = None) -> dict[str, Any]:
         if ego_vehicle is not None:
             try:
                 ego_vehicle.set_autopilot(False)
-            except Exception:  # noqa: BLE001
+            except Exception:  # noqa: BLE001,S110
                 pass
         for sensor in (lidar_sensor, collision_sensor):
             if sensor is not None:
                 try:
                     sensor.stop()
-                except Exception:  # noqa: BLE001
+                except Exception:  # noqa: BLE001,S110
                     pass
                 try:
                     sensor.destroy()
-                except Exception:  # noqa: BLE001
+                except Exception:  # noqa: BLE001,S110
                     pass
         if ego_vehicle is not None:
             try:
                 ego_vehicle.destroy()
-            except Exception:  # noqa: BLE001
+            except Exception:  # noqa: BLE001,S110
                 pass
         try:
             tm.set_synchronous_mode(False)
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001,S110
             pass
         try:
             world.apply_settings(original_settings)
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001,S110
             pass
         print("[carla-harness] cleanup complete", flush=True)
 

@@ -21,10 +21,10 @@ from __future__ import annotations
 
 import math
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Optional
-
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # State
@@ -74,8 +74,7 @@ class RuntimeProtectionConfig:
             )
         if self.maximum_braking_ticks < 1:
             raise ValueError(
-                f"maximum_braking_ticks must be >= 1, "
-                f"got {self.maximum_braking_ticks}"
+                f"maximum_braking_ticks must be >= 1, got {self.maximum_braking_ticks}"
             )
         if not math.isfinite(self.full_brake):
             raise ValueError(f"full_brake must be finite, got {self.full_brake}")
@@ -99,8 +98,8 @@ class RuntimeProtectionConfig:
 
 @dataclass(frozen=True)
 class FaultMetadata:
-    callback_index: Optional[int]
-    sensor_frame: Optional[int]
+    callback_index: int | None
+    sensor_frame: int | None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -131,17 +130,17 @@ class RuntimeProtectionSnapshot:
     fault_triggered: bool
     autopilot_disabled: bool
     braking_ticks: int
-    speed_at_detection_mps: Optional[float]
-    final_speed_mps: Optional[float]
+    speed_at_detection_mps: float | None
+    final_speed_mps: float | None
     stopped_ticks: int
     safe_stop: bool
     stop_timeout: bool
-    first_enforcement_tick: Optional[int]
-    fault_metadata: Optional[FaultMetadata]
-    fault_reason: Optional[str]
-    termination_reason: Optional[str]
+    first_enforcement_tick: int | None
+    fault_metadata: FaultMetadata | None
+    fault_reason: str | None
+    termination_reason: str | None
     control_action_failed: bool
-    control_action_error: Optional[ControlActionError]
+    control_action_error: ControlActionError | None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -191,18 +190,18 @@ class RuntimeProtection:
         self._cfg = config
         self._lock = threading.Lock()
         self._state = RuntimeProtectionState.ARMED
-        self._fault_metadata: Optional[FaultMetadata] = None
-        self._fault_reason: Optional[str] = None
+        self._fault_metadata: FaultMetadata | None = None
+        self._fault_reason: str | None = None
         self._autopilot_disabled = False
         self._braking_ticks = 0
         self._stopped_ticks = 0
-        self._speed_at_detection: Optional[float] = None
-        self._final_speed: Optional[float] = None
-        self._first_enforcement_tick: Optional[int] = None
+        self._speed_at_detection: float | None = None
+        self._final_speed: float | None = None
+        self._first_enforcement_tick: int | None = None
         self._safe_stop = False
         self._stop_timeout = False
-        self._termination_reason: Optional[str] = None
-        self._control_action_error: Optional[ControlActionError] = None
+        self._termination_reason: str | None = None
+        self._control_action_error: ControlActionError | None = None
 
     # ------------------------------------------------------------------
     # Sensor-thread API (no vehicle control)
@@ -210,8 +209,8 @@ class RuntimeProtection:
 
     def latch_fault(
         self,
-        callback_index: Optional[int],
-        sensor_frame: Optional[int] = None,
+        callback_index: int | None,
+        sensor_frame: int | None = None,
         *,
         reason: str = "fault_injection",
     ) -> None:

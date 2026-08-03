@@ -18,7 +18,6 @@ import pytest
 from qrtc.carla_config import CarlaConfig, LidarConfig
 from qrtc.carla_harness import _displacement, _select_blueprint, _transform_snapshot
 
-
 # ---------------------------------------------------------------------------
 # Pure helpers
 # ---------------------------------------------------------------------------

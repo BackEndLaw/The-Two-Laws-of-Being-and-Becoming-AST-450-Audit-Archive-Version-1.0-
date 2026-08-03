@@ -14,9 +14,9 @@ import math
 import threading
 import time
 from collections import deque
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, Sequence
-
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Sector helpers
@@ -203,9 +203,9 @@ class LidarCollectorSnapshot:
     callback_errors: int
     fault_injection_enabled: bool
     fault_injection_triggered: bool
-    requested_callback_index: Optional[int]
-    triggered_callback_index: Optional[int]
-    triggered_sensor_frame: Optional[int]
+    requested_callback_index: int | None
+    triggered_callback_index: int | None
+    triggered_sensor_frame: int | None
 
 
 # ---------------------------------------------------------------------------
@@ -244,7 +244,7 @@ class LidarCollector:
     # TEST-ONLY fault injection.  -1 = disabled.
     drop_frame_index: int = -1
     # Optional notification callback for runtime protection integration.
-    fault_notify: Optional[Callable[[Optional[int], Optional[int]], None]] = field(
+    fault_notify: Callable[[int | None, int | None], None] | None = field(
         default=None, compare=False, repr=False
     )
     _lock: threading.Lock = field(
@@ -262,10 +262,8 @@ class LidarCollector:
     _callback_errors: int = field(default=0, init=False, repr=False)
     _callback_counter: int = field(default=0, init=False, repr=False)
     _fault_injection_triggered: bool = field(default=False, init=False, repr=False)
-    _triggered_callback_index: Optional[int] = field(
-        default=None, init=False, repr=False
-    )
-    _triggered_sensor_frame: Optional[int] = field(default=None, init=False, repr=False)
+    _triggered_callback_index: int | None = field(default=None, init=False, repr=False)
+    _triggered_sensor_frame: int | None = field(default=None, init=False, repr=False)
     _frame_states: dict[int, str] = field(default_factory=dict, init=False, repr=False)
 
     def __post_init__(self) -> None:
@@ -273,13 +271,13 @@ class LidarCollector:
         self._raw_buffer = deque(maxlen=self.max_raw_frames)
         self._condition = threading.Condition(self._lock)
 
-    def on_data(self, measurement: Any) -> None:  # noqa: ANN401
+    def on_data(self, measurement: Any) -> None:
         """CARLA sensor callback — called from sensor thread."""
         # Atomically claim a zero-based callback index.  Also apply fault
         # injection when the index matches the configured drop target.
         fault_injected = False
-        notify_fn: Optional[Callable[[Optional[int], Optional[int]], None]] = None
-        notify_args: tuple[Optional[int], Optional[int]] | None = None
+        notify_fn: Callable[[int | None, int | None], None] | None = None
+        notify_args: tuple[int | None, int | None] | None = None
         frame: int | None = getattr(measurement, "frame", None)
         timestamp: float | None = getattr(measurement, "timestamp", None)
 
@@ -291,7 +289,7 @@ class LidarCollector:
                 self._fault_injection_triggered = True
                 self._triggered_callback_index = callback_idx
                 # Capture the sensor frame number before discarding.
-                sensor_frame: Optional[int] = frame
+                sensor_frame: int | None = frame
                 self._triggered_sensor_frame = sensor_frame
                 if sensor_frame is not None:
                     self._frame_states[sensor_frame] = "injected"
@@ -309,7 +307,7 @@ class LidarCollector:
             if notify_fn is not None and notify_args is not None:
                 try:
                     notify_fn(*notify_args)
-                except Exception:  # noqa: BLE001
+                except Exception:  # noqa: BLE001,S110
                     pass
             return
 
@@ -442,9 +440,10 @@ def build_lidar_summary(
     front_nearest_values: list[float] = []
 
     for frm in frames:
-        if frm.nearest_overall is not None:
-            if nearest_overall is None or frm.nearest_overall < nearest_overall:
-                nearest_overall = frm.nearest_overall
+        if frm.nearest_overall is not None and (
+            nearest_overall is None or frm.nearest_overall < nearest_overall
+        ):
+            nearest_overall = frm.nearest_overall
         if frm.nearest_front is not None:
             front_nearest_values.append(frm.nearest_front)
             if nearest_front is None or frm.nearest_front < nearest_front:

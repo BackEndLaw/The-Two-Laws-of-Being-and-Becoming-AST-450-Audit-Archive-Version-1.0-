@@ -1,0 +1,192 @@
+{
+  "candidate_declaration": {
+    "controller_versions": {
+      "greedy_gain": "phase5b-rule-policy-v1",
+      "oracle": "phase5b-rule-policy-v1",
+      "qrtc": "phase5b-rule-policy-v1",
+      "qrtc_no_abstention": "phase5b-rule-policy-v1",
+      "qrtc_untyped": "phase5b-rule-policy-v1"
+    },
+    "deployable_mandatory_candidates": [
+      "qrtc",
+      "qrtc_no_abstention",
+      "qrtc_untyped",
+      "greedy_gain"
+    ],
+    "mandatory_candidates": [
+      "qrtc",
+      "qrtc_no_abstention",
+      "qrtc_untyped",
+      "greedy_gain",
+      "oracle"
+    ],
+    "optional_descriptive_baselines": [
+      "end_to_end",
+      "highest_stage_posterior",
+      "cheapest_first",
+      "random"
+    ],
+    "oracle_never_eligible_to_win": true,
+    "oracle_non_deployable": true,
+    "phase_revision": "phase5b",
+    "protocol_id": "phase5b-selection-v1",
+    "provisional_primary": "qrtc",
+    "provisional_primary_note": "qrtc is identified as provisional primary only; it receives no automatic preference in selection."
+  },
+  "config_declaration": {
+    "beta_harm": 0.25,
+    "bootstrap_reps": 2000,
+    "bootstrap_seed": 9101,
+    "cost_regimes": [
+      "familiar"
+    ],
+    "gamma_unsafe": 0.2,
+    "lambda_cost": 0.05,
+    "max_actions": 4,
+    "phase_revision": "phase5b",
+    "protocol_id": "phase5b-selection-v1",
+    "reliability_levels": [
+      0.8,
+      1.0
+    ],
+    "utility_formula": "utility = recovery_reward - lambda_cost * intervention_cost - beta_harm * harm - gamma_unsafe * unsafe_commitment"
+  },
+  "generated_by": "qrtc_benchmark.selection_protocol",
+  "hashes": {
+    "candidate_declaration_sha256": "0ac4acc22db0a8c283840a23e5e429bf3c7d7f152f7cb2956be76502a4f5ff43",
+    "config_declaration_sha256": "2566c8ead5b27585790da7e8faeefd57751757d926a0d43132b09208071f1316",
+    "protocol_declaration_sha256": "fc6b86912182d216be4d381992732345cc5d6a38299d6c5946ab1b8fe2bfe77c",
+    "split_declaration_sha256": "43969c0091e59718829a0ab505a93f90729a88f8c1340c23a734e4243aa17be9"
+  },
+  "protocol_id": "phase5b-selection-v1",
+  "source_module": "qrtc_benchmark.phase5 + qrtc_benchmark.controllers",
+  "split_declaration": {
+    "development_family_trials": 1200,
+    "development_mechanisms": {
+      "V1": [
+        "gate_amplitude_clamp",
+        "boat_amplitude_compression",
+        "river_gaussian_dispersion",
+        "distributed_thermal_attenuation",
+        "witness_fixed_integration",
+        "jurisdiction_threshold_error"
+      ],
+      "V2": [
+        "pair_seen_m1",
+        "pair_seen_m2",
+        "pair_seen_m3",
+        "pair_seen_m4"
+      ],
+      "V3": [
+        "triple_seen_m1",
+        "triple_seen_m2",
+        "triple_seen_m3",
+        "triple_seen_m4"
+      ],
+      "V4": [
+        "unknown_seen_m1",
+        "unknown_seen_m2",
+        "unknown_seen_m3",
+        "unknown_seen_m4"
+      ]
+    },
+    "development_pairs": [
+      "FG+FW",
+      "FR+FJ",
+      "FD+FW",
+      "FB+FR",
+      "FG+FJ",
+      "FB+FD"
+    ],
+    "development_triples": [
+      "FG+FW+FJ",
+      "FB+FR+FJ",
+      "FG+FD+FW",
+      "FB+FR+FD"
+    ],
+    "final_mechanisms": {
+      "V1": [
+        "distributed_cross_channel_delay",
+        "witness_adaptive_saturation",
+        "jurisdiction_context_boundary"
+      ],
+      "V2": [
+        "pair_ood_m3",
+        "pair_ood_m4"
+      ],
+      "V3": [
+        "triple_ood_m3",
+        "triple_ood_m4"
+      ],
+      "V4": [
+        "unknown_ood_m3",
+        "unknown_ood_m4"
+      ]
+    },
+    "final_pairs": [
+      "FR+FW",
+      "FD+FJ",
+      "FB+FW"
+    ],
+    "final_triples": [
+      "FB+FR+FW",
+      "FR+FW+FD",
+      "FR+FW+FJ",
+      "FW+FD+FJ"
+    ],
+    "phase_revision": "phase5b",
+    "protocol_id": "phase5b-selection-v1",
+    "split_aliases": {
+      "development": "development",
+      "test": "final-validation",
+      "validation": "selection-validation"
+    },
+    "split_seeds": {
+      "development": [
+        701,
+        702,
+        703
+      ],
+      "test": [
+        801,
+        802
+      ],
+      "validation": [
+        751,
+        752
+      ]
+    },
+    "test_family_trials": 1152,
+    "validation_family_trials": 600,
+    "validation_mechanisms": {
+      "V1": [
+        "gate_state_dropout",
+        "boat_nonlinear_temporal_recoding",
+        "river_multipath_echo"
+      ],
+      "V2": [
+        "pair_ood_m1",
+        "pair_ood_m2"
+      ],
+      "V3": [
+        "triple_ood_m1",
+        "triple_ood_m2"
+      ],
+      "V4": [
+        "unknown_ood_m1",
+        "unknown_ood_m2"
+      ]
+    },
+    "validation_pairs": [
+      "FG+FD",
+      "FG+FR",
+      "FB+FJ"
+    ],
+    "validation_triples": [
+      "FG+FR+FD",
+      "FB+FW+FJ",
+      "FG+FB+FW",
+      "FR+FD+FJ"
+    ]
+  }
+}

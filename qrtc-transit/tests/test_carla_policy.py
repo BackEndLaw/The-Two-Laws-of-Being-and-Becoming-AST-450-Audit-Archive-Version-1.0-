@@ -35,8 +35,7 @@ from qrtc.registry import (
     _carla_schema_guard,
     build_default_registry,
 )
-from qrtc.transit import TransitEnvelope, AuthorizationDecision
-
+from qrtc.transit import AuthorizationDecision, TransitEnvelope
 
 # ---------------------------------------------------------------------------
 # Helpers

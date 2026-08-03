@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import json
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass
-import csv
-import json
 from enum import Enum
 from pathlib import Path
 from random import Random
@@ -299,12 +299,10 @@ def evaluate_phase4b_action_sequence(
         recovered = effective_sequence == oracle_sequence
     elif relation_type == Phase4BRelationType.SOFT_MASKING:
         recovered = any(action in oracle_sequence for action in effective_sequence)
-    elif relation_type == Phase4BRelationType.INDEPENDENT:
-        recovered = bool(effective_sequence) and effective_sequence[0] in {
-            oracle_sequence[0],
-            oracle_sequence[1],
-        }
-    elif relation_type == Phase4BRelationType.SYNERGISTIC:
+    elif (
+        relation_type == Phase4BRelationType.INDEPENDENT
+        or relation_type == Phase4BRelationType.SYNERGISTIC
+    ):
         recovered = bool(effective_sequence) and effective_sequence[0] in {
             oracle_sequence[0],
             oracle_sequence[1],

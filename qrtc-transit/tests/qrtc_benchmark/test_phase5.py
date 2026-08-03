@@ -7,17 +7,16 @@ from pathlib import Path
 import pytest
 
 from qrtc_benchmark.phase5 import (
-    PHASE5_POLICIES,
-    Phase5Config,
     _FINAL_MECHANISMS,
     _FINAL_PAIRS,
     _FINAL_TRIPLES,
     _VALIDATION_PAIRS,
+    PHASE5_POLICIES,
+    Phase5Config,
     authorize_phase5_split,
     build_phase5_trials,
     run_phase5_benchmark,
 )
-
 
 SMALL_CFG = Phase5Config(
     bootstrap_reps=200,

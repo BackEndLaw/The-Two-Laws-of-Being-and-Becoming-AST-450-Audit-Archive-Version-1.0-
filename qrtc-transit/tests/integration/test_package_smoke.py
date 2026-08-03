@@ -10,7 +10,6 @@ from pathlib import Path
 
 import pytest
 
-
 _PACKAGE_ROOT = Path(__file__).resolve().parents[2]
 _SRC = _PACKAGE_ROOT / "src"
 
@@ -35,6 +34,7 @@ def _source_smoke_invocations() -> dict[str, list[str]]:
         "carla-live-drive": ["--help"],
         "qrtc-benchmark-phase5": ["--help"],
         "qrtc-controller": ["--help"],
+        "qrtc-selection": ["--help"],
     }
 
 
@@ -83,6 +83,7 @@ def _run(
         cwd=cwd,
         env=env,
         timeout=timeout,
+        check=False,
     )
 
 
@@ -122,8 +123,10 @@ def test_qrtc_benchmark_phase5_imports() -> None:
         [
             sys.executable,
             "-c",
-            "from qrtc_benchmark.phase5 import PHASE5_REVISION; "
-            "assert PHASE5_REVISION == 'phase5b', PHASE5_REVISION; print('ok')",
+            (
+                "from qrtc_benchmark.phase5 import PHASE5_REVISION; "
+                "assert PHASE5_REVISION == 'phase5b', PHASE5_REVISION; print('ok')"
+            ),
         ],
         cwd=_PACKAGE_ROOT,
         env=_source_env(),
@@ -139,8 +142,10 @@ def test_phase4b_imports_for_archival_verification() -> None:
         [
             sys.executable,
             "-c",
-            "from qrtc_benchmark.phase4b import DEFAULT_PHASE4B_PAIRS; "
-            "assert len(DEFAULT_PHASE4B_PAIRS) == 6; print('ok')",
+            (
+                "from qrtc_benchmark.phase4b import DEFAULT_PHASE4B_PAIRS; "
+                "assert len(DEFAULT_PHASE4B_PAIRS) == 6; print('ok')"
+            ),
         ],
         cwd=_PACKAGE_ROOT,
         env=_source_env(),
@@ -155,8 +160,10 @@ def test_specification_stub_criterion_id() -> None:
         [
             sys.executable,
             "-c",
-            "from qrtc_benchmark.specification import CriterionId; "
-            "assert {CriterionId.PI1, CriterionId.PI2, CriterionId.PI3}; print('ok')",
+            (
+                "from qrtc_benchmark.specification import CriterionId; "
+                "assert {CriterionId.PI1, CriterionId.PI2, CriterionId.PI3}; print('ok')"
+            ),
         ],
         cwd=_PACKAGE_ROOT,
         env=_source_env(),

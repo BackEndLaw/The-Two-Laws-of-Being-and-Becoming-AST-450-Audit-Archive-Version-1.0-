@@ -226,10 +226,7 @@ def _carla_schema_guard(envelope: TransitEnvelope) -> bool:
         return False
 
     missing_data_count = iface.get("missing_data_count")
-    if type(missing_data_count) is not int or missing_data_count < 0:
-        return False
-
-    return True
+    return not (type(missing_data_count) is not int or missing_data_count < 0)
 
 
 def _carla_health_guard(envelope: TransitEnvelope) -> bool:
@@ -286,14 +283,16 @@ def _carla_health_guard(envelope: TransitEnvelope) -> bool:
 
         # Validate optional natural/injected drop counters when present.
         lidar_natural_dropped = iface.get("lidar_frames_natural_dropped")
-        if lidar_natural_dropped is not None:
-            if type(lidar_natural_dropped) is not int or lidar_natural_dropped != 0:
-                return False
+        if lidar_natural_dropped is not None and (
+            type(lidar_natural_dropped) is not int or lidar_natural_dropped != 0
+        ):
+            return False
 
         lidar_injected_dropped = iface.get("lidar_frames_injected_dropped")
-        if lidar_injected_dropped is not None:
-            if type(lidar_injected_dropped) is not int or lidar_injected_dropped != 0:
-                return False
+        if lidar_injected_dropped is not None and (
+            type(lidar_injected_dropped) is not int or lidar_injected_dropped != 0
+        ):
+            return False
 
         if not _finite_nonneg_or_none(iface.get("lidar_nearest_obstacle_m")):
             return False

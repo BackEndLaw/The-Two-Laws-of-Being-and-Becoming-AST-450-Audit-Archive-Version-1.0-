@@ -14,18 +14,18 @@ from __future__ import annotations
 #   final-validation — now use demonstrably disjoint mechanism, pair, and
 #   triple identifiers.  Final-validation remains locked and must not be
 #   executed without an explicit --unlock-test flag.
-
 import argparse
 import csv
 import hashlib
 import json
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from enum import Enum
 from itertools import product
 from pathlib import Path
 from random import Random
 from statistics import mean
-from typing import Any, Iterable
+from typing import Any
 
 #: Experiment revision identifier.  Artifacts produced by this code carry
 #: ``phase_variant = PHASE5_REVISION`` so they are not silently confused with
@@ -651,9 +651,9 @@ def _evaluate_sequence(
             case.unknown_fault
             and action != Phase5Intervention.r0
             and not evidence_sufficient
+            and costs[action] >= 3.0
         ):
-            if costs[action] >= 3.0:
-                unsafe_commitment = 1
+            unsafe_commitment = 1
         unresolved_before = list(unresolved)
         unresolved, harm_delta, requested, useful = _simulate_intervention_step(
             action=action,

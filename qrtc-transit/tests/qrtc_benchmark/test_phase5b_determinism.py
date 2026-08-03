@@ -15,7 +15,6 @@ from pathlib import Path
 
 import pytest
 
-
 # A very small config that still exercises every family and every policy.
 _DETERMINISM_CFG_ARGS = (
     "--bootstrap-reps=50",
@@ -82,6 +81,7 @@ def _run_worker(seed: int) -> dict:
         env={**_get_base_env(), **env},
         cwd=Path(__file__).resolve().parents[2],
         timeout=120,
+        check=False,
     )
     if result.returncode != 0:
         pytest.fail(
@@ -123,16 +123,16 @@ def test_phase5b_cross_process_determinism(seeds: tuple[int, int]) -> None:
         f"PYTHONHASHSEED={seed_b}.  "
         "This means a hash()-based selection path was not replaced."
     )
-    assert (
-        result_a["manifest_sha256"] == result_b["manifest_sha256"]
-    ), "Manifests differ across PYTHONHASHSEED values."
+    assert result_a["manifest_sha256"] == result_b["manifest_sha256"], (
+        "Manifests differ across PYTHONHASHSEED values."
+    )
     assert result_a["checksums_sha256"] == result_b["checksums_sha256"], (
         "Checksum files differ across PYTHONHASHSEED values.  "
         "Check that checksums use relative paths."
     )
-    assert (
-        result_a["decision_sha256"] == result_b["decision_sha256"]
-    ), "Decision files differ across PYTHONHASHSEED values."
+    assert result_a["decision_sha256"] == result_b["decision_sha256"], (
+        "Decision files differ across PYTHONHASHSEED values."
+    )
 
 
 def test_phase5b_no_hash_dependency_in_source() -> None:

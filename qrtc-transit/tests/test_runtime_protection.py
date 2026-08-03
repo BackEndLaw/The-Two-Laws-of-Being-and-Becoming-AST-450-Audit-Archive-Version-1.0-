@@ -48,7 +48,6 @@ from qrtc.runtime_protection import (
     RuntimeProtectionState,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers — fake vehicle
 # ---------------------------------------------------------------------------
@@ -375,9 +374,9 @@ def test_stopped_requires_configured_consecutive_ticks() -> None:
 
     # Must be BRAKING until exactly `required` consecutive low-speed ticks
     for i in range(required - 1):
-        assert (
-            states[i] == RuntimeProtectionState.BRAKING
-        ), f"expected BRAKING at tick {i}, got {states[i]}"
+        assert states[i] == RuntimeProtectionState.BRAKING, (
+            f"expected BRAKING at tick {i}, got {states[i]}"
+        )
     # Exactly at tick required-1 (0-based), STOPPED
     assert states[required - 1] == RuntimeProtectionState.STOPPED
 
@@ -1368,7 +1367,7 @@ def test_run_drive_with_rp_disabled_completes_all_ticks(
     tmp_path: pytest.TempPathFactory,
 ) -> None:
     """With RP disabled, run_drive completes normally without early termination."""
-    carla_fake, ego = _make_carla_with_rp(tick_count=10, drop_at=2)
+    carla_fake, _ego = _make_carla_with_rp(tick_count=10, drop_at=2)
 
     cfg = CarlaConfig(
         ticks=10,
@@ -1430,7 +1429,7 @@ def test_run_drive_with_rp_enabled_terminates_early(
 def test_run_drive_with_rp_enabled_timeout(tmp_path: pytest.TempPathFactory) -> None:
     """With RP enabled but vehicle doesn't stop, STOP_TIMEOUT is reached."""
     # Vehicle never stops (speed=5.0 always)
-    carla_fake, ego = _make_carla_with_rp(
+    carla_fake, _ego = _make_carla_with_rp(
         tick_count=200, drop_at=3, speed_after_fault=5.0
     )
 
