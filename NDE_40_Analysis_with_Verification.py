@@ -13,12 +13,14 @@ Outputs:
 """
 
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 
-INPUT_FILE = "nde_40_case_dataset.csv"
-OUTPUT_FILE = "nde_40_predictions_with_accuracy.csv"
-REPORT_FILE = "nde_40_accuracy_report.txt"
+BASE_DIR = Path(__file__).resolve().parent
+INPUT_FILE = BASE_DIR / "nde_40_case_dataset.csv"
+OUTPUT_FILE = BASE_DIR / "nde_40_predictions_with_accuracy.csv"
+REPORT_FILE = BASE_DIR / "nde_40_accuracy_report.txt"
 
 
 def validate_ranges(df: pd.DataFrame) -> None:

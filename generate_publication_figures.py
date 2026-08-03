@@ -6,14 +6,18 @@ Figure 2: PHI × CAC Interaction Plot (Best-Fit Model D3)
 Figure 3: Noise Mechanism Pathway (Mediation Effect)
 """
 
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 
+BASE_DIR = Path(__file__).resolve().parent
+
 # Load data
-df = pd.read_csv('remainder_quality_analysis_v2.csv')
+df = pd.read_csv(BASE_DIR / "remainder_quality_analysis_v2.csv")
 
 # Style setup
 sns.set_style("whitegrid")
@@ -74,7 +78,7 @@ ax.axhline(0, color='red', linestyle='--', linewidth=1.5, alpha=0.5)
 ax.grid(True, alpha=0.3, axis='y')
 
 plt.tight_layout()
-plt.savefig('Figure_1_DeltaG_by_Outcome.png', dpi=300, bbox_inches='tight')
+plt.savefig(BASE_DIR / "Figure_1_DeltaG_by_Outcome.png", dpi=300, bbox_inches='tight')
 print("✓ Figure 1 saved: Figure_1_DeltaG_by_Outcome.png")
 plt.close()
 
@@ -120,7 +124,7 @@ ax.text(0.02, 0.98, f'Model R² = 0.9803\nPhi×CAC: β = −0.103 (p<0.001)\nInt
         bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
 
 plt.tight_layout()
-plt.savefig('Figure_2_PHI_CAC_Interaction.png', dpi=300, bbox_inches='tight')
+plt.savefig(BASE_DIR / "Figure_2_PHI_CAC_Interaction.png", dpi=300, bbox_inches='tight')
 print("✓ Figure 2 saved: Figure_2_PHI_CAC_Interaction.png")
 plt.close()
 
@@ -170,7 +174,7 @@ labels = [l.get_label() for l in lines]
 ax.legend(lines, labels, loc='center left', fontsize=10, framealpha=0.95)
 
 plt.tight_layout()
-plt.savefig('Figure_3_Noise_Pathway.png', dpi=300, bbox_inches='tight')
+plt.savefig(BASE_DIR / "Figure_3_Noise_Pathway.png", dpi=300, bbox_inches='tight')
 print("✓ Figure 3 saved: Figure_3_Noise_Pathway.png")
 plt.close()
 
@@ -216,7 +220,7 @@ ax.set_title('Figure 4: Effect Sizes Summary (Forest Plot)\nAll 95% CIs shown; s
             fontsize=12, fontweight='bold')
 ax.grid(True, alpha=0.3, axis='x')
 plt.tight_layout()
-plt.savefig('Figure_4_Effect_Sizes.png', dpi=300, bbox_inches='tight')
+plt.savefig(BASE_DIR / "Figure_4_Effect_Sizes.png", dpi=300, bbox_inches='tight')
 print("✓ Figure 4 saved: Figure_4_Effect_Sizes.png")
 plt.close()
 

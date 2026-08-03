@@ -18,6 +18,8 @@ To use:
        atlas_analysis_output.xlsx
 """
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -26,8 +28,9 @@ import pandas as pd
 # 1. LOAD THE ATLAS
 # ------------------------------------------------------------
 
-INPUT_FILE = "Final_Atlas_Coded_Analysis-f086.xlsx"
-OUTPUT_FILE = "atlas_analysis_output.xlsx"
+BASE_DIR = Path(__file__).resolve().parent
+INPUT_FILE = BASE_DIR / "Final_Atlas_Coded_Analysis-f086.xlsx"
+OUTPUT_FILE = BASE_DIR / "atlas_analysis_output.xlsx"
 
 # Load the Excel file into a DataFrame
 df = pd.read_excel(INPUT_FILE)

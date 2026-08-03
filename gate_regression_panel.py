@@ -17,6 +17,7 @@ from scipy.stats import spearmanr
 from statsmodels.formula.api import ols
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 import warnings
+from pathlib import Path
 
 warnings.filterwarnings('ignore', category=FutureWarning)
 
@@ -86,7 +87,8 @@ def infer_branch_state(df_in):
   return labels, "unavailable"
 
 # Load data
-df = pd.read_csv('remainder_quality_analysis_v2.csv')
+BASE_DIR = Path(__file__).resolve().parent
+df = pd.read_csv(BASE_DIR / "remainder_quality_analysis_v2.csv")
 df['Branch_State'], branch_source = infer_branch_state(df)
 
 print("\n" + "=" * 90)

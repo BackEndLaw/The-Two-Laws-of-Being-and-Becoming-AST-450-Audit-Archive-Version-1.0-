@@ -30,6 +30,9 @@ import pandas as pd
 from scipy.special import expit
 from scipy.stats import spearmanr
 from datetime import datetime
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
 
 
 # ==============================================================================
@@ -66,8 +69,8 @@ from datetime import datetime
 
 def load_nde_atlas_data():
     """Load Atlas data. NDE dataset used for cross-reference only."""
-    nde_df = pd.read_csv("nde_40_case_dataset.csv")
-    atlas_df = pd.read_csv("atlas_predictions_with_accuracy.csv")
+    nde_df = pd.read_csv(BASE_DIR / "nde_40_case_dataset.csv")
+    atlas_df = pd.read_csv(BASE_DIR / "atlas_predictions_with_accuracy.csv")
 
     print(f"\nAtlas dataset: {len(atlas_df)} cases")
     print(f"NDE dataset:   {len(nde_df)} cases (reference only)")
@@ -729,7 +732,7 @@ def main():
     delta_df = pd.DataFrame(delta_results)
     results_df = pd.concat([results_df, delta_df], axis=1)
     
-    results_df.to_csv("remainder_quality_analysis_v2.csv", index=False)
+    results_df.to_csv(BASE_DIR / "remainder_quality_analysis_v2.csv", index=False)
     print("Saved: remainder_quality_analysis_v2.csv\n")
 
     summary_cols = ["Q_rho", "SC_closure", "SC_portability",
@@ -852,4 +855,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
