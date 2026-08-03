@@ -599,7 +599,9 @@ def _check_post_selection_change_scope(source_commit: str) -> list[str]:
         "qrtc-transit/src/qrtc_benchmark/phase5b_selection_validation.py",
         "qrtc-transit/src/qrtc_benchmark/result_schema.py",
         "qrtc-transit/tests/qrtc_benchmark/test_phase5b_final_validation.py",
-        "qrtc-transit/docs/phase5b_selection_runbook.md",
+        "qrtc-transit/tests/qrtc_benchmark/test_phase5b_closure_index.py",
+        "qrtc-transit/docs/",
+        "qrtc-transit/README.md",
         "qrtc-transit/artifacts/phase5b-selection-v1/",
     )
     disallowed = [
