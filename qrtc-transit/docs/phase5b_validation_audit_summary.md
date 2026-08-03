@@ -92,7 +92,7 @@ These are distinct stages; provisional selection alone does not constitute bench
 
 ## 6. Reproducibility and integrity
 
-- The **development** run was executed twice with registered `PYTHONHASHSEED` values `111` and `222`; output files were byte-identical across both executions.
+- The **development** run was executed twice with registered `PYTHONHASHSEED` values `42` and `999`; output files were byte-identical across both executions.
 - The **final-validation** run was likewise executed twice with `PYTHONHASHSEED=111` and `PYTHONHASHSEED=222`; output files were byte-identical across both executions.
 - Prior frozen protocol and result artifacts (protocol preregistration, development results, selection-validation results) were checksum-verified before final validation ran and remained unchanged.
 
