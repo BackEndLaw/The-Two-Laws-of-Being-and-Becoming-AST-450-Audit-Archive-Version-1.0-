@@ -732,92 +732,23 @@ def _policy_action_sequence(
     costs: dict[Phase5Intervention, float],
     seed: int,
 ) -> tuple[Phase5Intervention, ...]:
-    rng = Random(seed)
-    ordered = _ordered_required_actions(case)
-
     if policy == "oracle":
         raise ValueError("oracle sequence is selected separately")
+    from qrtc_benchmark.controllers import (
+        UnknownControllerError,
+        select_policy_action_sequence,
+    )
 
-    if policy == "qrtc":
-        if case.unknown_fault:
-            return (Phase5Intervention.r0,)
-        if case.family == Phase5Family.V3_THREE_FAULT:
-            if case.dependency_type == DependencyType.CHAIN:
-                return ordered[: min(3, len(ordered))]
-            if case.dependency_type == DependencyType.FORK and len(ordered) >= 3:
-                downstream = min(
-                    ordered[1:], key=lambda action: (costs[action], action.value)
-                )
-                return (ordered[0], downstream)
-            if (
-                case.dependency_type == DependencyType.PARTIAL_SUFFICIENCY
-                and len(ordered) >= 3
-            ):
-                downstream = min(
-                    ordered[1:], key=lambda action: (costs[action], action.value)
-                )
-                return (ordered[0], downstream)
-        if case.relation_type == Phase5RelationType.STRICT_MASKING:
-            if len(ordered) >= 3:
-                return ordered[:3]
-            return ordered
-        if case.relation_type == Phase5RelationType.SYNERGISTIC:
-            return ordered
-        return (min(ordered, key=lambda action: (costs[action], action.value)),)
-
-    if policy == "qrtc_no_abstention":
-        if case.unknown_fault:
-            cheapest = min(
-                (
-                    action
-                    for action in _ACTION_LIBRARY
-                    if action != Phase5Intervention.r0
-                ),
-                key=lambda action: (costs[action], action.value),
-            )
-            return (cheapest,)
-        return (ordered[0],) if ordered else (Phase5Intervention.r0,)
-
-    if policy == "qrtc_untyped":
-        if case.unknown_fault:
-            return (Phase5Intervention.r0,)
-        shuffled = sorted(
-            set(ordered), key=lambda action: (costs[action], action.value)
+    try:
+        return select_policy_action_sequence(
+            policy=policy,
+            case=case,
+            reliability=reliability,
+            costs=costs,
+            seed=seed,
         )
-        return tuple(shuffled[: min(2, len(shuffled))])
-
-    if policy == "greedy_gain":
-        if case.unknown_fault:
-            return (Phase5Intervention.rB,)
-        return (ordered[0],) if ordered else (Phase5Intervention.r0,)
-
-    if policy == "end_to_end":
-        if case.unknown_fault:
-            return (Phase5Intervention.rD,)
-        return tuple(reversed(ordered))[: min(3, len(ordered))]
-
-    if policy == "highest_stage_posterior":
-        if case.unknown_fault:
-            return (Phase5Intervention.rJ,)
-        return (ordered[0],) if ordered else (Phase5Intervention.r0,)
-
-    if policy == "cheapest_first":
-        cheapest = min(
-            (action for action in _ACTION_LIBRARY if action != Phase5Intervention.r0),
-            key=lambda action: (costs[action], action.value),
-        )
-        if case.unknown_fault:
-            return (cheapest,)
-        if reliability < 0.9 and case.family == Phase5Family.V3_THREE_FAULT:
-            # Over-commits to low-cost repairs under uncertainty.
-            return (cheapest, cheapest)
-        return (cheapest,)
-
-    if policy == "random":
-        chosen = _ACTION_LIBRARY[rng.randrange(len(_ACTION_LIBRARY))]
-        return (chosen,)
-
-    return (Phase5Intervention.r0,)
+    except UnknownControllerError:
+        return (Phase5Intervention.r0,)
 
 
 def _oracle_candidates(

@@ -34,6 +34,7 @@ def _source_smoke_invocations() -> dict[str, list[str]]:
         "qrtc-demo": [],
         "carla-live-drive": ["--help"],
         "qrtc-benchmark-phase5": ["--help"],
+        "qrtc-controller": ["--help"],
     }
 
 
