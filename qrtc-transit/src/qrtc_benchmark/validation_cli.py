@@ -95,6 +95,8 @@ def validate_protocol_directory(
     implementation_commit: str,
     *,
     expected_protocol_id: str = PROTOCOL_ID,
+    expected_protocol_hash: str | None = None,
+    output_dir: Path | None = None,
 ) -> ValidationReport:
     """Validate a protocol directory for the given stage.
 
@@ -142,6 +144,11 @@ def validate_protocol_directory(
 
     # Verify protocol hash.
     expected_hash = compute_protocol_hashes().protocol_declaration_sha256
+    if expected_protocol_hash is not None and expected_protocol_hash != expected_hash:
+        errors.append(
+            f"requested protocol_hash mismatch: got {expected_protocol_hash!r}, "
+            f"computed {expected_hash!r}"
+        )
     recorded_hash = prereg.get("protocol_hash", "")
     if recorded_hash != expected_hash:
         errors.append(
@@ -170,6 +177,12 @@ def validate_protocol_directory(
         else:
             missing.append(cid)
             errors.append(f"mandatory artifact missing: manifests/{cid}.json")
+
+    if output_dir is not None:
+        if output_dir.exists() and not output_dir.is_dir():
+            errors.append(f"output_dir is not a directory: {output_dir}")
+        elif output_dir.exists() and any(output_dir.iterdir()):
+            errors.append(f"output_dir must be unused and empty: {output_dir}")
 
     status = "ok" if not errors else "error"
     return ValidationReport(
@@ -223,9 +236,14 @@ def _build_parser() -> argparse.ArgumentParser:
         help="40-hex implementation commit to verify against commit.txt.",
     )
     validate_parser.add_argument(
+        "--protocol-hash",
+        default=None,
+        help="Exact protocol hash expected for the frozen preregistration.",
+    )
+    validate_parser.add_argument(
         "--output-dir",
         required=True,
-        help="Output directory (unused in dry-run; must be supplied but will not be written).",
+        help="Unused output directory path to validate fail-closed preflight behavior.",
     )
     validate_parser.add_argument(
         "--json",
@@ -246,6 +264,8 @@ def main(argv: list[str] | None = None) -> int:
                 protocol_dir=Path(args.protocol_dir),
                 stage=args.stage,
                 implementation_commit=args.implementation_commit,
+                expected_protocol_hash=args.protocol_hash,
+                output_dir=Path(args.output_dir),
             )
         except LockedStageError as exc:
             sys.stderr.write(f"LOCKED STAGE ERROR: {exc}\n")

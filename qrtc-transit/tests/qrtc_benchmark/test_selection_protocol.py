@@ -164,6 +164,7 @@ def _valid_result_payload(
         "stage": stage,
         "input_hashes": {"synthetic": "a" * 64},
         "implementation_commit": implementation_commit,
+        "source_commit": implementation_commit,
         "metrics_summary": {},
         "eligibility_reasons": {},
         "bootstrap_comparisons": {},
@@ -852,6 +853,13 @@ def test_result_schema_rejects_wrong_phase_revision() -> None:
         load_selection_result(payload)
 
 
+def test_result_schema_rejects_invalid_source_commit() -> None:
+    payload = _valid_result_payload()
+    payload["source_commit"] = "deadbeef"
+    with pytest.raises(SelectionResultValidationError, match="source_commit"):
+        load_selection_result(payload)
+
+
 def test_result_schema_rejects_final_validation_stage() -> None:
     payload = _valid_result_payload(stage="final-validation")
     with pytest.raises(SelectionResultValidationError, match="stage"):
@@ -909,6 +917,8 @@ def test_validate_selection_validation_stage_passes(tmp_path: Path) -> None:
         protocol_dir=_PROTOCOL_DIR,
         stage="selection-validation",
         implementation_commit=IMPLEMENTATION_COMMIT,
+        expected_protocol_hash=compute_protocol_hashes().protocol_declaration_sha256,
+        output_dir=tmp_path / "unused-output",
     )
     assert report.status == "ok"
 
@@ -936,6 +946,32 @@ def test_validate_reports_missing_artifacts(tmp_path: Path) -> None:
     )
     assert report.status == "error"
     assert len(report.mandatory_artifacts_missing) == len(MANDATORY_CANDIDATES)
+
+
+def test_validate_reports_protocol_hash_mismatch(tmp_path: Path) -> None:
+    report = validate_protocol_directory(
+        protocol_dir=_PROTOCOL_DIR,
+        stage="development",
+        implementation_commit=IMPLEMENTATION_COMMIT,
+        expected_protocol_hash="0" * 64,
+        output_dir=tmp_path / "unused-output",
+    )
+    assert report.status == "error"
+    assert any("requested protocol_hash mismatch" in error for error in report.errors)
+
+
+def test_validate_reports_nonempty_output_dir(tmp_path: Path) -> None:
+    output_dir = tmp_path / "used-output"
+    output_dir.mkdir()
+    (output_dir / "sentinel.txt").write_text("used\n", encoding="utf-8")
+    report = validate_protocol_directory(
+        protocol_dir=_PROTOCOL_DIR,
+        stage="development",
+        implementation_commit=IMPLEMENTATION_COMMIT,
+        output_dir=output_dir,
+    )
+    assert report.status == "error"
+    assert any("output_dir must be unused and empty" in error for error in report.errors)
 
 
 # ── 13. Lock behaviour ────────────────────────────────────────────────────────
