@@ -1,0 +1,15 @@
+{
+  "schema": "rescueos-release-manifest-v1",
+  "release_label": "qrtc-transit-0.1.0+phase5b-rule-policy-v1",
+  "distribution_model": "option_b_two_artifact",
+  "wheel_filename": "qrtc_transit-0.1.0-py3-none-any.whl",
+  "wheel_sha256": "c3a37c7a3e134d73523bc2d073732b871902a65606563dd2b1d6986a16b0b7c0",
+  "controller_artifact_filename": "phase5b-rule-policy-v1/manifest.json",
+  "controller_artifact_sha256": "3a5845cbcda7260497050dfd027787fa06d0e3f02dc49e23d7ea2af8a868bcc1",
+  "controller_version": "phase5b-rule-policy-v1",
+  "decision_checksum": "2928653190c53335bd7b78862283d1118aba3b63c83eb0126f3b63c8c0f12f47",
+  "hardware_actuation_enabled": false,
+  "authority": "recommend_only",
+  "physical_certification": false,
+  "deployment_approval": false
+}
