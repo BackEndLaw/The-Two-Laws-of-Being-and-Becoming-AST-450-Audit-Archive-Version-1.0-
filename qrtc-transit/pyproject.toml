@@ -25,6 +25,7 @@ carla-live-drive = "qrtc.carla_harness:main"
 qrtc-benchmark-phase5 = "qrtc_benchmark.run_phase5:main"
 qrtc-controller = "qrtc_benchmark.controller_cli:main"
 qrtc-selection = "qrtc_benchmark.validation_cli:main"
+qrtc-benchmark-phase5b-dev = "qrtc_benchmark.phase5b_development:main"
 # NOTE: phase1–4 runner modules are absent from the current codebase.
 # They have been removed from declared entry points to prevent broken console
 # script stubs. Phase IV-B remains historical/unsupported but importable for

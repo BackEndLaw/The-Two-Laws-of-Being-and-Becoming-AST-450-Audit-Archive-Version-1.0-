@@ -1,0 +1,247 @@
+{
+  "greedy_gain": {
+    "candidate": "greedy_gain",
+    "evidence_request_rate": 0.0,
+    "family_metrics": {
+      "V1": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.0175,
+        "mean_intervention_cost": 4.149166666666667,
+        "mean_utility": 0.24025,
+        "recovery_rate": 0.45208333333333334,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V2": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.0175,
+        "mean_intervention_cost": 4.178333333333334,
+        "mean_utility": 0.230875,
+        "recovery_rate": 0.44416666666666665,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V3": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.0175,
+        "mean_intervention_cost": 4.516666666666667,
+        "mean_utility": 0.13020833333333334,
+        "recovery_rate": 0.36041666666666666,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V4": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.845625,
+        "mean_intervention_cost": 4.0,
+        "mean_utility": -0.61140625,
+        "recovery_rate": 0.0,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 1.0
+      }
+    },
+    "mean_harm": 0.22453125,
+    "mean_intervention_cost": 4.211041666666667,
+    "mean_utility": -0.0025182291666666686,
+    "oracle_regret": 0.5123151041666666,
+    "recovery_rate": 0.31416666666666665,
+    "trial_count": 9600,
+    "unsafe_commitment_rate": 0.25
+  },
+  "oracle": {
+    "candidate": "oracle",
+    "evidence_request_rate": 0.0,
+    "family_metrics": {
+      "V1": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.0075,
+        "mean_intervention_cost": 3.8041666666666667,
+        "mean_utility": 0.7058333333333333,
+        "recovery_rate": 0.8979166666666667,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V2": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.0075,
+        "mean_intervention_cost": 3.817083333333333,
+        "mean_utility": 0.7085208333333333,
+        "recovery_rate": 0.90125,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V3": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.01,
+        "mean_intervention_cost": 4.661666666666667,
+        "mean_utility": 0.6248333333333332,
+        "recovery_rate": 0.8604166666666667,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V4": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.0,
+        "mean_intervention_cost": 0.0,
+        "mean_utility": 0.0,
+        "recovery_rate": 0.0,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      }
+    },
+    "mean_harm": 0.00625,
+    "mean_intervention_cost": 3.0707291666666667,
+    "mean_utility": 0.5097968749999999,
+    "oracle_regret": 0.0,
+    "recovery_rate": 0.6648958333333334,
+    "trial_count": 9600,
+    "unsafe_commitment_rate": 0.0
+  },
+  "qrtc": {
+    "candidate": "qrtc",
+    "evidence_request_rate": 0.25,
+    "family_metrics": {
+      "V1": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.02875,
+        "mean_intervention_cost": 4.2575,
+        "mean_utility": 0.6395208333333333,
+        "recovery_rate": 0.8595833333333334,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V2": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.027083333333333334,
+        "mean_intervention_cost": 4.204166666666667,
+        "mean_utility": 0.6426041666666666,
+        "recovery_rate": 0.8595833333333334,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V3": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.049166666666666664,
+        "mean_intervention_cost": 7.826666666666667,
+        "mean_utility": 0.38887499999999997,
+        "recovery_rate": 0.7925,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V4": {
+        "evidence_request_rate": 1.0,
+        "mean_harm": 0.0,
+        "mean_intervention_cost": 1.0,
+        "mean_utility": -0.05,
+        "recovery_rate": 0.0,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      }
+    },
+    "mean_harm": 0.02625,
+    "mean_intervention_cost": 4.3220833333333335,
+    "mean_utility": 0.40525,
+    "oracle_regret": 0.104546875,
+    "recovery_rate": 0.6279166666666667,
+    "trial_count": 9600,
+    "unsafe_commitment_rate": 0.0
+  },
+  "qrtc_no_abstention": {
+    "candidate": "qrtc_no_abstention",
+    "evidence_request_rate": 0.0,
+    "family_metrics": {
+      "V1": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.0175,
+        "mean_intervention_cost": 4.149166666666667,
+        "mean_utility": 0.24025,
+        "recovery_rate": 0.45208333333333334,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V2": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.0175,
+        "mean_intervention_cost": 4.178333333333334,
+        "mean_utility": 0.230875,
+        "recovery_rate": 0.44416666666666665,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V3": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.0175,
+        "mean_intervention_cost": 4.516666666666667,
+        "mean_utility": 0.13020833333333334,
+        "recovery_rate": 0.36041666666666666,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V4": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.845625,
+        "mean_intervention_cost": 1.0,
+        "mean_utility": -0.26140625,
+        "recovery_rate": 0.0,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      }
+    },
+    "mean_harm": 0.22453125,
+    "mean_intervention_cost": 3.4610416666666666,
+    "mean_utility": 0.08498177083333334,
+    "oracle_regret": 0.4248151041666666,
+    "recovery_rate": 0.31416666666666665,
+    "trial_count": 9600,
+    "unsafe_commitment_rate": 0.0
+  },
+  "qrtc_untyped": {
+    "candidate": "qrtc_untyped",
+    "evidence_request_rate": 0.25,
+    "family_metrics": {
+      "V1": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.03875,
+        "mean_intervention_cost": 6.325833333333334,
+        "mean_utility": 0.4052708333333333,
+        "recovery_rate": 0.73125,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V2": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.03875,
+        "mean_intervention_cost": 6.301666666666667,
+        "mean_utility": 0.40481249999999996,
+        "recovery_rate": 0.7295833333333334,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V3": {
+        "evidence_request_rate": 0.0,
+        "mean_harm": 0.03875,
+        "mean_intervention_cost": 4.983333333333333,
+        "mean_utility": 0.12864583333333332,
+        "recovery_rate": 0.3875,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      },
+      "V4": {
+        "evidence_request_rate": 1.0,
+        "mean_harm": 0.0,
+        "mean_intervention_cost": 1.0,
+        "mean_utility": -0.05,
+        "recovery_rate": 0.0,
+        "trial_count": 2400,
+        "unsafe_commitment_rate": 0.0
+      }
+    },
+    "mean_harm": 0.0290625,
+    "mean_intervention_cost": 4.652708333333333,
+    "mean_utility": 0.22218229166666664,
+    "oracle_regret": 0.28761458333333334,
+    "recovery_rate": 0.46208333333333335,
+    "trial_count": 9600,
+    "unsafe_commitment_rate": 0.0
+  }
+}
