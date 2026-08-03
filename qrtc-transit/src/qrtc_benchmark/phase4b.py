@@ -976,6 +976,8 @@ def write_phase4b_artifacts(
 def run_phase4b_benchmark(
     split_name: str, output_dir: str | Path, repeats_per_pair: int = 1
 ) -> dict[str, Any]:
+    # artifacts typed as dict[str, Any] to allow mixing Path values with the
+    # list[Phase4BTrialRow] "rows" entry appended below.
     rows = build_phase4b_trials(split_name, repeats_per_pair=repeats_per_pair)
     artifacts: dict[str, Any] = write_phase4b_artifacts(rows, output_dir, split_name)
     artifacts["rows"] = rows

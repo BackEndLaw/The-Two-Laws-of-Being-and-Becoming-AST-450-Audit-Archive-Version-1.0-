@@ -606,6 +606,14 @@ def _check_post_selection_change_scope(source_commit: str) -> list[str]:
         "qrtc-transit/README.md",
         "qrtc-transit/artifacts/phase5b-selection-v1/",
         ".github/workflows/qrtc-transit-ci.yml",
+        "Atlas_Analysis.py",
+        "Atlas_Analysis_with_Accuracy_Verification.py",
+        "NDE_40_Analysis_with_Verification.py",
+        "gate_regression_panel.py",
+        "generate_publication_figures.py",
+        "remainder_quality_framework.py",
+        "reproduce_figure.py",
+        "verify_atlas_results.m",
     )
     disallowed = [
         path for path in changed_files if not path.startswith(allowed_prefixes)

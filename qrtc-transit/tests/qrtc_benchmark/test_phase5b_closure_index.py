@@ -110,6 +110,32 @@ def test_closure_index_validated_controller_id() -> None:
     )
 
 
+def test_closure_index_validated_controller_version() -> None:
+    data = _load_index()
+    assert data["validated_controller_version"] == "phase5b-rule-policy-v1", (
+        "validated_controller_version must be 'phase5b-rule-policy-v1' (frozen controller "
+        "implementation version), not the protocol ID"
+    )
+
+
+def test_closure_index_reproducibility_stage_keyed() -> None:
+    """Reproducibility must be stage-keyed with correct seeds for each stage."""
+    data = _load_index()
+    repro = data["reproducibility"]
+    assert "development" in repro, "reproducibility must contain 'development' key"
+    assert "final_validation" in repro, (
+        "reproducibility must contain 'final_validation' key"
+    )
+    assert repro["development"]["byte_identical_runs"] is True
+    assert repro["development"]["registered_pythonhashseeds"] == [42, 999], (
+        "development registered_pythonhashseeds must be [42, 999]"
+    )
+    assert repro["final_validation"]["byte_identical_runs"] is True
+    assert repro["final_validation"]["registered_pythonhashseeds"] == [111, 222], (
+        "final_validation registered_pythonhashseeds must be [111, 222]"
+    )
+
+
 def test_closure_index_actuation_disabled() -> None:
     data = _load_index()
     assert data["hardware_actuation_enabled"] is False, (
