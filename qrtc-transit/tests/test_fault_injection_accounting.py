@@ -42,7 +42,6 @@ from qrtc.guards import GuardRule
 from qrtc.registry import build_default_registry
 from qrtc.transit import TransitEnvelope
 
-
 # ---------------------------------------------------------------------------
 # Fake CARLA helpers (shared with test_carla_harness)
 # ---------------------------------------------------------------------------

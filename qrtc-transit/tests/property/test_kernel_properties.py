@@ -3,10 +3,10 @@ from __future__ import annotations
 import pytest
 
 hypothesis = pytest.importorskip("hypothesis")
-from hypothesis import given  # noqa: E402
-from hypothesis import strategies as st  # noqa: E402
+from hypothesis import given
+from hypothesis import strategies as st
 
-from qrtc.kernel import AdequacyStatus, Future, analyze_gate  # noqa: E402
+from qrtc.kernel import AdequacyStatus, Future, analyze_gate
 
 STATES = [
     {"required": 0, "irrelevant": 0},

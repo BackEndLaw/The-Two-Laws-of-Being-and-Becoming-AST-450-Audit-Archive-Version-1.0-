@@ -11,7 +11,6 @@ import os
 from dataclasses import dataclass, field
 from typing import Any
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -243,8 +242,7 @@ def validate_carla_config(cfg: CarlaConfig) -> list[str]:
         )
     if not math.isfinite(cfg.runtime_stop_speed_mps):
         errors.append(
-            "runtime_stop_speed_mps must be finite, "
-            f"got {cfg.runtime_stop_speed_mps}"
+            f"runtime_stop_speed_mps must be finite, got {cfg.runtime_stop_speed_mps}"
         )
     elif cfg.runtime_stop_speed_mps < 0.0:
         errors.append(

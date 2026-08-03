@@ -18,7 +18,6 @@ from typing import Any
 
 from qrtc.limits import canonical_json
 
-
 # ---------------------------------------------------------------------------
 # Evidence projection
 # ---------------------------------------------------------------------------
@@ -341,7 +340,7 @@ def submit_to_qrtc_pipeline(
     finally:
         try:
             Path(tmp_path).unlink(missing_ok=True)
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001,S110
             pass
 
     try:
@@ -373,7 +372,7 @@ def submit_to_qrtc_pipeline(
             resolved_components=configured.resolved_component_ids,
         )
         evidence_preserved = True
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001,S110
         pass
 
     accepted = outcome.failure_state is None

@@ -19,9 +19,6 @@ from pathlib import Path
 import pytest
 
 from qrtc_benchmark.phase5 import (
-    SPLIT_SEEDS,
-    Phase5Config,
-    Phase5Family,
     _DEVELOPMENT_MECHANISMS,
     _DEVELOPMENT_PAIRS,
     _DEVELOPMENT_TRIPLES,
@@ -31,6 +28,9 @@ from qrtc_benchmark.phase5 import (
     _VALIDATION_MECHANISMS,
     _VALIDATION_PAIRS,
     _VALIDATION_TRIPLES,
+    SPLIT_SEEDS,
+    Phase5Config,
+    Phase5Family,
     authorize_phase5_split,
     build_phase5_trials,
 )
@@ -79,49 +79,49 @@ def test_mechanism_ids_disjoint_validation_vs_final() -> None:
 def test_pair_ids_disjoint_dev_vs_validation() -> None:
     dev = set(_DEVELOPMENT_PAIRS)
     val = set(_VALIDATION_PAIRS)
-    assert dev.isdisjoint(
-        val
-    ), f"Development and selection-validation pair sets overlap: {dev & val}"
+    assert dev.isdisjoint(val), (
+        f"Development and selection-validation pair sets overlap: {dev & val}"
+    )
 
 
 def test_pair_ids_disjoint_dev_vs_final() -> None:
     dev = set(_DEVELOPMENT_PAIRS)
     fin = set(_FINAL_PAIRS)
-    assert dev.isdisjoint(
-        fin
-    ), f"Development and final-validation pair sets overlap: {dev & fin}"
+    assert dev.isdisjoint(fin), (
+        f"Development and final-validation pair sets overlap: {dev & fin}"
+    )
 
 
 def test_pair_ids_disjoint_validation_vs_final() -> None:
     val = set(_VALIDATION_PAIRS)
     fin = set(_FINAL_PAIRS)
-    assert val.isdisjoint(
-        fin
-    ), f"Selection-validation and final-validation pair sets overlap: {val & fin}"
+    assert val.isdisjoint(fin), (
+        f"Selection-validation and final-validation pair sets overlap: {val & fin}"
+    )
 
 
 def test_triple_ids_disjoint_dev_vs_validation() -> None:
     dev = set(_DEVELOPMENT_TRIPLES)
     val = set(_VALIDATION_TRIPLES)
-    assert dev.isdisjoint(
-        val
-    ), f"Development and selection-validation triple sets overlap: {dev & val}"
+    assert dev.isdisjoint(val), (
+        f"Development and selection-validation triple sets overlap: {dev & val}"
+    )
 
 
 def test_triple_ids_disjoint_dev_vs_final() -> None:
     dev = set(_DEVELOPMENT_TRIPLES)
     fin = set(_FINAL_TRIPLES)
-    assert dev.isdisjoint(
-        fin
-    ), f"Development and final-validation triple sets overlap: {dev & fin}"
+    assert dev.isdisjoint(fin), (
+        f"Development and final-validation triple sets overlap: {dev & fin}"
+    )
 
 
 def test_triple_ids_disjoint_validation_vs_final() -> None:
     val = set(_VALIDATION_TRIPLES)
     fin = set(_FINAL_TRIPLES)
-    assert val.isdisjoint(
-        fin
-    ), f"Selection-validation and final-validation triple sets overlap: {val & fin}"
+    assert val.isdisjoint(fin), (
+        f"Selection-validation and final-validation triple sets overlap: {val & fin}"
+    )
 
 
 def test_triple_ids_have_no_duplicates_within_pool() -> None:
@@ -201,15 +201,15 @@ def test_generated_pair_ids_disjoint_all_three_pools() -> None:
     val_pairs = pair_ids(val_rows)
     test_pairs = set(_FINAL_PAIRS)
 
-    assert dev_pairs.isdisjoint(
-        val_pairs
-    ), f"V2 pair IDs overlap between development and selection-validation: {dev_pairs & val_pairs}"
-    assert dev_pairs.isdisjoint(
-        test_pairs
-    ), f"V2 pair IDs overlap between development and final-validation: {dev_pairs & test_pairs}"
-    assert val_pairs.isdisjoint(
-        test_pairs
-    ), f"V2 pair IDs overlap between selection-validation and final-validation: {val_pairs & test_pairs}"
+    assert dev_pairs.isdisjoint(val_pairs), (
+        f"V2 pair IDs overlap between development and selection-validation: {dev_pairs & val_pairs}"
+    )
+    assert dev_pairs.isdisjoint(test_pairs), (
+        f"V2 pair IDs overlap between development and final-validation: {dev_pairs & test_pairs}"
+    )
+    assert val_pairs.isdisjoint(test_pairs), (
+        f"V2 pair IDs overlap between selection-validation and final-validation: {val_pairs & test_pairs}"
+    )
 
 
 def test_generated_triple_ids_disjoint_all_three_pools() -> None:
@@ -225,15 +225,15 @@ def test_generated_triple_ids_disjoint_all_three_pools() -> None:
     val_triples = triple_ids(val_rows)
     test_triples = set(_FINAL_TRIPLES)
 
-    assert dev_triples.isdisjoint(
-        val_triples
-    ), f"Triple IDs overlap between development and selection-validation: {dev_triples & val_triples}"
-    assert dev_triples.isdisjoint(
-        test_triples
-    ), f"Triple IDs overlap between development and final-validation: {dev_triples & test_triples}"
-    assert val_triples.isdisjoint(
-        test_triples
-    ), f"Triple IDs overlap between selection-validation and final-validation: {val_triples & test_triples}"
+    assert dev_triples.isdisjoint(val_triples), (
+        f"Triple IDs overlap between development and selection-validation: {dev_triples & val_triples}"
+    )
+    assert dev_triples.isdisjoint(test_triples), (
+        f"Triple IDs overlap between development and final-validation: {dev_triples & test_triples}"
+    )
+    assert val_triples.isdisjoint(test_triples), (
+        f"Triple IDs overlap between selection-validation and final-validation: {val_triples & test_triples}"
+    )
 
 
 def test_final_validation_locked_without_unlock_flag(tmp_path) -> None:
@@ -267,13 +267,12 @@ def test_test_suite_does_not_construct_final_validation_rows() -> None:
                 if isinstance(func, ast.Attribute)
                 else None
             )
-            if func_name == "build_phase5_trials":
-                if (
-                    node.args
-                    and isinstance(node.args[0], ast.Constant)
-                    and node.args[0].value == "test"
-                ):
-                    forbidden_calls.append(f"{path}: build_phase5_trials('test', ...)")
+            if func_name == "build_phase5_trials" and (
+                node.args
+                and isinstance(node.args[0], ast.Constant)
+                and node.args[0].value == "test"
+            ):
+                forbidden_calls.append(f"{path}: build_phase5_trials('test', ...)")
             if func_name == "run_phase5_benchmark":
                 if (
                     not node.args
