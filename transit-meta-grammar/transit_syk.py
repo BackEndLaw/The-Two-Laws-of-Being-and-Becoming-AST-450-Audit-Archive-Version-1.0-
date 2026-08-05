@@ -14,6 +14,8 @@ from scipy.linalg import expm, eigh
 
 
 SEED = 314159
+DISORDER_SEED = SEED + 1
+ISOMETRY_SEED = SEED + 2
 TOL = 1e-9
 DEFAULT_N_MAJORANAS_PER_SIDE = 6
 DEFAULT_J = 1.0
@@ -207,17 +209,17 @@ def main() -> None:
     results_dir = base_dir / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
 
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(ISOMETRY_SEED)
     n_majoranas = DEFAULT_N_MAJORANAS_PER_SIDE
     left_majoranas_local = jordan_wigner_majoranas(n_majoranas)
     right_majoranas_local = jordan_wigner_majoranas(n_majoranas)
     left_dim = left_majoranas_local[0].shape[0]
     right_dim = right_majoranas_local[0].shape[0]
 
-    disorder_seed = np.random.default_rng(SEED)
-    h_left_local = syk_hamiltonian(left_majoranas_local, DEFAULT_J, disorder_seed)
-    disorder_seed = np.random.default_rng(SEED)
-    h_right_local = syk_hamiltonian(right_majoranas_local, DEFAULT_J, disorder_seed)
+    disorder_rng = np.random.default_rng(DISORDER_SEED)
+    h_left_local = syk_hamiltonian(left_majoranas_local, DEFAULT_J, disorder_rng)
+    disorder_rng = np.random.default_rng(DISORDER_SEED)
+    h_right_local = syk_hamiltonian(right_majoranas_local, DEFAULT_J, disorder_rng)
 
     left_majoranas = [embed_side_operator(op, left_dim, right_dim, "L") for op in left_majoranas_local]
     right_majoranas = [embed_side_operator(op, left_dim, right_dim, "R") for op in right_majoranas_local]
@@ -302,6 +304,8 @@ def main() -> None:
         [
             {
                 "seed": SEED,
+                "disorder_seed": DISORDER_SEED,
+                "isometry_seed": ISOMETRY_SEED,
                 "n_majoranas_per_side": n_majoranas,
                 "left_dim": left_dim,
                 "right_dim": right_dim,
