@@ -35,7 +35,7 @@ The script derives its output directory from `__file__`, so both invocations wri
 Runtime creates `transit-meta-grammar/results/` and writes:
 
 - `guard_summary.csv` — scalar guard probabilities, barriers, commutator norm, Choi/guard comparison, and runtime objective flags.
-- `guard_spectrum.csv` — eigenvalue spectrum of `K^dagger K = Pi_1 Pi_2 Pi_1`, reported as `lambda = cos^2(theta)` with principal angles and barrier values.
+- `guard_spectrum.csv` — eigenvalue spectrum of the forward effect `E_forward = K^dagger K = Pi_1 Pi_2 Pi_1`, reported as `lambda = cos^2(theta)` with principal angles and barrier values.
 - `information_flow.csv` — conditioned successful-branch information quantities `I(A:D)`, `I(A:E)`, `2S(A)`, and the residual in the pure-state balance identity.
 - `otoc.csv` — exact finite-dimensional Hermitian-bilinear OTOC samples over the configured time grid.
 - `guard_barrier_spectrum.png` — plot of guard spectral barrier values.
