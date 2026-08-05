@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, FancyBboxPatch, FancyArrowPatch
 import matplotlib.gridspec as gridspec
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
 
 
 plt.rcParams.update(
@@ -151,6 +154,6 @@ fig.text(
 x = np.linspace(0, 1, 200)
 _ = np.exp(-5 * x)
 
-
-plt.savefig("DoorGate_StellarRemnant_Taxonomy.png", dpi=300)
+plt.savefig(BASE_DIR / "DoorGate_StellarRemnant_Taxonomy.png", dpi=300)
+plt.show()
 plt.show()

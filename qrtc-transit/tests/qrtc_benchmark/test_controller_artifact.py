@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import subprocess
@@ -12,9 +13,18 @@ from qrtc_benchmark.controller_artifact import (
     ARTIFACT_SCHEMA,
     ControllerArtifactValidationError,
     freeze_controller_artifact,
+    load_selected_controller_bundle,
     load_controller_artifact,
+    selected_controller_decision_checksum,
 )
 from qrtc_benchmark.controllers import UnknownControllerError
+
+_PACKAGE_ROOT = Path(__file__).resolve().parents[2]
+_SELECTED_BUNDLE_DIR = (
+    _PACKAGE_ROOT / "artifacts" / "phase5b-selection-v1" / "selected-controller"
+)
+_SELECTED_BUNDLE_PATH = _SELECTED_BUNDLE_DIR / "manifest.json"
+_SELECTED_BUNDLE_CHECKSUMS = _SELECTED_BUNDLE_DIR / "checksums.sha256"
 
 
 def _valid_commit() -> str:
@@ -220,3 +230,43 @@ def test_freeze_no_overwrite_and_atomic_write(tmp_path: Path) -> None:
 
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert payload["controller_id"] == "qrtc"
+
+
+def test_selected_controller_bundle_reloads_without_retraining_and_reproduces_checksum() -> None:
+    checksums = _SELECTED_BUNDLE_CHECKSUMS.read_text(encoding="utf-8").strip().splitlines()
+    assert checksums
+    recorded_sha, name = checksums[0].split("  ", 1)
+    assert name == "manifest.json"
+    assert recorded_sha == hashlib.sha256(_SELECTED_BUNDLE_PATH.read_bytes()).hexdigest()
+
+    bundle, controller = load_selected_controller_bundle(_SELECTED_BUNDLE_PATH)
+    assert bundle.controller_manifest["controller_id"] == "qrtc"
+    assert bundle.controller_parameters["learned_tables"] is None
+    assert (
+        bundle.reproducibility_probe["state_loading_mode"]
+        == "registry_lookup_only_no_retraining"
+    )
+    assert (
+        selected_controller_decision_checksum(bundle, controller)
+        == bundle.reproducibility_probe["decision_sha256"]
+    )
+
+    command = (
+        "from pathlib import Path\n"
+        "from qrtc_benchmark.controller_artifact import "
+        "load_selected_controller_bundle, selected_controller_decision_checksum\n"
+        f"path = Path(r'{_SELECTED_BUNDLE_PATH}')\n"
+        "bundle, controller = load_selected_controller_bundle(path)\n"
+        "print(selected_controller_decision_checksum(bundle, controller))\n"
+    )
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(_PACKAGE_ROOT / "src")
+    completed = subprocess.run(
+        [sys.executable, "-c", command],
+        cwd=_PACKAGE_ROOT,
+        check=True,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.stdout.strip() == bundle.reproducibility_probe["decision_sha256"]

@@ -1,0 +1,208 @@
+{
+  "schema_version": "sdr-observation-mapping-v1",
+  "description": "Versioned mapping specification: SDR physical telemetry → RescueOS Advisor observation schema (phase5-ood-case-v1).",
+  "advisor_observation_schema": "phase5-ood-case-v1",
+  "advisor_observation_schema_sha256": "f5c1e3ce4e1e0809d6ecde6d44ec950fdef9773fd155a3d0767037cc476c61d7",
+  "frozen_controller_version": "phase5b-rule-policy-v1",
+  "frozen_controller_artifact_sha256": "3a5845cbcda7260497050dfd027787fa06d0e3f02dc49e23d7ea2af8a868bcc1",
+  "mapping_does_not_modify": [
+    "frozen controller",
+    "causal graph",
+    "decision thresholds",
+    "action allowlist",
+    "observation schema version",
+    "action schema version"
+  ],
+
+  "physical_telemetry_fields": {
+    "rssi_dbm": {
+      "description": "Received signal strength indication",
+      "unit": "dBm",
+      "typical_range": [-120, 0],
+      "precision": 0.1,
+      "source": "RTL-SDR driver RSSI register or GNU Radio power measurement block",
+      "missing_policy": "reject record (is_valid=false)"
+    },
+    "snr_db": {
+      "description": "Signal-to-noise ratio",
+      "unit": "dB",
+      "typical_range": [-20, 40],
+      "precision": 0.1,
+      "source": "Computed as RSSI - noise_floor in the GNU Radio telemetry collector",
+      "missing_policy": "reject record (is_valid=false)"
+    },
+    "ber": {
+      "description": "Bit error rate (dimensionless)",
+      "unit": "fraction",
+      "range": [0.0, 1.0],
+      "precision": 1e-6,
+      "source": "Frame-level CRC error count / total bits in window",
+      "missing_policy": "null — use packet_loss_rate; if both null, noise=0.0"
+    },
+    "packet_loss_rate": {
+      "description": "Fraction of frames not acknowledged",
+      "unit": "fraction",
+      "range": [0.0, 1.0],
+      "precision": 1e-4,
+      "source": "Sequence-number gap analysis in GNU Radio telemetry collector",
+      "missing_policy": "null — use ber; if both null, noise=0.0"
+    },
+    "source_timestamp_utc": {
+      "description": "UTC datetime at which the receiver hardware produced this measurement",
+      "format": "ISO 8601 with timezone",
+      "precision": "microsecond",
+      "source": "GNU Radio wall-clock tag or SDR sample-counter converted to UTC"
+    },
+    "ingestion_timestamp_utc": {
+      "description": "UTC datetime at which the harness wrote this record to its buffer",
+      "format": "ISO 8601 with timezone",
+      "precision": "microsecond",
+      "source": "Harness process wall-clock at record receipt"
+    },
+    "window_duration_s": {
+      "description": "Integration and averaging window length",
+      "unit": "seconds",
+      "constraint": "> 0",
+      "minimum_valid": 0.5,
+      "source": "GNU Radio block configuration; must match protocol"
+    },
+    "is_valid": {
+      "description": "True if all fields are within expected operating range and no driver fault was flagged",
+      "type": "boolean"
+    },
+    "is_stale": {
+      "description": "True if the source flagged this record as stale before delivery",
+      "type": "boolean"
+    },
+    "is_malformed": {
+      "description": "True if framing errors, CRC failures, or missing mandatory fields were detected",
+      "type": "boolean"
+    }
+  },
+
+  "mapping_parameters": {
+    "rssi_baseline_dbm": {
+      "description": "RSSI measured at 0 dB attenuation during warm-up. MUST be determined empirically on the physical bench and recorded in the protocol before any test trial begins.",
+      "placeholder_for_bench": true,
+      "example_value": -40.0,
+      "unit": "dBm"
+    },
+    "rssi_noise_floor_dbm": {
+      "description": "Receiver noise floor. MUST be taken from the manufacturer datasheet for the exact RTL-SDR hardware revision and frequency in use. Do not use a generic value.",
+      "placeholder_for_bench": true,
+      "example_value": -100.0,
+      "unit": "dBm",
+      "note": "RTL-SDR v3 at 433 MHz with default LNA gain: approximately -100 to -105 dBm (verify from datasheet)"
+    },
+    "min_window_duration_s": {
+      "description": "Minimum observation window for evidence to be considered sufficient",
+      "value": 0.5,
+      "unit": "seconds"
+    },
+    "ambiguous_snr_low_db": {
+      "description": "Lower bound of the ambiguous SNR band (inclusive). Records in this band set evidence_initially_insufficient=true.",
+      "value": 0.0,
+      "unit": "dB"
+    },
+    "ambiguous_snr_high_db": {
+      "description": "Upper bound of the ambiguous SNR band (inclusive).",
+      "value": 3.0,
+      "unit": "dB"
+    },
+    "max_staleness_s": {
+      "description": "Maximum permitted lag between source and ingestion timestamps",
+      "value": 2.0,
+      "unit": "seconds"
+    }
+  },
+
+  "observation_schema_mapping": {
+    "family": {
+      "nominal_value": "V3",
+      "description": "Three-fault causal chain (path-loss → SNR degradation → packet loss). V4 when packet_loss_rate > 0.30 and severity_raw < 0.10 (unexplained packet loss).",
+      "V3_condition": "default for all valid, non-unknown-fault observations",
+      "V4_condition": "packet_loss_rate > 0.30 AND severity_raw < 0.10 AND NOT evidence_initially_insufficient"
+    },
+    "mechanism_id": {
+      "value": "sdr_rf_path_loss",
+      "description": "SDR RF path loss mechanism. Not a benchmark pool identifier."
+    },
+    "composition_id": {
+      "V3_value": "FG+FW+FJ",
+      "V4_value": "UNKNOWN",
+      "description": "FG=RF path (Gate), FW=SNR/link quality (Witness), FJ=packet threshold (Jurisdiction)"
+    },
+    "relation_type": {
+      "value": "independent",
+      "description": "Attenuation and noise sources are physically separable in the coaxial bench."
+    },
+    "criterion": {
+      "PI1": "Receiver sensitivity / path loss (binding when severity >= noise*2)",
+      "PI2": "SNR / link quality (binding when neither severity nor noise dominates)",
+      "PI3": "Packet-loss rate / application reliability (binding when noise > severity)",
+      "selection_rule": "PI1 if severity >= 2*noise, PI3 if noise > severity, PI2 otherwise"
+    },
+    "severity": {
+      "formula": "quantize(clamp((rssi_baseline_dbm - rssi_dbm) / dynamic_range_db, 0.0, 1.0), SEVERITIES)",
+      "SEVERITIES": [0.25, 0.50, 0.75, 1.00],
+      "dynamic_range_db": "rssi_baseline_dbm - rssi_noise_floor_dbm",
+      "note": "Rounded to nearest discrete value; ties go to higher value"
+    },
+    "noise": {
+      "formula": "quantize(clamp(max(ber, packet_loss_rate), 0.0, 0.20), NOISE_LEVELS)",
+      "NOISE_LEVELS": [0.00, 0.05, 0.10, 0.20],
+      "note": "Takes maximum of available error indicators; clamped at 0.20 (max discrete level)"
+    },
+    "dependency_type": {
+      "V3_value": "chain",
+      "V4_value": "none"
+    },
+    "unknown_fault": {
+      "V4_value": true,
+      "V3_value": false
+    },
+    "evidence_initially_insufficient": {
+      "condition": "snr_db in [ambiguous_snr_low_db, ambiguous_snr_high_db] OR window_duration_s < min_window_duration_s",
+      "value_when_true": true,
+      "value_when_false": false
+    },
+    "required_actions": {
+      "description": "Action sequence required for recovery, derived from severity band",
+      "bands": {
+        "0.75_and_1.00": ["rG", "rW", "rJ"],
+        "0.50": ["rW", "rJ"],
+        "0.25": ["rJ"],
+        "0.00_or_below_minimum": []
+      },
+      "V4_value": []
+    }
+  },
+
+  "rejection_policy": {
+    "malformed_record": "Reject; observation_json=null; do not submit to Advisor",
+    "stale_flagged_by_source": "Reject; is_stale=true in telemetry",
+    "invalid_record": "Reject; is_valid=false in telemetry",
+    "stale_detected_by_lag": "Reject; ingestion - source > max_staleness_s",
+    "out_of_range_field": "Reject at SdrTelemetry construction (raises SdrTelemetryValidationError)",
+    "rejected_record_audit_entry": "Always write an audit record with mapping_result=rejection_reason; advisor_action_sequence=null; decision_sha256=null"
+  },
+
+  "stale_policy": {
+    "definition": "A record is stale if is_stale=true OR (ingestion_timestamp_utc - source_timestamp_utc) > max_staleness_s",
+    "treatment": "Reject; do not map or submit to Advisor",
+    "missing_data_contribution": "Counts as missing; applied toward missing_data threshold in protocol"
+  },
+
+  "contradictory_value_policy": {
+    "definition": "A record is contradictory if packet_loss_rate > 0.30 AND severity_raw < 0.10 (severe packet loss without path loss explanation)",
+    "treatment": "Map to V4 (unknown_fault=true) rather than reject; submit to Advisor for abstention or evidence-request recommendation"
+  },
+
+  "one_way_constraint": {
+    "description": "This mapping layer is strictly one-way: telemetry IN, observation OUT. No Advisor output flows back through this layer to any transmitter interface.",
+    "transmitter_control_bytes": 0,
+    "prohibited": "Any modification to the mapping that creates a feedback path from Advisor output to transmitter configuration"
+  },
+
+  "protocol_freeze_requirement": "All mapping_parameters must be fixed and recorded in the physical-test protocol before any bench trial begins. Changing parameters after observing Advisor outputs is a protocol violation."
+}

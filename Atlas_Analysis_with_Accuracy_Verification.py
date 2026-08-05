@@ -13,6 +13,7 @@ Features:
 
 from datetime import datetime
 import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -22,10 +23,11 @@ import pandas as pd
 # 1. LOAD THE ATLAS
 # ============================================================
 
-INPUT_FILE = "Final_Atlas_Coded_Analysis-f086.xlsx"
-OUTPUT_FILE = "atlas_predictions_with_accuracy.xlsx"
-REPORT_FILE = "accuracy_verification_report.txt"
-EXT_FILE = "ext_scoring_template_q6_9_modeV_sym4.csv"
+BASE_DIR = Path(__file__).resolve().parent
+INPUT_FILE = BASE_DIR / "Final_Atlas_Coded_Analysis-f086.xlsx"
+OUTPUT_FILE = BASE_DIR / "atlas_predictions_with_accuracy.xlsx"
+REPORT_FILE = BASE_DIR / "accuracy_verification_report.txt"
+EXT_FILE = BASE_DIR / "ext_scoring_template_q6_9_modeV_sym4.csv"
 
 print("=" * 70)
 print("ATLAS PREDICTION ACCURACY VERIFICATION")
