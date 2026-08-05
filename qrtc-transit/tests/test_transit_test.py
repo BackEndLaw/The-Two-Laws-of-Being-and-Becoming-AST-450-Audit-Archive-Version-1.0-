@@ -76,14 +76,15 @@ def make_canonical_matrices(n: int = 4):
         Pi2  = |e1><e1| + |v2><v2|,   v2 = (e2 + e4)/sqrt(2)
         E_G  = Pi1 Pi2 Pi1,  eigenvalues {0, 0, 1/2, 1}
 
-    Gamma is the unitary involution built from the eigenvectors of E_G
-    (w0, w1: eval=0;  w2: eval=1/2;  w3: eval=1):
-
-        Gamma = |w0><w2| + |w2><w0| + |w1><w3| + |w3><w1|
+    Gamma is the Householder reflection  Gamma = I - 2|w3><w3|.
+    This is a unitary involution (Gamma^2 = I, Gamma† = Gamma) that:
+      - fixes w2 (the half-mode eigenvector), so the half-mode sector
+        span{w2} is Gamma-invariant.
+      - reflects w3 to -w3.
 
     On the half-mode sector span{w2}:
         E_G compressed = 1/2  (scalar)
-        Gamma compressed = I_1   (maps sector to itself)
+        Gamma compressed = I_1  (Gamma w2 = w2, so <w2|Gamma|w2> = 1)
         Mirror: I_1 * (1/2) * I_1 = 1/2 = I_1 - 1/2  PASSES
         Pairing: [1/2] reflected [1/2], error 0         PASSES
 
@@ -106,7 +107,7 @@ def make_canonical_matrices(n: int = 4):
 
         evals, evecs = np.linalg.eigh(e_g)
         # evals guaranteed sorted by eigh: [0, 0, 0.5, 1]
-        w0, w1, w2, w3 = evecs[:, 0], evecs[:, 1], evecs[:, 2], evecs[:, 3]
+        _, _, w2, w3 = evecs[:, 0], evecs[:, 1], evecs[:, 2], evecs[:, 3]
 
         # Gamma = I - 2|w3><w3|: unitary involution that fixes w2 (the half-mode)
         # and reflects w3. This ensures Gamma maps the half-mode sector
@@ -473,8 +474,7 @@ class TestReadRecoveryCsv:
 # ---------------------------------------------------------------------------
 
 class TestCLIIntegration:
-    def test_main_runs_and_reports_guard(self, capsys, tmp_path):
-        import sys
+    def test_main_runs_and_reports_guard(self, capsys, monkeypatch, tmp_path):
         from transit_test import main
 
         Pi1, Pi2, Gamma = make_canonical_matrices(8)
@@ -482,15 +482,14 @@ class TestCLIIntegration:
         npz_path = tmp_path / "matrices.npz"
         np.savez(str(npz_path), Pi1=Pi1, Pi2=Pi2, Gamma=Gamma, sector=sector)
 
-        sys.argv = ["transit_test.py", str(npz_path)]
+        monkeypatch.setattr("sys.argv", ["transit_test.py", str(npz_path)])
         main()
 
         captured = capsys.readouterr()
         assert "Guard Mathematics Test" in captured.out
         assert "PASS" in captured.out
 
-    def test_main_with_recovery_csv(self, capsys, tmp_path):
-        import sys
+    def test_main_with_recovery_csv(self, capsys, monkeypatch, tmp_path):
         from transit_test import main
 
         Pi1, Pi2, Gamma = make_canonical_matrices(8)
@@ -503,12 +502,12 @@ class TestCLIIntegration:
             "p_G,t_rec\n0.9,2.10\n0.7,2.35\n0.5,2.72\n0.3,3.21\n0.1,4.10\n"
         )
 
-        sys.argv = [
+        monkeypatch.setattr("sys.argv", [
             "transit_test.py",
             str(npz_path),
             "--recovery",
             str(csv_path),
-        ]
+        ])
         main()
 
         captured = capsys.readouterr()
