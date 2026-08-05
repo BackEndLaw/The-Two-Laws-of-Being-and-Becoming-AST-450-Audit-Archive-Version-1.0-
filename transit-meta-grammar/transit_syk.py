@@ -216,6 +216,7 @@ def main() -> None:
     left_dim = left_majoranas_local[0].shape[0]
     right_dim = right_majoranas_local[0].shape[0]
 
+    # Shared disorder is intentional: both sides use the same deterministic coupling draw.
     disorder_rng = np.random.default_rng(DISORDER_SEED)
     h_left_local = syk_hamiltonian(left_majoranas_local, DEFAULT_J, disorder_rng)
     disorder_rng = np.random.default_rng(DISORDER_SEED)
@@ -383,8 +384,8 @@ def main() -> None:
     plt.figure(figsize=(7, 4))
     plt.plot(times, otoc_values, marker="o")
     plt.xlabel("time")
-    plt.ylabel("Tr[rho_beta W(t) V W(t) V]")
-    plt.title("Transit OTOC growth")
+    plt.ylabel("Tr[rho_beta W(t) V W(t) V] (Hermitian OTOC)")
+    plt.title("Transit Hermitian-bilinear OTOC")
     plt.tight_layout()
     plt.savefig(results_dir / "otoc_growth.png", dpi=160)
     plt.close()

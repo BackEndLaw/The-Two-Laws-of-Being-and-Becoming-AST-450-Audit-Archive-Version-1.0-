@@ -35,9 +35,9 @@ The script derives its output directory from `__file__`, so both invocations wri
 Runtime creates `transit-meta-grammar/results/` and writes:
 
 - `guard_summary.csv` — scalar guard probabilities, barriers, commutator norm, Choi/guard comparison, and runtime objective flags.
-- `guard_spectrum.csv` — eigenvalue spectrum of `Pi_1 Pi_2 Pi_1`, reported as `lambda = cos^2(theta)` with principal angles and barrier values.
+- `guard_spectrum.csv` — eigenvalue spectrum of `K^dagger K = Pi_1 Pi_2 Pi_1`, reported as `lambda = cos^2(theta)` with principal angles and barrier values.
 - `information_flow.csv` — conditioned successful-branch information quantities `I(A:D)`, `I(A:E)`, `2S(A)`, and the residual in the pure-state balance identity.
-- `otoc.csv` — exact finite-dimensional OTOC samples over the configured time grid.
+- `otoc.csv` — exact finite-dimensional Hermitian-bilinear OTOC samples over the configured time grid.
 - `guard_barrier_spectrum.png` — plot of guard spectral barrier values.
 - `information_balance.png` — bar chart comparing `I(A:D)`, `I(A:E)`, and `2S(A)` after conditioning.
 - `otoc_growth.png` — OTOC trajectory under exact time evolution.
@@ -46,7 +46,7 @@ Generated plots are runtime artifacts and should not be committed unless reposit
 
 ## Mathematical definitions
 
-Let the River Hilbert space be `H_River = H_L \otimes H_R`, with `N=6` Majoranas per side, Jordan-Wigner Majoranas normalized as `chi = gamma / sqrt(2)`, and shared-disorder `q=4` SYK Hamiltonians on the two sides. The coupled River Hamiltonian is
+Let the River Hilbert space be `H_River = H_L \otimes H_R`, with `N=6` Majoranas per side, Jordan-Wigner Majoranas normalized as `chi = gamma / sqrt(2)`, and shared-disorder `q=4` SYK Hamiltonians on the two sides (the deterministic realization intentionally reuses the same coupling draw for left and right). The coupled River Hamiltonian is
 
 ```text
 H_River = H_L + H_R + i mu sum_j chi_L^j chi_R^j.
