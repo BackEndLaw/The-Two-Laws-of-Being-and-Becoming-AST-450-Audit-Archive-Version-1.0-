@@ -42,7 +42,7 @@ Runtime creates `transit-meta-grammar/results/` and writes:
 - `information_balance.png` — bar chart comparing `I(A:D)`, `I(A:E)`, and `2S(A)` after conditioning.
 - `otoc_growth.png` — OTOC trajectory under exact time evolution.
 
-Generated plots are runtime artifacts and should not be committed unless repository conventions later require them.
+Generated CSV and PNG outputs are saved under `transit-meta-grammar/results/` in this repository and may be committed when you want to preserve a deterministic run.
 
 ## Mathematical definitions
 
