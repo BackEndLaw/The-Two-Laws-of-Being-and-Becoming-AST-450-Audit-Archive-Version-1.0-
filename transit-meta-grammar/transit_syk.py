@@ -229,7 +229,7 @@ def main() -> None:
     h_left = embed_side_operator(h_left_local, left_dim, right_dim, "L")
     h_right = embed_side_operator(h_right_local, left_dim, right_dim, "R")
     correlation_operator = build_bilinear_operator(left_majoranas_local, right_majoranas_local)
-    coupling_term = DEFAULT_MU * build_bilinear_operator(left_majoranas_local, right_majoranas_local)
+    coupling_term = DEFAULT_MU * correlation_operator
     h_river = hermitize(h_left + h_right + coupling_term)
     h_uncoupled = hermitize(h_left + h_right)
 
