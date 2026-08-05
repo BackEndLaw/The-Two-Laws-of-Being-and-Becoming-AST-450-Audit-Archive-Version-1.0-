@@ -173,11 +173,12 @@ def apply_operator_to_tail(vector: np.ndarray, head_dim: int, operator: np.ndarr
     return np.kron(np.eye(head_dim, dtype=complex), operator) @ vector
 
 
-def normalized_branch_density(effect: np.ndarray, state: np.ndarray) -> tuple[float, np.ndarray]:
+def normalized_branch_density(kraus_operator: np.ndarray, state: np.ndarray) -> tuple[float, np.ndarray]:
+    effect = hermitize(kraus_operator.conj().T @ kraus_operator)
     probability = clip_probability(float(np.real(np.trace(effect @ state))))
     if probability <= 0.0:
         return 0.0, np.zeros_like(state)
-    branch = hermitize(effect @ state @ effect)
+    branch = hermitize(kraus_operator @ state @ kraus_operator.conj().T)
     branch /= np.trace(branch)
     return probability, branch
 
@@ -262,7 +263,7 @@ def main() -> None:
     encoded_forward_probability = clip_probability(float(np.real(np.trace(effect_forward @ rho_encoded))))
     choi_mismatch = abs(choi_probability - encoded_forward_probability)
 
-    branch_probability, branch_rho = normalized_branch_density(effect_forward, rho_encoded)
+    branch_probability, branch_rho = normalized_branch_density(success_map, rho_encoded)
 
     eigenvalues_river, eigenvectors_river = eigh(h_river)
     times = DEFAULT_TIME_GRID
