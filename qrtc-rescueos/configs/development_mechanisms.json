@@ -1,0 +1,33 @@
+{
+  "manifest_version": 1,
+  "split": "development",
+  "frozen": false,
+  "mechanisms": [
+    {
+      "mechanism_id": "dev_gain_dropout",
+      "hidden_parameters": {"coupling": 0.35},
+      "scenarios": [
+        {
+          "scenario_id": "dev-gain-001",
+          "seed": 11001,
+          "faults": [
+            {"fault_id": "dev-fault-gain", "affected_distinctions": ["received_amplitude"], "severity": 0.35}
+          ]
+        }
+      ]
+    },
+    {
+      "mechanism_id": "dev_clock_drift",
+      "hidden_parameters": {"drift_rate": 0.41},
+      "scenarios": [
+        {
+          "scenario_id": "dev-clock-001",
+          "seed": 11002,
+          "faults": [
+            {"fault_id": "dev-fault-clock", "affected_distinctions": ["timing"], "severity": 0.41}
+          ]
+        }
+      ]
+    }
+  ]
+}

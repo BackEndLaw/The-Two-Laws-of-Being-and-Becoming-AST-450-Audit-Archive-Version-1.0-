@@ -1,0 +1,72 @@
+{
+  "artifact_type": "adaptive_qrtc_v2_reporting_lock",
+  "source_artifact_sha256": "52b8868430703b118663eeffa43378b199f1eba81069245a9ed6992cd688d0e1",
+  "primary_comparison": {
+    "policy": "hybrid_qrtc",
+    "comparator": "end_to_end",
+    "comparator_selection": "strongest non-oracle by complete LOFO development mean utility",
+    "aggregate": {
+      "estimate": 0.15925781249999998,
+      "lower_95": 0.13828124999999997,
+      "upper_95": 0.17859374999999997,
+      "half_width": 0.02015625,
+      "per_family": {
+        "clock_drift": -0.039687500000000014,
+        "gain_dropout": -0.06625000000000003,
+        "burst_attenuation": 0.8195312499999999,
+        "phase_coupling": -0.0765625
+      }
+    }
+  },
+  "design": {
+    "matched_trials_per_policy": 128,
+    "total_policy_runs": 768,
+    "independent_cluster_count": 16,
+    "clusters_by_family": {
+      "burst_attenuation": 4,
+      "clock_drift": 4,
+      "gain_dropout": 4,
+      "phase_coupling": 4
+    },
+    "replicates_per_cluster": 8,
+    "balanced_clusters": true
+  },
+  "bootstrap": {
+    "method": "family-stratified paired cluster bootstrap",
+    "resamples": 2000,
+    "seed": 1450
+  },
+  "per_family_intervals": {
+    "burst_attenuation": {
+      "estimate": 0.8195312499999999,
+      "lower_95": 0.8028124999999999,
+      "upper_95": 0.8362499999999999,
+      "half_width": 0.016718750000000004,
+      "independent_clusters": 4
+    },
+    "clock_drift": {
+      "estimate": -0.039687500000000014,
+      "lower_95": -0.11156250000000001,
+      "upper_95": 0.01874999999999999,
+      "half_width": 0.06515625,
+      "independent_clusters": 4
+    },
+    "gain_dropout": {
+      "estimate": -0.06625000000000003,
+      "lower_95": -0.09281250000000002,
+      "upper_95": -0.04500000000000004,
+      "half_width": 0.02390624999999999,
+      "independent_clusters": 4
+    },
+    "phase_coupling": {
+      "estimate": -0.0765625,
+      "lower_95": -0.10562500000000002,
+      "upper_95": -0.05281250000000001,
+      "half_width": 0.026406250000000006,
+      "independent_clusters": 4
+    }
+  },
+  "development_acceptance": false,
+  "validation_authorized": false,
+  "hardware_gate": "NOT READY"
+}

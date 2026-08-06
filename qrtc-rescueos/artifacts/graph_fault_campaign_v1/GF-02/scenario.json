@@ -1,0 +1,37 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "scenario_id": "GF-02",
+  "name": "handoff-timeout",
+  "simulator": "graph",
+  "initial_conditions": {
+    "authority": "baseline_v2",
+    "position": "B",
+    "route": ["A", "B", "D"],
+    "alternate_route": ["B", "C", "D"]
+  },
+  "fault": {
+    "type": "handoff_timeout",
+    "injection_step": 12
+  },
+  "expected_authority_transitions": [],
+  "terminal_conditions": {
+    "authority": "baseline_v2",
+    "terminal_state": "safe"
+  },
+  "acceptance_criteria": [
+    "passage_requested_but_not_executed",
+    "destination_not_realized",
+    "fallback_witnessed",
+    "exclusive_authority",
+    "deterministic_replay"
+  ],
+  "expected": {
+    "admitted": true,
+    "passage_requested": true,
+    "passage_executed": false,
+    "destination_realized": false,
+    "fallback_required": true,
+    "terminal_state": "safe"
+  },
+  "native_carla_physics": "NOT_EVALUATED"
+}

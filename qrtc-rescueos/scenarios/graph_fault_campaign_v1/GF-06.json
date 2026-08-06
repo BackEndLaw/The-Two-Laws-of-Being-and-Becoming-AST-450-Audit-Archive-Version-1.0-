@@ -1,0 +1,13 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "scenario_id": "GF-06",
+  "name": "delayed-or-missing-observation",
+  "simulator": "graph",
+  "initial_conditions": {"authority": "baseline_v2", "position": "B", "maximum_observation_age_steps": 2},
+  "fault": {"type": "invalid_observation", "injection_step": 1, "subcases": [{"id": "GF-06A", "type": "delayed_observation", "age_steps": 3}, {"id": "GF-06B", "type": "missing_observation"}]},
+  "expected_authority_transitions": [],
+  "terminal_conditions": {"authority": "baseline_v2", "terminal_state": "safe_wait"},
+  "acceptance_criteria": ["invalid_evidence_rejected", "no_gate_admission", "safe_wait", "both_subcases_witnessed"],
+  "expected": {"admitted": false, "passage_requested": false, "passage_executed": false, "destination_realized": false, "fallback_required": true, "terminal_state": "safe_wait"},
+  "native_carla_physics": "NOT_EVALUATED"
+}

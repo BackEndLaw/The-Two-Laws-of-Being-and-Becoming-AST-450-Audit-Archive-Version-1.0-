@@ -1,0 +1,44 @@
+{
+  "protocol_version": "adaptive_qrtc_development_v4.0",
+  "frozen_before_execution": true,
+  "one_shot_execution": true,
+  "experiment_class": "development_not_validation",
+  "training_source": "archived_v1_v2_v3 development mechanisms only",
+  "evaluation_manifest": "adaptive_v4_fresh_mechanisms.json",
+  "primary_policy": "routed_hybrid_qrtc_v4",
+  "frozen_baseline": "hybrid_qrtc_v2",
+  "router": {
+    "feature_policy": "public observations, public history, and V2/V3 decision disagreement only",
+    "lcb_z": 1.645,
+    "activation_threshold": 0.02,
+    "threshold_selection": "fixed before fresh execution; not optimized on report trials",
+    "nested_cross_fitting": "leave-one-prior-mechanism-family-out"
+  },
+  "design": {
+    "replicates_per_cluster": 8,
+    "noise_levels": [0.0, 0.05],
+    "intervention_reliability_levels": [0.8, 1.0],
+    "cluster_definition": "fresh mechanism/scenario/noise/reliability configuration",
+    "balanced_classes_required": true
+  },
+  "bootstrap": {
+    "method": "dynamical-class-stratified paired cluster bootstrap",
+    "resamples": 2000,
+    "seed": 3450
+  },
+  "acceptance": {
+    "aggregate_advantage_minimum": 0.0,
+    "aggregate_interval_lower_minimum": 0.0,
+    "family_noninferiority_margin": 0.05,
+    "minimum_positive_family_count": 2,
+    "maximum_unsafe_rate_increase": 0.0,
+    "maximum_harm_rate": 0.05,
+    "graph_invalid_action_rate": 0.0,
+    "activated_incremental_utility_minimum": 0.0,
+    "leakage_tests_required": true
+  },
+  "failure_policy": "stop current experimental series and redesign benchmark",
+  "validation_authorized": false,
+  "hardware_actuation_enabled": false,
+  "hardware_gate": "NOT READY"
+}

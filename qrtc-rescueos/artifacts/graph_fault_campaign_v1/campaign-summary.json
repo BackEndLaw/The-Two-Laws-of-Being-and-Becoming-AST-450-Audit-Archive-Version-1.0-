@@ -1,0 +1,162 @@
+{
+  "all_replays_verified": true,
+  "all_witnesses_complete": true,
+  "campaign_acceptance": "PASSED",
+  "campaign_id": "graph_fault_campaign_v1",
+  "claim_boundary": "Deterministic graph fault-handling semantics only; no CARLA physics, vehicle dynamics, hardware behavior, or production-safety claim.",
+  "collisions": 0,
+  "diagnostics": "CLEAN",
+  "evaluation_seeds": {
+    "GF-01": [
+      898008,
+      299554,
+      816777,
+      657984,
+      175205
+    ],
+    "GF-02": [
+      300059,
+      289401,
+      689573,
+      610440,
+      832142
+    ],
+    "GF-03": [
+      203905,
+      597715,
+      971646,
+      182675,
+      787824
+    ],
+    "GF-04": [
+      357982,
+      715105,
+      872836,
+      760215,
+      799792
+    ],
+    "GF-05": [
+      383232,
+      384479,
+      295224,
+      832958,
+      234052
+    ],
+    "GF-06": [
+      147465,
+      281396,
+      801082,
+      930871,
+      225761
+    ],
+    "GF-07": [
+      257566,
+      996900,
+      259966,
+      585188,
+      978371
+    ],
+    "GF-08": [
+      595527,
+      810934,
+      806849,
+      819940,
+      469073
+    ],
+    "GF-09": [
+      501358,
+      937500,
+      304507,
+      377424,
+      963938
+    ],
+    "GF-10": [
+      351495,
+      799728,
+      631939,
+      454654,
+      611633
+    ]
+  },
+  "full_suite": {
+    "status": "PASSED",
+    "test_count": 118
+  },
+  "hardware_validation": "NOT_EVALUATED",
+  "illegal_graph_transitions": 0,
+  "invariant_violations": [],
+  "native_carla_physics": "NOT_EVALUATED",
+  "regression_seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "runs_attempted": 100,
+  "runs_passed": 100,
+  "scenario_artifacts": [
+    {
+      "scenario_id": "GF-01",
+      "scenario_sha256": "e82ce17acf14671f932aba69b816256fe8ded5e537e53b50b387a54ac7cd614b",
+      "summary_sha256": "215e0072123847e56f5cf2179344d72fd477a154e473a0849b6d76c9c2b60de2"
+    },
+    {
+      "scenario_id": "GF-02",
+      "scenario_sha256": "842edb6c632d70ef913d4bc1a15645d618608c827cd246e07588588e0bb71f58",
+      "summary_sha256": "a1961456d253cf8b345249d60b5d843f2e8580b27e92d5991dd6f32000c22ffb"
+    },
+    {
+      "scenario_id": "GF-03",
+      "scenario_sha256": "e95f87a935cd912c54ef7237a0f0bb72a90d1d46f4e04236a6b1f0a1de10ee90",
+      "summary_sha256": "0a553f0fee986866562bb55648df6ebeceb92f45f6af11d8c42f5d379b622a61"
+    },
+    {
+      "scenario_id": "GF-04",
+      "scenario_sha256": "84bc057ba757b08b798472ef9e498972d78f8f2d71bffcb6d1d1ccb0dae8def9",
+      "summary_sha256": "d1e7f7b01f9a213c5152293962429bb529715cc60507208a937f1ede1531364f"
+    },
+    {
+      "scenario_id": "GF-05",
+      "scenario_sha256": "6a67069f07735c507b5b3563622ccde9a707f101518dbaf506add65b17a156e2",
+      "summary_sha256": "0c6d9b318d3c9dcb536112e16edc72bb5ac31ba806f0ccab0e80388b84ffcd89"
+    },
+    {
+      "scenario_id": "GF-06",
+      "scenario_sha256": "4885116ac4344f66b209fad1bb8d45615348a3ae4542cdff1ce044c0015a8427",
+      "summary_sha256": "39377dd6729727615fa0a67ee540f108b6d6a95f80ccfc9f83968f3f6af5bf85"
+    },
+    {
+      "scenario_id": "GF-07",
+      "scenario_sha256": "3c275a1793cd4637d10020fe2cc6637787119c65fb4ee8902bb7fdcfd8ebf5fd",
+      "summary_sha256": "efd890108a1aea67888bc54e2241e9c50be1a307f7c810c27812a32280a02943"
+    },
+    {
+      "scenario_id": "GF-08",
+      "scenario_sha256": "94cd733456f6c5b5e679088cea6b146532aefcd0e7dc0ae8a8c1e4924ac7c886",
+      "summary_sha256": "21e719690f19e7655923e675ee1ab09572e38824c506fb06efd060e6b0da09eb"
+    },
+    {
+      "scenario_id": "GF-09",
+      "scenario_sha256": "090f77056eda49a83111aa2b1c72f9b7e8d3452eb6d9755911b3e83c3c5b03e8",
+      "summary_sha256": "2b690c6228d9ad30c5955a265055944b12920e4a32b109cd43ecc89344e247ed"
+    },
+    {
+      "scenario_id": "GF-10",
+      "scenario_sha256": "59adb43e63bba0e106d33077d91da4076d693f88655167881f6939308eb4be01",
+      "summary_sha256": "b54e6b2cd620c868569a9f6e048b8507cbdea86480dd2d31dd004d7a8e71c1e4"
+    }
+  ],
+  "scenarios_attempted": 10,
+  "scenarios_passed": 10,
+  "schema_version": "graph-fault-campaign-v1",
+  "simulator": "graph",
+  "source_commit": "931bca560d40be5a621a7c691d907e2ae0f881b4",
+  "terminal_outcomes": {
+    "degraded_minimal_risk": 10,
+    "minimal_risk": 30,
+    "route_recovered": 10,
+    "safe": 40,
+    "safe_wait": 10
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "primary_delta_u_hidden": {
+    "estimate": -0.37164062499999995,
+    "lower_95": -0.68921875,
+    "upper_95": 0.03570312500000001,
+    "half_width": 0.3624609375
+  },
+  "delta_u_typed_minus_untyped": {
+    "estimate": 0.1337109375,
+    "lower_95": -0.12875000000000003,
+    "upper_95": 0.3924609375,
+    "half_width": 0.26060546875
+  },
+  "bootstrap": {
+    "method": "paired cluster bootstrap",
+    "cluster_definition": "mechanism/scenario/noise/reliability configuration",
+    "resamples": 2000,
+    "seed": 450
+  },
+  "precision_diagnostics": {
+    "matched_trial_count": 128,
+    "independent_cluster_count": 16,
+    "cluster_size_distribution": {
+      "minimum": 8,
+      "median": 8.0,
+      "maximum": 8,
+      "sizes": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ]
+    },
+    "paired_cluster_difference_sd": 0.7433901396572214,
+    "per_mechanism_effects": {
+      "dev_clock_drift": -0.7743749999999999,
+      "dev_gain_dropout": -0.798125,
+      "hidden_burst_attenuation": 0.8734375,
+      "hidden_phase_coupling": -0.7875
+    },
+    "width_drivers": {
+      "too_few_independent_clusters": true,
+      "highly_unequal_cluster_sizes": false,
+      "rare_high_impact_outcomes": false,
+      "heterogeneity_across_mechanisms": true,
+      "unstable_end_to_end_behavior": true,
+      "correlated_random_streams": false
+    },
+    "common_random_numbers": true,
+    "random_stream_note": "Common trial seeds are intentional for paired comparisons; RNG state is isolated in one simulator instance per policy.",
+    "prospective_cluster_count_for_target_half_width": 213,
+    "target_half_width": 0.1
+  }
+}

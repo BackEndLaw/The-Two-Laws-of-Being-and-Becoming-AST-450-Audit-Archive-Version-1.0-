@@ -1,0 +1,12 @@
+capture_date_utc=2026-07-29
+repository_subdirectory=qrtc-rescueos
+branch=vehicle-simulation-pilot
+implementation_commit=20067dc5c980bd703f6454de3f0ce1297b242ecb
+pilot_source_in_implementation_commit=true
+python=3.12.3
+pip=24.0
+operating_system=Ubuntu 24.04.4 LTS development container
+kernel=Linux 6.8.0-1052-azure x86_64
+seeds=1,2,3,4,5
+runner_command=PYTHONPATH=. /usr/bin/python3 -m integrations.vehicle.run_pilot --scenario scenarios/blocked_route_v1.json --output artifacts/vehicle_pilot
+test_command=PYTHONPATH=. /usr/bin/python3 -m pytest -q

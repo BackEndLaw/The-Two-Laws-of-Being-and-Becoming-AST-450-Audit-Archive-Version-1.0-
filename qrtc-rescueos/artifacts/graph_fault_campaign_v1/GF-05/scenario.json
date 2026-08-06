@@ -1,0 +1,13 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "scenario_id": "GF-05",
+  "name": "repeated-route-blockage",
+  "simulator": "graph",
+  "initial_conditions": {"authority": "baseline_v2", "position": "B", "route": ["A", "B", "D"], "alternate_route": ["B", "C", "D"], "replacement_route": ["B", "E", "D"]},
+  "fault": {"type": "repeated_route_blockage", "injection_steps": [1, 2], "blocked_edges": [["B", "D"], ["C", "D"]]},
+  "expected_authority_transitions": [["baseline_v2", "specialist"]],
+  "terminal_conditions": {"authority": "specialist", "terminal_state": "route_recovered"},
+  "acceptance_criteria": ["stale_commitment_revoked", "replacement_route_admitted", "exclusive_authority", "destination_after_execution"],
+  "expected": {"admitted": true, "passage_requested": true, "passage_executed": true, "destination_realized": true, "fallback_required": false, "terminal_state": "route_recovered"},
+  "native_carla_physics": "NOT_EVALUATED"
+}

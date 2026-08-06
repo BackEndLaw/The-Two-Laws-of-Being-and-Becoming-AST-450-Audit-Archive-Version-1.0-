@@ -1,0 +1,13 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "scenario_id": "GF-01",
+  "name": "blockage-after-admission-before-passage",
+  "simulator": "graph",
+  "initial_conditions": {"authority": "baseline_v2", "position": "B", "route": ["A", "B", "D"], "alternate_route": ["B", "C", "D"]},
+  "fault": {"type": "blockage_before_passage", "injection_step": 2, "blocked_edge": ["C", "D"]},
+  "expected_authority_transitions": [],
+  "terminal_conditions": {"authority": "baseline_v2", "terminal_state": "safe"},
+  "acceptance_criteria": ["transfer_revalidated", "no_premature_destination", "fallback_witnessed", "deterministic_replay"],
+  "expected": {"admitted": true, "passage_requested": true, "passage_executed": false, "destination_realized": false, "fallback_required": true, "terminal_state": "safe"},
+  "native_carla_physics": "NOT_EVALUATED"
+}

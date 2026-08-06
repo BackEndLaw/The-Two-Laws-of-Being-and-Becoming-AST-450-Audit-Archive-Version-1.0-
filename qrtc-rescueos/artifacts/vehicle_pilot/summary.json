@@ -1,0 +1,115 @@
+{
+  "acceptance_passed": true,
+  "carla_used": false,
+  "runs": [
+    {
+      "collision": false,
+      "mode": "denied",
+      "outcome": "safe",
+      "replay_verified": true,
+      "seed": 1,
+      "sha256": "ed74c8e75b582dd2b024cb6d2b8b7d8a043cc6172538f1d5242c1b88e745cd68",
+      "trace": "denied-seed-1.jsonl",
+      "witness_complete": true
+    },
+    {
+      "collision": false,
+      "mode": "authorized",
+      "outcome": "route_resumed_safely",
+      "replay_verified": true,
+      "seed": 1,
+      "sha256": "79013842bba1e99e2c4d71ec102f388648d9ae00cb6a2aebcc9166f84d4901fc",
+      "trace": "authorized-seed-1.jsonl",
+      "witness_complete": true
+    },
+    {
+      "collision": false,
+      "mode": "denied",
+      "outcome": "safe",
+      "replay_verified": true,
+      "seed": 2,
+      "sha256": "d4b74fce7f3933a874c53c437da9f49b28f24a65f1647d6fb843802093d46f02",
+      "trace": "denied-seed-2.jsonl",
+      "witness_complete": true
+    },
+    {
+      "collision": false,
+      "mode": "authorized",
+      "outcome": "route_resumed_safely",
+      "replay_verified": true,
+      "seed": 2,
+      "sha256": "30a51cdf31ca9fe92e34b251041e74f0c391f32b531d2f89f0d9dc648b84ef21",
+      "trace": "authorized-seed-2.jsonl",
+      "witness_complete": true
+    },
+    {
+      "collision": false,
+      "mode": "denied",
+      "outcome": "safe",
+      "replay_verified": true,
+      "seed": 3,
+      "sha256": "1af37cbf4a718819cf1860b7f5b189397c576d58f06216212d483087d80c1d4a",
+      "trace": "denied-seed-3.jsonl",
+      "witness_complete": true
+    },
+    {
+      "collision": false,
+      "mode": "authorized",
+      "outcome": "route_resumed_safely",
+      "replay_verified": true,
+      "seed": 3,
+      "sha256": "7272b156d80117cdc23eb1de56672973e8b4d82d745837908d957a8169e91d69",
+      "trace": "authorized-seed-3.jsonl",
+      "witness_complete": true
+    },
+    {
+      "collision": false,
+      "mode": "denied",
+      "outcome": "safe",
+      "replay_verified": true,
+      "seed": 4,
+      "sha256": "a9e811991d72d01b8beb75d9b0a4e1731276b8f1bbba7793accaca0ce9b9dbc7",
+      "trace": "denied-seed-4.jsonl",
+      "witness_complete": true
+    },
+    {
+      "collision": false,
+      "mode": "authorized",
+      "outcome": "route_resumed_safely",
+      "replay_verified": true,
+      "seed": 4,
+      "sha256": "6d9f9041e7cff16454f08625df56ac4dfaa66ae8fd0ac764573038bcffa1f7d3",
+      "trace": "authorized-seed-4.jsonl",
+      "witness_complete": true
+    },
+    {
+      "collision": false,
+      "mode": "denied",
+      "outcome": "safe",
+      "replay_verified": true,
+      "seed": 5,
+      "sha256": "5a2932b52cffaa2590860186571493433135dc95b4d4e7ef0f312ab7712c8a9c",
+      "trace": "denied-seed-5.jsonl",
+      "witness_complete": true
+    },
+    {
+      "collision": false,
+      "mode": "authorized",
+      "outcome": "route_resumed_safely",
+      "replay_verified": true,
+      "seed": 5,
+      "sha256": "ded7fb841808b907a2876b52aba35eb38107a37657fb1112eb88ae2eaacfaea6",
+      "trace": "authorized-seed-5.jsonl",
+      "witness_complete": true
+    }
+  ],
+  "scenario_id": "blocked-route-v1",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "simulator": "graph-only vehicle adapter"
+}

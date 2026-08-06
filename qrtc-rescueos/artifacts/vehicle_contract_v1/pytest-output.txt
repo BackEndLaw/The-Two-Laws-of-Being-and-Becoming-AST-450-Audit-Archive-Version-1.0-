@@ -1,0 +1,6 @@
+Command: PYTHONPATH=. /usr/bin/python3 -m pytest -ra
+Implementation commit: a0d1aaacd3355db3305eb2ed999357f954057447
+
+........................................................................ [ 69%]
+................................                                         [100%]
+104 passed in 1.25s

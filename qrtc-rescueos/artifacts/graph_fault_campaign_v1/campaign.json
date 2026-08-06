@@ -1,0 +1,36 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "campaign_id": "graph_fault_campaign_v1",
+  "simulator": "graph",
+  "native_carla_physics": "NOT_EVALUATED",
+  "scenario_ids": ["GF-01", "GF-02", "GF-03", "GF-04", "GF-05", "GF-06", "GF-07", "GF-08", "GF-09", "GF-10"],
+  "regression_seeds": [1, 2, 3, 4, 5],
+  "evaluation_seed_generation": {
+    "frozen_before_execution": true,
+    "algorithm": "100000 + uint64_be(sha256('graph-fault-campaign-v1:evaluation:{scenario_id}:{index}')[0:8]) mod 900000",
+    "indices": [0, 1, 2, 3, 4]
+  },
+  "evaluation_seeds": {
+    "GF-01": [898008, 299554, 816777, 657984, 175205],
+    "GF-02": [300059, 289401, 689573, 610440, 832142],
+    "GF-03": [203905, 597715, 971646, 182675, 787824],
+    "GF-04": [357982, 715105, 872836, 760215, 799792],
+    "GF-05": [383232, 384479, 295224, 832958, 234052],
+    "GF-06": [147465, 281396, 801082, 930871, 225761],
+    "GF-07": [257566, 996900, 259966, 585188, 978371],
+    "GF-08": [595527, 810934, 806849, 819940, 469073],
+    "GF-09": [501358, 937500, 304507, 377424, 963938],
+    "GF-10": [351495, 799728, 631939, 454654, 611633]
+  },
+  "acceptance_gate": {
+    "required_scenarios_passed": 10,
+    "required_runs_passed": 100,
+    "maximum_invariant_violations": 0,
+    "maximum_collisions": 0,
+    "maximum_illegal_graph_transitions": 0,
+    "all_witnesses_complete": true,
+    "all_replays_verified": true,
+    "full_suite_required": true,
+    "diagnostics_clean_required": true
+  }
+}

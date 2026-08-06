@@ -1,0 +1,18 @@
+{
+  "artifact_type": "failed_development_experiment_archive",
+  "source_artifact": "HIDDEN_MECHANISM_DEVELOPMENT_BENCHMARK.json",
+  "development_acceptance": false,
+  "validation_authorized": false,
+  "hardware_gate": "NOT READY",
+  "strongest_nonoracle": "end_to_end",
+  "matched_trial_count": 128,
+  "total_policy_runs": 768,
+  "policies": [
+    "qrtc",
+    "qrtc_untyped",
+    "end_to_end",
+    "greedy_expected_gain",
+    "random",
+    "oracle"
+  ]
+}

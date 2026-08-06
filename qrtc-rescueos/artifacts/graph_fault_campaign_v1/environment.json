@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "PyYAML": "6.0.3",
+    "pytest": "9.1.1"
+  },
+  "native_carla_physics": "NOT_EVALUATED",
+  "platform": "Linux-6.8.0-1052-azure-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "simulator": "graph",
+  "source_commit": "931bca560d40be5a621a7c691d907e2ae0f881b4"
+}

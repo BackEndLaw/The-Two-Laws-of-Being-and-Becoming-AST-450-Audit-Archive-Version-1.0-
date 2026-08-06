@@ -1,0 +1,20 @@
+{
+  "scenario_id": "blocked-route-v1",
+  "route_graph": {
+    "A": ["B"],
+    "B": ["C", "D"],
+    "C": ["D"],
+    "D": []
+  },
+  "route": ["A", "B", "D"],
+  "alternate_route": ["B", "C", "D"],
+  "blocked_edges": [["B", "D"]],
+  "fault": {
+    "type": "blocked_edge",
+    "edge": ["B", "D"]
+  },
+  "initial_state": {
+    "position": "B",
+    "controller": "baseline_v2"
+  }
+}

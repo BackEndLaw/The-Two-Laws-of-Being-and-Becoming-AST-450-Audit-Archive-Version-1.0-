@@ -1,0 +1,13 @@
+{
+  "schema_version": "graph-fault-campaign-v1",
+  "scenario_id": "GF-03",
+  "name": "specialist-interruption-during-passage",
+  "simulator": "graph",
+  "initial_conditions": {"authority": "baseline_v2", "position": "B", "route": ["A", "B", "D"], "alternate_route": ["B", "C", "D"]},
+  "fault": {"type": "specialist_interruption", "injection_step": 3},
+  "expected_authority_transitions": [["baseline_v2", "specialist"], ["specialist", "baseline_v2"]],
+  "terminal_conditions": {"authority": "baseline_v2", "terminal_state": "safe"},
+  "acceptance_criteria": ["interrupted_passage_recorded", "destination_not_realized", "fallback_witnessed", "exclusive_authority"],
+  "expected": {"admitted": true, "passage_requested": true, "passage_executed": true, "destination_realized": false, "fallback_required": true, "terminal_state": "safe"},
+  "native_carla_physics": "NOT_EVALUATED"
+}

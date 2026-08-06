@@ -1,0 +1,35 @@
+{
+  "manifest_version": 1,
+  "split": "hidden",
+  "frozen": true,
+  "mechanisms": [
+    {
+      "mechanism_id": "hidden_phase_coupling",
+      "hidden_parameters": {"phase_coupling": 0.32},
+      "scenarios": [
+        {
+          "scenario_id": "hidden-phase-001",
+          "seed": 91001,
+          "fixture": {"deterministic_replay": true},
+          "faults": [
+            {"fault_id": "hidden-fault-phase", "affected_distinctions": ["received_phase"], "severity": 0.32}
+          ]
+        }
+      ]
+    },
+    {
+      "mechanism_id": "hidden_burst_attenuation",
+      "hidden_parameters": {"burst_depth": 0.44},
+      "scenarios": [
+        {
+          "scenario_id": "hidden-burst-001",
+          "seed": 91002,
+          "fixture": {"deterministic_replay": true},
+          "faults": [
+            {"fault_id": "hidden-fault-burst", "affected_distinctions": ["encoded_amplitude", "received_amplitude"], "severity": 0.44}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+tasks:
+  - id: reliable_message
+    required_distinctions:
+      decoded_message: 0.99
+      confidence: 0.90
+    recovery_threshold: 0.05

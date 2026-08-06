@@ -1,0 +1,43 @@
+{
+  "protocol_version": "adaptive_qrtc_development_v3.0",
+  "frozen_before_execution": true,
+  "experiment_class": "development_not_validation",
+  "evaluation": "leave_one_mechanism_family_out",
+  "primary_policy": "conservative_hybrid_qrtc",
+  "comparator_selection": "strongest non-oracle by complete LOFO development mean utility",
+  "cluster_definition": "mechanism/scenario/noise/reliability configuration",
+  "bootstrap": {
+    "method": "family-stratified paired cluster bootstrap",
+    "resamples": 2000,
+    "seed": 2450
+  },
+  "design": {
+    "replicates_per_cluster": 8,
+    "noise_levels": [0.0, 0.05],
+    "intervention_reliability_levels": [0.8, 1.0],
+    "balanced_families_required": true
+  },
+  "residual_fallback": {
+    "minimum_alpha": 0.0,
+    "maximum_alpha": 1.0,
+    "uncertainty_scale": 0.25,
+    "support_distance_scale": 3.0
+  },
+  "acceptance": {
+    "aggregate_advantage_minimum": 0.0,
+    "aggregate_interval_lower_minimum": 0.0,
+    "maximum_interval_half_width": 0.1,
+    "minimum_positive_family_count": 2,
+    "catastrophic_family_floor": -0.5,
+    "maximum_aggregate_brier": 0.3,
+    "maximum_worst_family_brier": 0.4,
+    "calibration_improves_every_family": true,
+    "maximum_unsafe_rate": 0.05,
+    "maximum_harm_rate": 0.05,
+    "graph_invalid_action_rate": 0.0,
+    "leakage_tests_required": true
+  },
+  "validation_authorized": false,
+  "hardware_actuation_enabled": false,
+  "hardware_gate": "NOT READY"
+}

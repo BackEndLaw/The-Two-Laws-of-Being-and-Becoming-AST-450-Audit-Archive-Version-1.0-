@@ -1,0 +1,110 @@
+{
+  "artifact_type": "hidden_mechanism_leakage_gate",
+  "checkpoint_commit": "8c7b4848b8ce34e10c4574feb7b317b4cc837fe4",
+  "base_commit": "a6fd9fd77b87e79f4c4d96f1d7582740aa19ea3a",
+  "test_count": 50,
+  "all_tests_passed": true,
+  "mechanism_manifests_disjoint": true,
+  "seeds_disjoint": true,
+  "observation_schema_identical": true,
+  "latent_fields_excluded": true,
+  "deterministic_hidden_transfer_passed": true,
+  "matched_policy_trials": true,
+  "paired_cluster_bootstrap_available": true,
+  "hardware_actuation_enabled": false,
+  "hardware_gate": "NOT READY",
+  "next_gate": "hidden-mechanism development benchmark",
+  "hidden_manifest_sha256": "19ea04799b2c5c538068136e5eeb4babf79db04ddc6fc607477c393b73c1f433",
+  "policies": [
+    "qrtc",
+    "qrtc_untyped",
+    "end_to_end",
+    "oracle"
+  ],
+  "paired_cluster_bootstrap": {
+    "qrtc_untyped": {
+      "estimate": 0.375,
+      "lower_95": 0.375,
+      "upper_95": 0.375
+    },
+    "end_to_end": {
+      "estimate": -0.04999999999999999,
+      "lower_95": -0.85,
+      "upper_95": 0.75
+    }
+  },
+  "trials": [
+    {
+      "scenario_id": "hidden-phase-001",
+      "seed": 91001,
+      "policy": "qrtc",
+      "status": "stopped",
+      "task_loss": 0.26500000000000007,
+      "actions_executed": 0,
+      "utility": 0.0
+    },
+    {
+      "scenario_id": "hidden-phase-001",
+      "seed": 91001,
+      "policy": "qrtc_untyped",
+      "status": "budget_exhausted",
+      "task_loss": 0.26500000000000007,
+      "actions_executed": 5,
+      "utility": -0.375
+    },
+    {
+      "scenario_id": "hidden-phase-001",
+      "seed": 91001,
+      "policy": "end_to_end",
+      "status": "recovered",
+      "task_loss": 0.0,
+      "actions_executed": 1,
+      "utility": 0.85
+    },
+    {
+      "scenario_id": "hidden-phase-001",
+      "seed": 91001,
+      "policy": "oracle",
+      "status": "budget_exhausted",
+      "task_loss": 0.26500000000000007,
+      "actions_executed": 5,
+      "utility": -0.375
+    },
+    {
+      "scenario_id": "hidden-burst-001",
+      "seed": 91002,
+      "policy": "qrtc",
+      "status": "stopped",
+      "task_loss": 0.38499999999999995,
+      "actions_executed": 0,
+      "utility": 0.0
+    },
+    {
+      "scenario_id": "hidden-burst-001",
+      "seed": 91002,
+      "policy": "qrtc_untyped",
+      "status": "budget_exhausted",
+      "task_loss": 0.38499999999999995,
+      "actions_executed": 5,
+      "utility": -0.375
+    },
+    {
+      "scenario_id": "hidden-burst-001",
+      "seed": 91002,
+      "policy": "end_to_end",
+      "status": "budget_exhausted",
+      "task_loss": 0.38499999999999995,
+      "actions_executed": 5,
+      "utility": -0.75
+    },
+    {
+      "scenario_id": "hidden-burst-001",
+      "seed": 91002,
+      "policy": "oracle",
+      "status": "budget_exhausted",
+      "task_loss": 0.38499999999999995,
+      "actions_executed": 5,
+      "utility": -0.375
+    }
+  ]
+}
