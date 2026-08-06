@@ -32,7 +32,7 @@ qrtc-benchmark-phase5b-dev = "qrtc_benchmark.phase5b_development:main"
 # archival verification; see PHASE4B_STATUS.md.
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 testpaths = ["tests"]
 markers = [
     "live: mark test as requiring a live CARLA simulator (excluded by default; pass --live to run)",
